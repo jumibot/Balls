@@ -3,6 +3,8 @@ nbproject/
 build.xml
 manifest.mf
 
+# DrawIO Backups
+.$*.drawio.bkp
 
 # Compiled class file
 *.class
