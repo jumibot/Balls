@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Balls.dtos;
+package Balls.view;
 
 
+//int size = Integer.max(bfImage.getHeight(), bfImage.getWidth());
+//this.scale = new Double(size) / new Double(maxSizeInPx);
 import Helpers.DoubleVector;
 import Helpers.Position;
 
@@ -14,12 +16,12 @@ import Helpers.Position;
  *
  * @author juanm
  */
-public class DtoVisualObject {
+public class RenderizablelObject {
 
     private Position position;
 
 
-    public DtoVisualObject(DoubleVector coordinates) {
+    public RenderizablelObject(DoubleVector coordinates) {
         this.position = new Position(coordinates);
     }
 

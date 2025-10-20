@@ -6,9 +6,11 @@
 package Balls.controller;
 
 
+import Balls.dto.VisualBallCatalogDto;
 import Balls.view.View;
 import Balls.model.Model;
 import Balls.model.Ball;
+import Images.Images;
 import java.util.ArrayList;
 
 
@@ -20,9 +22,12 @@ public class Controller {
 
     Model model;
     View view;
+    Images ballImages;
 
 
     public Controller(View view, Model model) {
+        this.loadImages();
+
         this.model = model;
         this.model.setController(this);
 
@@ -41,7 +46,19 @@ public class Controller {
     }
 
 
-    public ArrayList<Ball> getVOBalls() {
-        return this.model.getBalls();
+    public VisualBallCatalogDto getVisualBallSnapshot() {
+        return this.model.getVisualBallSnapshot();
+    }
+
+
+    /**
+     * PRIVATES
+     */
+    private void loadImages() {
+        this.ballImages = new Images("src/tg/images/assets/");
+        this.ballImages.addImageToManifest("asteroid-1-mini.png");
+        this.ballImages.addImageToManifest("asteroid-2-mini.png");
+        this.ballImages.addImageToManifest("spaceship-1.png");
+        this.ballImages.addImageToManifest("spaceship-2.png");
     }
 }

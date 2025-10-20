@@ -7,11 +7,9 @@ package Balls.model;
 
 
 import Balls.controller.Controller;
-import Balls.controller.Controller;
-import Balls.model.Ball;
-import Helpers.RandomArrayList;
+import Balls.dto.VisualBallCatalogDto;
 import Helpers.State;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -20,12 +18,76 @@ import java.util.ArrayList;
  */
 public class Model {
 
-    private final ArrayList<Ball> balls;
+    private final HashMap<Integer, Ball> balls;
     private Controller controller;
     private State state;
-    private long maxBallsQuantity;
+    private final int maxBallsQuantity;
+    private VisualBallCatalogDto visualBallSnapshot;
 
 
+    /**
+     * CONSTRUCTORS
+     */
+    public Model(int maxBallsQuantity) {
+        this.maxBallsQuantity = maxBallsQuantity;
+        this.state = State.STARTING;
+        this.controller = null;
+        this.balls = new HashMap<>();
+    }
+
+
+    /**
+     * PUBLIC
+     */
+    synchronized public boolean addBall(Ball newBall) {
+        if (this.maxBallsQuantity >= Ball.getAliveQuantity()) {
+            System.out.println("Max balls quantity reached · Model");
+            return false; // =======================================>
+        }
+
+        this.balls.put(newBall.getId(), newBall);
+        newBall.setModel(this);
+        newBall.activate();
+
+        // TO-DO -> Update snapshot
+        return true;
+    }
+
+
+    synchronized public VisualBallCatalogDto getVisualBallSnapshot() {
+        return this.visualBallSnapshot;
+    }
+
+
+    public boolean isAlive() {
+        return this.state == State.ALIVE;
+    }
+
+
+    synchronized public void removeBall(Ball ball) {
+        this.balls.remove(ball.getId());
+        ball.die();
+
+        // TO-DO -> Update snapshot
+    }
+
+
+    public void setController(Controller controller) {
+        this.controller = controller;
+        this.state = State.ALIVE;
+    }
+
+    
+    /**
+     * PRIVATES
+     */
+    private void updateVisualBallSnapshot() {
+        // TO-DO ALL ... :-O
+        // Recorrer todas las bolas, seleccionar las que están vivas
+        // y añadir referencias en el sanpshot hacia su visualObject
+        //
+    }
+    
     /**
      * STATIC METHODES
      */
@@ -41,62 +103,5 @@ public class Model {
 
     public static long getDeadBallsQuantity() {
         return Ball.getDeadQuantity();
-    }
-
-
-    /**
-     * CONSTRUCTORS
-     */
-    public Model(long maxBallsQuantity) {
-        this.maxBallsQuantity = maxBallsQuantity;
-        this.state = State.STARTING;
-        this.controller = null;
-        this.balls = new ArrayList<>();
-    }
-
-
-    public Model() {
-        this.maxBallsQuantity = 25;
-        this.state = State.STARTING;
-        this.controller = null;
-        this.balls = new ArrayList<>();
-
-    }
-
-
-    /**
-     * PUBLIC
-     */
-    synchronized public boolean addBall(Ball newBall) {
-        if (Ball.getAliveQuantity() > this.maxBallsQuantity) {
-            return false;
-        }
-
-        this.balls.add(newBall);
-        newBall.setModel(this);
-
-        newBall.activate();
-        return true;
-    }
-
-
-    synchronized public RandomArrayList<Ball> getBalls() {
-        return (RandomArrayList) this.balls.clone();
-    }
-
-
-    public boolean isAlive() {
-        return this.state == State.ALIVE;
-    }
-
-
-    synchronized public void removeBall(Ball ball) {
-        this.balls.remove(ball);
-        ball.die();
-    }
-
-
-    public void setController(Controller controller) {
-        this.controller = controller;
     }
 }

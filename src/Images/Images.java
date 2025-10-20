@@ -7,7 +7,7 @@ package Images;
 
 
 import Helpers.RandomArrayList;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -19,52 +19,69 @@ import javax.imageio.ImageIO;
  */
 public class Images {
 
-    private static RandomArrayList<BufferedImage> bImages;
-    private static boolean imagesLoaded = false;
+    private RandomArrayList<String> imagesManifest;
+    private RandomArrayList<ImageDto> images;
+    private boolean imagesLoaded = false;
+    private String assetsPath;
+    private int imagesQuantity;
 
 
     /**
-     * STATICS
+     * CONSTRUCTORS
      */
-    public static BufferedImage getImage() {
-        if (!Images.imagesLoaded) {
-            Images.loadAllImages();
-        }
-
-        return Images.bImages.choice();
+    public Images(String assetsPath) {
+        this.assetsPath = assetsPath;
+        this.imagesQuantity = 0;
     }
 
 
-    public static void loadAllImages() {
-        if (Images.imagesLoaded) {
+    /**
+     * PUBLIC
+     */
+    public void addImageToManifest(String uri) {
+        this.imagesManifest.add(uri);
+    }
+
+
+    public ImageDto getImage() {
+        if (!this.imagesLoaded) {
+            this.loadAllImages();
+        }
+
+        return this.images.choice();
+    }
+
+
+    public void loadAllImages() {
+        if (this.imagesLoaded) {
             return;
         }
 
-        String assetsPath = "src/tg/images/assets/";
+        for (String imageUri : this.imagesManifest) {
+            this.images.add(this.loadImage(assetsPath + imageUri));
 
-        Images.bImages.add( Images.loadImage(assetsPath + "asteroid-1-mini.png"));
-        Images.bImages.add( Images.loadImage(assetsPath + "asteroid-2-mini.png"));
-        Images.bImages.add( Images.loadImage(assetsPath + "spaceship-1.png"));
-        Images.bImages.add( Images.loadImage(assetsPath + "spaceship-2.png"));
+        }
 
-
-        Images.imagesLoaded = true;
-
+        this.imagesLoaded = true;
         System.out.println("All images loaded!");
     }
 
 
-    private static BufferedImage loadImage(String fileName) {
-        BufferedImage img;
+    private ImageDto loadImage(String fileName) {
+        ImageDto imageDto;
+        Image image;
 
-        img = null;
+        imageDto = null;
         try {
-            img = ImageIO.read(new File(fileName));
+            image = ImageIO.read(new File(fileName));
+            this.imagesQuantity++;
+            imageDto = new ImageDto(this.imagesQuantity, image);
+
         } catch (IOException e) {
             System.err.println("Load image error · <Images> · [" + fileName + "] · " + e.getMessage());
-            img = null;
+            imageDto = null;
         }
 
-        return img;
+        return imageDto;
     }
 }

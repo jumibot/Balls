@@ -6,6 +6,7 @@
 package Balls.model;
 
 
+import Balls.dto.VisualBallDto;
 import Helpers.State;
 import Helpers.DoubleVector;
 import Helpers.Position;
@@ -18,16 +19,13 @@ import java.awt.image.BufferedImage;
  */
 public class Ball implements Runnable {
 
-    public static boolean debugMode = false;
+    /* TO-DO: Replace indivdual counters by one array of counter */
+    private static int aliveQuantity = 0;
+    private static int createdQuantity = 0;
+    private static int deadQuantity = 0;
 
-    /* TO-DO: Replace indivdual counter by an array of counter */
-    private static long aliveQuantity = 0;
-    private static long createdQuantity = 0;
-    private static long deadQuantity = 0;
-
-    private final BufferedImage bfImage;
-    private Double scale;
-    
+    private int id;
+    private final VisualBallDto visualBall;
     private DoubleVector coordinates;
     private Thread thread;
     private Model model;
@@ -35,55 +33,31 @@ public class Ball implements Runnable {
 
 
     /**
-     * STATICS
-     */
-    static protected long getCreatedQuantity() {
-        return Ball.createdQuantity;
-    }
-
-
-    static protected long getAliveQuantity() {
-        return Ball.aliveQuantity;
-    }
-
-
-    static protected long getDeadQuantity() {
-        return Ball.deadQuantity;
-    }
-
-
-    /**
      * CONSTRUCTORS
      */
-    public Ball(BufferedImage bfImage, double scale, DoubleVector coordinates) {
+    public Ball(int imageId, int maxSizeInPx, DoubleVector coordinates) {
         this.model = null;
-        this.bfImage = bfImage;
-        this.scale = scale;
+        this.id = Ball.incCreatedQuantity();
         this.coordinates = coordinates;
-    }
 
+        this.visualBall = new VisualBallDto(this.id, imageId, maxSizeInPx);
 
-    public Ball() {
-        this.model = null;
-        this.bfImage = null;
-        this.scale = 0d;
-        this.coordinates = new DoubleVector(0d,0d);
-    }
-
-
-    /**
-     * PRIVATES
-     */
-    private void init() {
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + Ball.createdQuantity);
 
-        Ball.createdQuantity++;
     }
 
 
     /**
      * PUBLICS
+     */
+    public int getId() {
+        return this.id;
+    }
+
+
+    /**
+     * PROTECTED
      */
     protected boolean activate() {
         if (!this.model.isAlive()) {
@@ -117,6 +91,11 @@ public class Ball implements Runnable {
     }
 
 
+    protected VisualBallDto getVisualBall() {
+        return this.visualBall;
+    }
+
+
     protected void setModel(Model model) {
         this.model = model;
     }
@@ -145,5 +124,30 @@ public class Ball implements Runnable {
                 System.err.println("ERROR Sleeping in ball thread! (Ball) · " + ex.getMessage());
             }
         }
+    }
+
+
+    /**
+     * STATICS
+     */
+    static protected long getCreatedQuantity() {
+        return Ball.createdQuantity;
+    }
+
+
+    static protected long getAliveQuantity() {
+        return Ball.aliveQuantity;
+    }
+
+
+    static protected long getDeadQuantity() {
+        return Ball.deadQuantity;
+    }
+
+
+    static synchronized protected int incCreatedQuantity() {
+        Ball.createdQuantity++;
+
+        return Ball.createdQuantity;
     }
 }

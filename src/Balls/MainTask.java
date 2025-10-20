@@ -20,18 +20,19 @@ import Images.Images;
 public class MainTask {
     private static State state;
     private static Controller controller;
+    
 
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Images.loadAllImages();
+
 
         MainTask.state = State.STARTING;
 
         View view = new View();
-        Model model = new Model();
+        Model model = new Model(100);
         MainTask.controller = new Controller(view, model);
     }
 }
