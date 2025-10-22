@@ -1,4 +1,4 @@
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,7 +7,10 @@ package Balls.view;
 
 
 import Balls.controller.Controller;
-import Balls.model.Ball;
+import Balls.dto.VisualBallCatalogDto;
+import Helpers.Position;
+import Images.dto.ImageDto;
+import Images.Images;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,19 +20,23 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
 import javax.swing.JFrame;
-
 
 /**
  *
  * @author juanm
  */
+
+
+
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
-    private Controller controller;
+    private Controller controller = null;
     private ControlPanel controlPanel;
     private Viewer viewer;
+    private Images ballImages;
+    private Images backgroundImages;
+    private ImageDto background;
 
     private final int GAME_PIX_HEIGHT = 700;
     private final int GAME_PIX_WIDTH = 1300;
@@ -38,27 +45,35 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * CONSTRUCTOR
      */
-    public View(Controller controller) {
-        this.controller = controller;
+    public View() {
+        this.loadBallImages();
+        this.loadBackgrounds();
+        this.background = this.backgroundImages.getRamdomImageDto();
 
         this.controlPanel = new ControlPanel(this);
 
-        this.viewer = new Viewer(this, GAME_PIX_HEIGHT, GAME_PIX_WIDTH);
+        this.viewer = new Viewer(this, GAME_PIX_HEIGHT, GAME_PIX_WIDTH, this.background);
 
         this.createFrame();
         this.viewer.activate();
     }
 
 
-    public View() {
-        this.controller = null;
+    /**
+     * PRIVATE
+     */
+    private void addViewer(Container container) {
+        GridBagConstraints c = new GridBagConstraints();
 
-        this.controlPanel = new ControlPanel(this);
-
-        this.viewer = new Viewer(this, GAME_PIX_HEIGHT, GAME_PIX_WIDTH);
-
-        this.createFrame();
-        this.viewer.activate();
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.BOTH;
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weightx = 1F;
+        c.weighty = 0;
+        c.gridheight = 10;
+        c.gridwidth = 8;
+        container.add(this.viewer, c);
     }
 
 
@@ -82,29 +97,41 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
+    private void loadBallImages() {
+        this.ballImages = new Images("src/tg/images/assets/");
+        this.ballImages.addImageToManifest("asteroid-1-mini.png");
+        this.ballImages.addImageToManifest("asteroid-2-mini.png");
+        this.ballImages.addImageToManifest("spaceship-1.png");
+        this.ballImages.addImageToManifest("spaceship-2.png");
+    }
+
+
+    private void loadBackgrounds() {
+        this.ballImages = new Images("src/tg/images/assets/");
+        this.ballImages.addImageToManifest("background-1.png");
+        this.ballImages.addImageToManifest("background-2.png");
+        this.ballImages.addImageToManifest("background-3.png");
+        this.ballImages.addImageToManifest("background-4.png");
+        this.ballImages.addImageToManifest("background-5.png");
+    }
+
+
     /**
-     * PRIVATE
+     * PROTECTED
      */
-    private void addViewer(Container container) {
-        GridBagConstraints c = new GridBagConstraints();
-
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weightx = 1F;
-        c.weighty = 0;
-        c.gridheight = 10;
-        c.gridwidth = 8;
-        container.add(this.viewer, c);
+    protected VisualBallCatalogDto getVisualBalls() {
+        return this.controller.getVisualBallSnapshot();
     }
 
 
-    protected ArrayList<Ball> getBalls() {
-        return this.controller.getVOBalls();
+    protected Position getBallPosition() {
+        return this.controller.getBallPosition();
     }
 
 
+    /**
+     * PUBLIC
+     */
     public void setController(Controller controller) {
         this.controller = controller;
     }

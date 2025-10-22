@@ -1,15 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Versiones del snapshot
+ * Que el snapshot sea una referencia atomica
  */
 package Balls.model;
 
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+
 import Balls.controller.Controller;
 import Balls.dto.VisualBallCatalogDto;
+import Balls.dto.VisualBallDto;
+import Helpers.Position;
 import Helpers.State;
-import java.util.HashMap;
 
 
 /**
@@ -18,11 +23,12 @@ import java.util.HashMap;
  */
 public class Model {
 
-    private final HashMap<Integer, Ball> balls;
-    private Controller controller;
-    private State state;
+    private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
+    private Controller controller = null;
+    private State state = State.STARTING;
     private final int maxBallsQuantity;
-    private VisualBallCatalogDto visualBallSnapshot;
+    private final AtomicReference<VisualBallCatalogDto> visualCatalogReference = new AtomicReference();
+    private int visualVersion = 0;
 
 
     /**
@@ -30,9 +36,6 @@ public class Model {
      */
     public Model(int maxBallsQuantity) {
         this.maxBallsQuantity = maxBallsQuantity;
-        this.state = State.STARTING;
-        this.controller = null;
-        this.balls = new HashMap<>();
     }
 
 
@@ -48,14 +51,19 @@ public class Model {
         this.balls.put(newBall.getId(), newBall);
         newBall.setModel(this);
         newBall.activate();
+        this.snapshotVisualBalls();
 
-        // TO-DO -> Update snapshot
         return true;
     }
 
 
-    synchronized public VisualBallCatalogDto getVisualBallSnapshot() {
-        return this.visualBallSnapshot;
+    synchronized public VisualBallCatalogDto getVisualBalls() {
+        return this.visualCatalogReference.get();
+    }
+
+
+    public Position getBallPosition() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 
@@ -65,10 +73,12 @@ public class Model {
 
 
     synchronized public void removeBall(Ball ball) {
-        this.balls.remove(ball.getId());
-        ball.die();
 
-        // TO-DO -> Update snapshot
+        if (this.balls.remove(ball.getId()) == null) {
+            return; // ======= Elmento no esta en la lista ========>
+        }
+        ball.die();
+        this.snapshotVisualBalls();
     }
 
 
@@ -77,19 +87,25 @@ public class Model {
         this.state = State.ALIVE;
     }
 
-    
+
     /**
      * PRIVATES
      */
-    private void updateVisualBallSnapshot() {
-        // TO-DO ALL ... :-O
-        // Recorrer todas las bolas, seleccionar las que están vivas
-        // y añadir referencias en el sanpshot hacia su visualObject
-        //
+    private void snapshotVisualBalls() {
+        ArrayList<VisualBallDto> visualBalls = new ArrayList(4096);
+
+        this.balls.forEach((key, value) -> {
+            visualBalls.add(value.getVisual());
+        });
+
+        this.visualVersion++;
+        VisualBallCatalogDto catalog = new VisualBallCatalogDto(this.visualVersion, visualBalls);
+        this.visualCatalogReference.set(catalog); // Thread safe assignement
     }
-    
+
+
     /**
-     * STATIC METHODES
+     * STATIC
      */
     public static long getAlivedBallsQuantity() {
         return Ball.getAliveQuantity();
@@ -104,4 +120,5 @@ public class Model {
     public static long getDeadBallsQuantity() {
         return Ball.getDeadQuantity();
     }
+
 }

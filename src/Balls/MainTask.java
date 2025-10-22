@@ -18,19 +18,14 @@ import Images.Images;
  * @author juanm
  */
 public class MainTask {
-    private static State state;
+
     private static Controller controller;
-    
 
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
-
-        MainTask.state = State.STARTING;
-
         View view = new View();
         Model model = new Model(100);
         MainTask.controller = new Controller(view, model);

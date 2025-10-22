@@ -6,6 +6,7 @@
 package Images;
 
 
+import Images.dto.ImageDto;
 import Helpers.RandomArrayList;
 import java.awt.Image;
 import java.io.File;
@@ -38,17 +39,37 @@ public class Images {
     /**
      * PUBLIC
      */
-    public void addImageToManifest(String uri) {
-        this.imagesManifest.add(uri);
+    public void addImageToManifest(String fileName) {
+        // fileName without a path
+        this.imagesManifest.add(fileName);
     }
 
 
-    public ImageDto getImage() {
+    public ImageDto getRamdomImageDto() {
         if (!this.imagesLoaded) {
             this.loadAllImages();
         }
 
         return this.images.choice();
+    }
+
+
+    public ImageDto getImageDto(int order) {
+        if (!this.imagesLoaded) {
+            this.loadAllImages();
+        }
+
+        if (order >= 0 && order <= this.imagesQuantity) {
+            System.out.println("The order of image specified is not avalaible · IMAGES");
+            return this.images.get(order);
+        } else {
+            return this.images.choice();
+        }
+    }
+
+
+    public int getImageQuantity() {
+        return this.imagesQuantity;
     }
 
 
@@ -67,18 +88,18 @@ public class Images {
     }
 
 
-    private ImageDto loadImage(String fileName) {
+    private ImageDto loadImage(String uri) {
         ImageDto imageDto;
         Image image;
 
         imageDto = null;
         try {
-            image = ImageIO.read(new File(fileName));
+            image = ImageIO.read(new File(uri));
             this.imagesQuantity++;
-            imageDto = new ImageDto(this.imagesQuantity, image);
+            imageDto = new ImageDto(uri, image);
 
         } catch (IOException e) {
-            System.err.println("Load image error · <Images> · [" + fileName + "] · " + e.getMessage());
+            System.err.println("Load image error · <Images> · [" + uri + "] · " + e.getMessage());
             imageDto = null;
         }
 

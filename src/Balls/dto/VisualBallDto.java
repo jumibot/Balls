@@ -12,17 +12,17 @@ package Balls.dto;
  */
 public class VisualBallDto {
 
-    private int imageId;
-    private int ballId;
+    private int idBall;
+    private int imageOrder;
     private int maxSizeInPx;
 
     // Color
     // ...
 
-    public VisualBallDto(int ballId, int imageId, int maxSizeInPx) {
+    public VisualBallDto(int idBall, int imageId, int maxSizeInPx) {
 
-        this.ballId = ballId;
-        this.imageId = imageId;
+        this.idBall = idBall;
+        this.imageOrder = imageId;
         this.maxSizeInPx = maxSizeInPx;
     }
 }

@@ -25,7 +25,7 @@ public class Ball implements Runnable {
     private static int deadQuantity = 0;
 
     private int id;
-    private final VisualBallDto visualBall;
+    private final VisualBallDto visual;
     private DoubleVector coordinates;
     private Thread thread;
     private Model model;
@@ -40,7 +40,7 @@ public class Ball implements Runnable {
         this.id = Ball.incCreatedQuantity();
         this.coordinates = coordinates;
 
-        this.visualBall = new VisualBallDto(this.id, imageId, maxSizeInPx);
+        this.visual = new VisualBallDto(this.id, imageId, maxSizeInPx);
 
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + Ball.createdQuantity);
@@ -91,8 +91,8 @@ public class Ball implements Runnable {
     }
 
 
-    protected VisualBallDto getVisualBall() {
-        return this.visualBall;
+    protected VisualBallDto getVisual() {
+        return this.visual;
     }
 
 

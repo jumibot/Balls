@@ -3,11 +3,10 @@ package Balls.view;
 
 import Balls.model.Ball;
 import Helpers.Position;
-import Images.Images;
+import Images.dto.ImageDto;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferStrategy;
 import static java.lang.Long.max;
 import static java.lang.System.currentTimeMillis;
@@ -23,32 +22,29 @@ public class Viewer extends Canvas implements Runnable {
     private int framesPerSecond;
     private int maxFramesPerSecond;
     private int delayInMillis;
-    private Image background;
     private View view;
     private int pixHeigh;
     private int pixWidth;
     private Thread thread;
 
+    private ImageDto background;
+
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, int pixHeigh, int pixWidth) {
+    public Viewer(View view, int pixHeigh, int pixWidth, ImageDto background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
         this.delayInMillis = 30;
         this.view = view;
         this.pixHeigh = pixHeigh;
         this.pixWidth = pixWidth;
-
-        this.thread = new Thread(this);
-        this.thread.setName("VIEWER Thread · Create and display frames");
-        //this.thread.setPriority(Thread.MAX_PRIORITY-1);
+        this.background = background;
 
         Dimension d = new Dimension(pixWidth, pixHeigh);
         this.setPreferredSize(d);
 
-        this.background = Images.getBackground(2);
     }
 
 
@@ -56,7 +52,9 @@ public class Viewer extends Canvas implements Runnable {
      * PUBLICS
      */
     public void activate() {
-        this.thread.start();
+        this.thread = new Thread(this);
+        this.thread.setName("VIEWER Thread · Create and display frames");
+        //this.thread.setPriority(Thread.MAX_PRIORITY-1);        this.thread.start();
     }
 
 
@@ -74,7 +72,7 @@ public class Viewer extends Canvas implements Runnable {
 
         // Paint background
         Graphics gg = bs.getDrawGraphics();
-        gg.drawImage(this.background, 0, 0, this.pixWidth, this.pixHeigh, null);
+        gg.drawImage(this.background.image, 0, 0, this.pixWidth, this.pixHeigh, null);
 
         // Paint visual objects
         this.paintVO(gg);
@@ -89,7 +87,7 @@ public class Viewer extends Canvas implements Runnable {
         ArrayList<Ball> balls;
         //= new ArrayList<>();
 
-        balls = this.view.getBalls();
+        balls = this.view.getVisualBalls();
         for (Ball ball : balls) {
             pos = ball.getPosition();
 
