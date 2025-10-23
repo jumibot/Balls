@@ -1,6 +1,8 @@
 package Balls.view;
 
 
+import Balls.dto.VisualBallCatalogDto;
+import Balls.dto.VisualBallDto;
 import Balls.model.Ball;
 import Helpers.Position;
 import Images.dto.ImageDto;
@@ -19,13 +21,14 @@ import java.util.ArrayList;
  */
 public class Viewer extends Canvas implements Runnable {
 
+    private View view;
+    private Thread thread;
+    
+    private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
-    private int delayInMillis;
-    private View view;
     private int pixHeigh;
     private int pixWidth;
-    private Thread thread;
 
     private ImageDto background;
 
@@ -84,12 +87,15 @@ public class Viewer extends Canvas implements Runnable {
 
     private void paintVO(Graphics g) {
         Position pos;
+        VisualBallCatalogDto visualBallCatalog;
         ArrayList<Ball> balls;
         //= new ArrayList<>();
 
-        balls = this.view.getVisualBalls();
-        for (Ball ball : balls) {
-            pos = ball.getPosition();
+        // Aconseguir el catalog d'objectes visuals
+        // Demanar les coordinades de cadascun dels 
+        visualBallCatalog = this.view.getVisualBallCatalog();
+        for (VisualBallDto visualBall: visualBallCatalog.visualBalls) {
+            pos = this.view.getBallPosition(visualBall.id);
 
             if (pos.getX() <= this.pixWidth && pos.getY() <= this.pixHeigh
                     && pos.getX() >= 0 && pos.getY() >= 0) {

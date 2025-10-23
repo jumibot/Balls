@@ -23,12 +23,12 @@ import Helpers.State;
  */
 public class Model {
 
-    private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
     private Controller controller = null;
     private State state = State.STARTING;
     private final int maxBallsQuantity;
-    private final AtomicReference<VisualBallCatalogDto> visualCatalogReference = new AtomicReference();
+    private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
     private int visualVersion = 0;
+    private final AtomicReference<VisualBallCatalogDto> visualCatalogReference = new AtomicReference();
 
 
     /**
@@ -62,7 +62,7 @@ public class Model {
     }
 
 
-    public Position getBallPosition() {
+    public Position getBallPosition(int id) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

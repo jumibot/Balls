@@ -44,12 +44,12 @@ public class Controller {
     }
 
 
-    public VisualBallCatalogDto getVisualBallSnapshot() {
+    public VisualBallCatalogDto getVisualBallCatalog() {
         return this.model.getVisualBalls();
     }
 
 
-    public Position getBallPosition() {
-        return this.model.getBallPosition();
+    public Position getBallPosition(int id) {
+        return this.model.getBallPosition(id);
     }
 }

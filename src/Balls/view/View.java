@@ -1,4 +1,4 @@
- /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -22,18 +22,17 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.JFrame;
 
+
 /**
  *
  * @author juanm
  */
-
-
-
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
     private Controller controller = null;
     private ControlPanel controlPanel;
     private Viewer viewer;
+
     private Images ballImages;
     private Images backgroundImages;
     private ImageDto background;
@@ -56,6 +55,27 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
         this.createFrame();
         this.viewer.activate();
+    }
+
+
+    /**
+     * PUBLIC
+     */
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+
+
+    /**
+     * PROTECTED
+     */
+    protected Position getBallPosition(int id) {
+        return this.controller.getBallPosition(id);
+    }
+
+
+    protected VisualBallCatalogDto getVisualBallCatalog() {
+        return this.controller.getVisualBallCatalog();
     }
 
 
@@ -97,15 +117,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    private void loadBallImages() {
-        this.ballImages = new Images("src/tg/images/assets/");
-        this.ballImages.addImageToManifest("asteroid-1-mini.png");
-        this.ballImages.addImageToManifest("asteroid-2-mini.png");
-        this.ballImages.addImageToManifest("spaceship-1.png");
-        this.ballImages.addImageToManifest("spaceship-2.png");
-    }
-
-
     private void loadBackgrounds() {
         this.ballImages = new Images("src/tg/images/assets/");
         this.ballImages.addImageToManifest("background-1.png");
@@ -116,24 +127,12 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    /**
-     * PROTECTED
-     */
-    protected VisualBallCatalogDto getVisualBalls() {
-        return this.controller.getVisualBallSnapshot();
-    }
-
-
-    protected Position getBallPosition() {
-        return this.controller.getBallPosition();
-    }
-
-
-    /**
-     * PUBLIC
-     */
-    public void setController(Controller controller) {
-        this.controller = controller;
+    private void loadBallImages() {
+        this.ballImages = new Images("src/tg/images/assets/");
+        this.ballImages.addImageToManifest("asteroid-1-mini.png");
+        this.ballImages.addImageToManifest("asteroid-2-mini.png");
+        this.ballImages.addImageToManifest("spaceship-1.png");
+        this.ballImages.addImageToManifest("spaceship-2.png");
     }
 
 
