@@ -86,10 +86,9 @@ public class BallGenerator implements Runnable {
 
     private DoubleVector randomAcceleration() {
         Random rnd = new Random();
-        DoubleVector newAcceleration = new DoubleVector();
-
-        newAcceleration.setX(this.minAcceleration.getX() + rnd.nextGaussian() * (this.maxAcceleration.getX() - this.minAcceleration.getX()));
-        newAcceleration.setY(this.minAcceleration.getY() + rnd.nextGaussian() * (this.maxAcceleration.getY() - this.minAcceleration.getY()));
+        DoubleVector newAcceleration = new DoubleVector(
+                this.minAcceleration.getX() + rnd.nextGaussian() * (this.maxAcceleration.getX() - this.minAcceleration.getX()),
+                this.minAcceleration.getY() + rnd.nextGaussian() * (this.maxAcceleration.getY() - this.minAcceleration.getY()));
 
         return newAcceleration;
     }
@@ -127,7 +126,7 @@ public class BallGenerator implements Runnable {
 
             if (true) { // TO-DO Pause condition
                 if (!this.model.addBall(this.createBall())) {
-                    System.out.println("Max number of live balls reached!"); 
+                    System.out.println("Max number of live balls reached!");
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException ex) {

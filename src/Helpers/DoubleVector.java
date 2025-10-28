@@ -14,13 +14,6 @@ public class DoubleVector implements Serializable {
     /**
      * CONSTRUCTORS
      */
-    public DoubleVector() {
-        this.x = 0;
-        this.y = 0;
-        this.module = 0;
-    }
-
-
     public DoubleVector(double x, double y) {
         this.x = x;
         this.y = y;
@@ -38,44 +31,15 @@ public class DoubleVector implements Serializable {
     /**
      * PUBLICS
      */
-    public void add(DoubleVector dVector) {
-        this.x += dVector.x;
-        this.y += dVector.y;
-        this.calcModule();
+    public DoubleVector add(DoubleVector dVector) {
+        return new DoubleVector(
+                this.x + dVector.x,
+                this.y += dVector.y);
     }
 
 
     public double getModule() {
         return this.module;
-    }
-
-
-    public void calcModule() {
-        double module;
-
-        module = Math.pow(Math.abs(this.getX()), 2) + Math.pow(Math.abs(this.getY()), 2);
-        module = Math.pow(module, 0.5);
-
-        this.module = module;
-    }
-
-
-    public DoubleVector getRotated(double angle) {
-        double angleInRadians = Math.toRadians(angle);
-        double x = this.x * Math.cos(angleInRadians) - this.y * Math.sin(angleInRadians);
-        double y = this.x * Math.sin(angleInRadians) + this.y * Math.cos(angleInRadians);
-
-        return new DoubleVector(x, y);
-    }
-
-
-    public void rotate(double angle) {
-        double angleInRadians = Math.toRadians(angle);
-        double x = this.x * Math.cos(angleInRadians) - this.y * Math.sin(angleInRadians);
-        double y = this.x * Math.sin(angleInRadians) + this.y * Math.cos(angleInRadians);
-
-        this.x = x;
-        this.y = y;
     }
 
 
@@ -89,17 +53,19 @@ public class DoubleVector implements Serializable {
     }
 
 
-    public void set(DoubleVector dVector) {
-        this.x = dVector.x;
-        this.y = dVector.y;
-        this.calcModule();
+    public DoubleVector rotated(double angle) {
+        double angleInRadians = Math.toRadians(angle);
+        double x = this.x * Math.cos(angleInRadians) - this.y * Math.sin(angleInRadians);
+        double y = this.x * Math.sin(angleInRadians) + this.y * Math.cos(angleInRadians);
+
+        return new DoubleVector(x, y);
     }
 
 
-    public void scale(double scaleFactor) {
-        this.x *= scaleFactor;
-        this.y *= scaleFactor;
-        this.calcModule();
+    public DoubleVector scale(double scaleFactor) {
+        return new DoubleVector(
+                this.x * scaleFactor,
+                this.y * scaleFactor);
     }
 
 
@@ -110,15 +76,16 @@ public class DoubleVector implements Serializable {
     }
 
 
-    public void setX(double x) {
-        this.x = x;
-        this.calcModule();
-    }
+    /**
+     * PRIVATES
+     */
+    public void calcModule() {
+        double module;
 
+        module = Math.pow(Math.abs(this.getX()), 2) + Math.pow(Math.abs(this.getY()), 2);
+        module = Math.pow(module, 0.5);
 
-    public void setY(double y) {
-        this.y = y;
-        this.calcModule();
+        this.module = module;
     }
 
 

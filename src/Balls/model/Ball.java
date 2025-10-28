@@ -6,11 +6,11 @@
 package Balls.model;
 
 
-import Balls.dto.VisualBallDto;
-import Helpers.State;
+import Balls.physics.BasicPhysicalEngine;
+import Balls.physics.PhysicalValuesDTO;
+import Balls.view.RenderizableObject;
+import Balls.model.BallState;
 import Helpers.DoubleVector;
-import Helpers.Position;
-import java.awt.image.BufferedImage;
 
 
 /**
@@ -19,32 +19,35 @@ import java.awt.image.BufferedImage;
  */
 public class Ball implements Runnable {
 
-    /* TO-DO: Replace indivdual counters by one array of counter */
+    /* TO-DO: Replace individual static counters by one static array of counters */
     private static int aliveQuantity = 0;
     private static int createdQuantity = 0;
     private static int deadQuantity = 0;
 
-    private int id;
-    private final VisualBallDto visual;
-    private DoubleVector coordinates;
-    private Thread thread;
     private Model model;
-    private State state;
+    private Thread thread;
+    private BallState state;
+
+    private final int id;
+    public final int imageId;
+    public final int maxSizeInPx;
+
+    private final BasicPhysicalEngine phyEngine; // Convert to Atomic Reference
 
 
     /**
      * CONSTRUCTORS
      */
-    public Ball(int imageId, int maxSizeInPx, DoubleVector coordinates) {
+    public Ball(int imageId, int maxSizeInPx, BasicPhysicalEngine phyEngine) {
         this.model = null;
-        this.id = Ball.incCreatedQuantity();
-        this.coordinates = coordinates;
-
-        this.visual = new VisualBallDto(this.id, imageId, maxSizeInPx);
-
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + Ball.createdQuantity);
 
+        this.id = Ball.incCreatedQuantity();
+        this.imageId = imageId;
+        this.maxSizeInPx = maxSizeInPx;
+
+        this.phyEngine = phyEngine;
     }
 
 
@@ -56,43 +59,69 @@ public class Ball implements Runnable {
     }
 
 
+    public int getImageId() {
+        return this.imageId;
+    }
+
+
+    public int getMaxSizeInPx() {
+        return this.maxSizeInPx;
+    }
+
+
+    public DoubleVector getCoordinates() {
+        return this.phyEngine.getCoordinates();
+    }
+
+    
+    public void setPhysicalChanges(PhysicalValuesDTO newPhyValues) {
+        this.phyEngine.setPhysicalValues(newPhyValues);
+    }
+
     /**
      * PROTECTED
      */
-    protected boolean activate() {
+    protected synchronized boolean activate() {
         if (!this.model.isAlive()) {
             System.err.println("ERROR Model is not alive! · (Ball)");
             return false;
         }
 
-        if (this.state != State.STARTING) {
+        if (this.state != BallState.STARTING) {
             System.err.println("ERROR Ball is not starting! · (Ball)");
             return false;
         }
 
-        this.setState(State.ALIVE);
+        this.setState(BallState.ALIVE);
         this.thread.start();
         Ball.aliveQuantity++;
         return true;
     }
 
 
-    protected void die() {
-        if (this.state == State.ALIVE) {
-            this.state = State.DEAD;
+    protected synchronized void die() {
+        if (this.state == BallState.ALIVE) {
+            this.state = BallState.DEAD;
             Ball.deadQuantity++;
             Ball.aliveQuantity--;
         }
     }
 
 
-    protected State getState() {
+    protected BallState getState() {
         return this.state;
     }
 
 
-    protected VisualBallDto getVisual() {
-        return this.visual;
+    protected synchronized RenderizableObject getVisual() {
+        if (this.state != BallState.ALIVE) {
+            return null;
+        }
+
+        return new RenderizableObject(
+                this.id, this.imageId,
+                this.maxSizeInPx, this.phyEngine.getCoordinates()
+        );
     }
 
 
@@ -101,20 +130,26 @@ public class Ball implements Runnable {
     }
 
 
-    protected void setState(State state) {
+    protected synchronized void setState(BallState state) {
         this.state = state;
     }
 
 
     @Override
     public void run() {
-        Position newPos = new Position();
+        PhysicalValuesDTO newPhyValues;
 
-        while (this.getState() != State.DEAD) {
+        while (this.getState() != BallState.DEAD) {
 
-            if (this.getState() == State.ALIVE) {
-                // Try to move
+            if (this.getState() == BallState.ALIVE) {
+                newPhyValues = this.phyEngine.calcNewPhysicalValues();
 
+                //
+                // Comprobar si se puede realizar el movimiento
+                // Si se puede se setean los nuevos valores físicos
+                // STARTING, ALIVE, PAUSED, COLLIDED, DEAD
+                //
+                //this.nextMove(newPos, newPhyVar); // Try to move
             }
 
             try {
@@ -130,17 +165,17 @@ public class Ball implements Runnable {
     /**
      * STATICS
      */
-    static protected long getCreatedQuantity() {
+    static protected int getCreatedQuantity() {
         return Ball.createdQuantity;
     }
 
 
-    static protected long getAliveQuantity() {
+    static protected int getAliveQuantity() {
         return Ball.aliveQuantity;
     }
 
 
-    static protected long getDeadQuantity() {
+    static protected int getDeadQuantity() {
         return Ball.deadQuantity;
     }
 

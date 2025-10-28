@@ -1,11 +1,8 @@
 package Balls.view;
 
 
-import Balls.dto.VisualBallCatalogDto;
-import Balls.dto.VisualBallDto;
-import Balls.model.Ball;
-import Helpers.Position;
-import Images.dto.ImageDto;
+import Helpers.DoubleVector;
+import Images.ImageDTO;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -23,20 +20,20 @@ public class Viewer extends Canvas implements Runnable {
 
     private View view;
     private Thread thread;
-    
+
     private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
     private int pixHeigh;
     private int pixWidth;
 
-    private ImageDto background;
+    private ImageDTO background;
 
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, int pixHeigh, int pixWidth, ImageDto background) {
+    public Viewer(View view, int pixHeigh, int pixWidth, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
         this.delayInMillis = 30;
@@ -78,32 +75,27 @@ public class Viewer extends Canvas implements Runnable {
         gg.drawImage(this.background.image, 0, 0, this.pixWidth, this.pixHeigh, null);
 
         // Paint visual objects
-        this.paintVO(gg);
+        this.paintVisualBalls(gg);
 
         bs.show();
         gg.dispose();
     }
 
 
-    private void paintVO(Graphics g) {
-        Position pos;
-        VisualBallCatalogDto visualBallCatalog;
-        ArrayList<Ball> balls;
-        //= new ArrayList<>();
+    private void paintVisualBalls(Graphics g) {
+        DoubleVector coordinates;
+        ArrayList<RenderizableObject> renderizableObjects;
 
-        // Aconseguir el catalog d'objectes visuals
-        // Demanar les coordinades de cadascun dels 
-        visualBallCatalog = this.view.getVisualBallCatalog();
-        for (VisualBallDto visualBall: visualBallCatalog.visualBalls) {
-            pos = this.view.getBallPosition(visualBall.id);
+        renderizableObjects = this.view.getRenderizableObjects();
+        for (RenderizableObject renderizableObject : renderizableObjects) {
+            coordinates = renderizableObject.getCoordinates();
 
-            if (pos.getX() <= this.pixWidth && pos.getY() <= this.pixHeigh
-                    && pos.getX() >= 0 && pos.getY() >= 0) {
-                ball.paint(g);
+            if (coordinates.getX() <= this.pixWidth && coordinates.getY() <= this.pixHeigh
+                    && coordinates.getX() >= 0 && coordinates.getY() >= 0) {
+                renderizableObject.paint(g);
             }
         }
     }
-
 
     @Override
     public void run() {
@@ -116,7 +108,8 @@ public class Viewer extends Canvas implements Runnable {
         this.createBufferStrategy(2);
 
         if ((this.pixHeigh <= 0) || (this.pixWidth <= 0)) {
-            System.out.println("Canvas size error: (" + this.pixWidth + "," + this.pixHeigh + ")");
+            System.out.println(
+                    "Canvas size error: (" + this.pixWidth + "," + this.pixHeigh + ")");
             return; // =======================================================>>
         }
 
@@ -136,7 +129,6 @@ public class Viewer extends Canvas implements Runnable {
                 Thread.sleep(delayMillis);
             } catch (InterruptedException ex) {
             }
-
         }
     }
 }

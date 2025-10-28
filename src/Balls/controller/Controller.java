@@ -6,12 +6,11 @@
 package Balls.controller;
 
 
-import Balls.dto.VisualBallCatalogDto;
+import Balls.view.RenderizableObject;
 import Balls.view.View;
 import Balls.model.Model;
 import Balls.model.Ball;
-import Helpers.Position;
-import Images.Images;
+import java.util.ArrayList;
 
 
 /**
@@ -44,12 +43,12 @@ public class Controller {
     }
 
 
-    public VisualBallCatalogDto getVisualBallCatalog() {
-        return this.model.getVisualBalls();
+    public ArrayList<RenderizableObject> getRenderizableObjects() {
+        return this.model.getRenderizableObjects();
     }
 
 
-    public Position getBallPosition(int id) {
-        return this.model.getBallPosition(id);
+    public void eventManagement(Ball mainBall, ArrayList<Ball> RelatedBalls) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

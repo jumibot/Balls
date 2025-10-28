@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Images.dto;
+package Images;
 
 
 import java.awt.Image;
@@ -13,11 +13,11 @@ import java.awt.Image;
  *
  * @author juanm
  */
-public class ImageDto {
+public class ImageDTO {
     public final String uri;
     public final Image image;
     
-    public ImageDto(String uri, Image image) {
+    public ImageDTO(String uri, Image image) {
         this.uri = uri;
         this.image = image;
     }

@@ -17,7 +17,7 @@ import Images.Images;
  *
  * @author juanm
  */
-public class MainTask {
+public class MainBalls {
 
     private static Controller controller;
 
@@ -28,6 +28,6 @@ public class MainTask {
     public static void main(String[] args) {
         View view = new View();
         Model model = new Model(100);
-        MainTask.controller = new Controller(view, model);
+        MainBalls.controller = new Controller(view, model);
     }
 }

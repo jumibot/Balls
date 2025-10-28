@@ -1,19 +1,12 @@
-/**
- * Versiones del snapshot
- * Que el snapshot sea una referencia atomica
- */
 package Balls.model;
 
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import Balls.controller.Controller;
-import Balls.dto.VisualBallCatalogDto;
-import Balls.dto.VisualBallDto;
-import Helpers.Position;
+import Balls.view.RenderizableObject;
 import Helpers.State;
 
 
@@ -27,8 +20,6 @@ public class Model {
     private State state = State.STARTING;
     private final int maxBallsQuantity;
     private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
-    private int visualVersion = 0;
-    private final AtomicReference<VisualBallCatalogDto> visualCatalogReference = new AtomicReference();
 
 
     /**
@@ -51,34 +42,23 @@ public class Model {
         this.balls.put(newBall.getId(), newBall);
         newBall.setModel(this);
         newBall.activate();
-        this.snapshotVisualBalls();
 
         return true;
     }
 
 
-    synchronized public VisualBallCatalogDto getVisualBalls() {
-        return this.visualCatalogReference.get();
-    }
+    synchronized public ArrayList<RenderizableObject> getRenderizableObjects() {
+        ArrayList<RenderizableObject> renderizableObjects
+                = new ArrayList(Ball.getAliveQuantity() * 2);
 
+        this.balls.forEach((id, ball) -> {
+            renderizableObjects.add(
+                    new RenderizableObject(
+                            id, ball.getImageId(), ball.getMaxSizeInPx(),
+                            ball.getCoordinates()));
+        });
 
-    public Position getBallPosition(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
-    public boolean isAlive() {
-        return this.state == State.ALIVE;
-    }
-
-
-    synchronized public void removeBall(Ball ball) {
-
-        if (this.balls.remove(ball.getId()) == null) {
-            return; // ======= Elmento no esta en la lista ========>
-        }
-        ball.die();
-        this.snapshotVisualBalls();
+        return renderizableObjects;
     }
 
 
@@ -89,18 +69,40 @@ public class Model {
 
 
     /**
-     * PRIVATES
+     * PROTECTED
      */
-    private void snapshotVisualBalls() {
-        ArrayList<VisualBallDto> visualBalls = new ArrayList(4096);
+    protected void eventDetection(Ball ballToCheck) {
+        if (ballToCheck.getState() != BallState.ALIVE) {
+            return;
+        }
 
-        this.balls.forEach((key, value) -> {
-            visualBalls.add(value.getVisual());
+        ArrayList <Ball> ballsWithEvent = new ArrayList(4096);
+        
+        // Check limits
+        
+        // Check for events with other objects
+        this.balls.forEach((key, ball) -> {
         });
 
-        this.visualVersion++;
-        VisualBallCatalogDto catalog = new VisualBallCatalogDto(this.visualVersion, visualBalls);
-        this.visualCatalogReference.set(catalog); // Thread safe assignement
+        if (ballsWithEvent.size() > 0) {
+            // this.controller.eventManagement(ballToCheck, ballsWithEvent);
+        }
+    }
+
+
+    protected boolean isAlive() {
+        return this.state == State.ALIVE;
+    }
+
+
+    /**
+     * PRIVATE
+     */
+    synchronized private void removeBall(Ball ball) {
+        if (this.balls.remove(ball.getId()) == null) {
+            return; // ======= Elmento no esta en la lista ========>
+        }
+        ball.die();
     }
 
 

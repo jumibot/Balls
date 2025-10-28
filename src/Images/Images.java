@@ -6,7 +6,6 @@
 package Images;
 
 
-import Images.dto.ImageDto;
 import Helpers.RandomArrayList;
 import java.awt.Image;
 import java.io.File;
@@ -21,7 +20,7 @@ import javax.imageio.ImageIO;
 public class Images {
 
     private RandomArrayList<String> imagesManifest;
-    private RandomArrayList<ImageDto> images;
+    private RandomArrayList<ImageDTO> images;
     private boolean imagesLoaded = false;
     private String assetsPath;
     private int imagesQuantity;
@@ -45,7 +44,7 @@ public class Images {
     }
 
 
-    public ImageDto getRamdomImageDto() {
+    public ImageDTO getRamdomImageDto() {
         if (!this.imagesLoaded) {
             this.loadAllImages();
         }
@@ -54,7 +53,7 @@ public class Images {
     }
 
 
-    public ImageDto getImageDto(int order) {
+    public ImageDTO getImageDto(int order) {
         if (!this.imagesLoaded) {
             this.loadAllImages();
         }
@@ -88,15 +87,15 @@ public class Images {
     }
 
 
-    private ImageDto loadImage(String uri) {
-        ImageDto imageDto;
+    private ImageDTO loadImage(String uri) {
+        ImageDTO imageDto;
         Image image;
 
         imageDto = null;
         try {
             image = ImageIO.read(new File(uri));
             this.imagesQuantity++;
-            imageDto = new ImageDto(uri, image);
+            imageDto = new ImageDTO(uri, image);
 
         } catch (IOException e) {
             System.err.println("Load image error · <Images> · [" + uri + "] · " + e.getMessage());

@@ -7,9 +7,7 @@ package Balls.view;
 
 
 import Balls.controller.Controller;
-import Balls.dto.VisualBallCatalogDto;
-import Helpers.Position;
-import Images.dto.ImageDto;
+import Images.ImageDTO;
 import Images.Images;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -20,6 +18,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 
 
@@ -33,9 +32,9 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private ControlPanel controlPanel;
     private Viewer viewer;
 
-    private Images ballImages;
+    private Images objectImages;
     private Images backgroundImages;
-    private ImageDto background;
+    private ImageDTO background;
 
     private final int GAME_PIX_HEIGHT = 700;
     private final int GAME_PIX_WIDTH = 1300;
@@ -45,8 +44,8 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
      * CONSTRUCTOR
      */
     public View() {
-        this.loadBallImages();
-        this.loadBackgrounds();
+        this.loadObjectImages();
+        this.loadBackgroundImages();
         this.background = this.backgroundImages.getRamdomImageDto();
 
         this.controlPanel = new ControlPanel(this);
@@ -69,13 +68,8 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PROTECTED
      */
-    protected Position getBallPosition(int id) {
-        return this.controller.getBallPosition(id);
-    }
-
-
-    protected VisualBallCatalogDto getVisualBallCatalog() {
-        return this.controller.getVisualBallCatalog();
+    protected ArrayList<RenderizableObject> getRenderizableObjects() {
+        return this.controller.getRenderizableObjects();
     }
 
 
@@ -117,22 +111,22 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    private void loadBackgrounds() {
-        this.ballImages = new Images("src/tg/images/assets/");
-        this.ballImages.addImageToManifest("background-1.png");
-        this.ballImages.addImageToManifest("background-2.png");
-        this.ballImages.addImageToManifest("background-3.png");
-        this.ballImages.addImageToManifest("background-4.png");
-        this.ballImages.addImageToManifest("background-5.png");
+    private void loadBackgroundImages() {
+        this.objectImages = new Images("src/tg/images/assets/");
+        this.objectImages.addImageToManifest("background-1.png");
+        this.objectImages.addImageToManifest("background-2.png");
+        this.objectImages.addImageToManifest("background-3.png");
+        this.objectImages.addImageToManifest("background-4.png");
+        this.objectImages.addImageToManifest("background-5.png");
     }
 
 
-    private void loadBallImages() {
-        this.ballImages = new Images("src/tg/images/assets/");
-        this.ballImages.addImageToManifest("asteroid-1-mini.png");
-        this.ballImages.addImageToManifest("asteroid-2-mini.png");
-        this.ballImages.addImageToManifest("spaceship-1.png");
-        this.ballImages.addImageToManifest("spaceship-2.png");
+    private void loadObjectImages() {
+        this.objectImages = new Images("src/tg/images/assets/");
+        this.objectImages.addImageToManifest("asteroid-1-mini.png");
+        this.objectImages.addImageToManifest("asteroid-2-mini.png");
+        this.objectImages.addImageToManifest("spaceship-1.png");
+        this.objectImages.addImageToManifest("spaceship-2.png");
     }
 
 

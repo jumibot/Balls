@@ -7,36 +7,56 @@ import static java.lang.System.currentTimeMillis;
 
 public class Position extends DoubleVector implements Serializable {
 
-    private long positionMillis;     // Absolute time in milliseconds
+    private final long timeStampInMillis;     // Absolute time in milliseconds
 
 
     /**
      * CONSTRUCTORS
      */
-    public Position() {
-        super();
-
-        this.positionMillis = currentTimeMillis(); // Creation time stamp
+    public Position(double x, double y) {
+        super(x, y);
+        this.timeStampInMillis = currentTimeMillis();
     }
 
 
-    public Position(Position pos) {
-        super(pos);
-
-        this.positionMillis = pos.positionMillis;
+    public Position(double x, double y, long timeStamp) {
+        super(x, y);
+        this.timeStampInMillis = timeStamp;
     }
 
 
     public Position(DoubleVector coordinates) {
         super(coordinates);
 
-        this.positionMillis = currentTimeMillis();
+        this.timeStampInMillis = currentTimeMillis();
+    }
+
+
+    public Position(DoubleVector coordinates, long timeStamp) {
+        super(coordinates);
+
+        this.timeStampInMillis = timeStamp;
     }
 
 
     /**
      * PUBLICS
      */
+    public Position add(DoubleVector dVector) {
+        return new Position(
+                this.getX() + dVector.getX(),
+                this.getY() + dVector.getY());
+    }
+
+
+    public Position add(DoubleVector dVector, long timeStamp) {
+        return new Position(
+                this.getX() + dVector.getX(),
+                this.getY() + dVector.getY(),
+                timeStamp);
+    }
+
+
     public DoubleVector calculateOffset(DoubleVector pos) {
         DoubleVector offset
                 = new DoubleVector(
@@ -47,19 +67,8 @@ public class Position extends DoubleVector implements Serializable {
     }
 
 
-    public void clone(Position pos) {
-        this.set(pos);
-        this.positionMillis = pos.positionMillis;
-    }
-
-
-    public long getPositionMillis() {
-        return this.positionMillis;
-    }
-
-
-    public void setPositionMillis(long timeInMillis) {
-        this.positionMillis = timeInMillis;
+    public long getTimeStamp() {
+        return this.timeStampInMillis;
     }
 
 }
