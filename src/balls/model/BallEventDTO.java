@@ -3,20 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.model;
-
-
-import Helpers.*;
-import java.io.Serializable;
+package Balls.model;
 
 
 /**
  *
  * @author juanm
  */
-public enum BallState implements Serializable {
-    STARTING,
-    ALIVE,
-    PAUSED,
-    DEAD
+public class BallEventDTO {
+    public Ball ball;
+    public Event eventType;
 }

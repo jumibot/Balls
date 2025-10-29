@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Balls;
+package balls;
 
 
-import Balls.controller.Controller;
-import Balls.view.View;
-import Balls.model.Model;
+import balls.controller.Controller;
+import balls.view.View;
+import balls.model.Model;
 import Helpers.State;
 import Images.Images;
 
