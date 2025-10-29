@@ -44,7 +44,7 @@ public class Controller {
 
 
     public ArrayList<RenderableObject> getRenderizableObjects() {
-        return this.model.getRenderizableObjects();
+        return this.model.getRenderableObjects();
     }
 
 

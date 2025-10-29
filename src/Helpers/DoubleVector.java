@@ -6,9 +6,9 @@ import java.io.Serializable;
 
 public class DoubleVector implements Serializable {
 
-    private double x;
-    private double y;
-    private double module;
+    private final double x;
+    private final double y;
+    private final double module;
 
 
     /**
@@ -17,14 +17,14 @@ public class DoubleVector implements Serializable {
     public DoubleVector(double x, double y) {
         this.x = x;
         this.y = y;
-        this.calcModule();
+        this.module = this.calcModule();
     }
 
 
     public DoubleVector(DoubleVector dVector) {
         this.x = dVector.x;
         this.y = dVector.y;
-        this.calcModule();
+        this.module = this.calcModule();
     }
 
 
@@ -34,7 +34,7 @@ public class DoubleVector implements Serializable {
     public DoubleVector add(DoubleVector dVector) {
         return new DoubleVector(
                 this.x + dVector.x,
-                this.y += dVector.y);
+                this.y + dVector.y);
     }
 
 
@@ -69,23 +69,16 @@ public class DoubleVector implements Serializable {
     }
 
 
-    public void setXY(double x, double y) {
-        this.x = x;
-        this.y = y;
-        this.calcModule();
-    }
-
-
     /**
      * PRIVATES
      */
-    public void calcModule() {
+    private double calcModule() {
         double module;
 
         module = Math.pow(Math.abs(this.getX()), 2) + Math.pow(Math.abs(this.getY()), 2);
         module = Math.pow(module, 0.5);
 
-        this.module = module;
+        return module;
     }
 
 

@@ -71,4 +71,8 @@ public class Position extends DoubleVector implements Serializable {
         return this.timeStampInMillis;
     }
 
+
+    public Position withTimeStamp(long ts) {
+        return new Position(this.getX(), this.getY(), ts);
+    }
 }

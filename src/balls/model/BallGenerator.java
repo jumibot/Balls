@@ -56,8 +56,8 @@ public class BallGenerator implements Runnable {
 
 
     protected void setAccelerationRange(float minX, float minY, float maxX, float maxY) {
-        this.minAcceleration.setXY(minX, minY);
-        this.maxAcceleration.setXY(maxX, maxY);
+        // this.minAcceleration.setXY(minX, minY);
+        // this.maxAcceleration.setXY(maxX, maxY);
     }
 
 

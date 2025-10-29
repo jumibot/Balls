@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import balls.controller.Controller;
-import balls.physics.PhysicValuesDTO;
+import balls.physics.PhysicsValuesDTO;
 import balls.view.RenderableObject;
 import Helpers.State;
 
@@ -48,30 +48,30 @@ public class Model {
     }
 
 
-    public void doBallMovement(Ball ball, PhysicValuesDTO phyValues) {
+    public void doBallMovement(Ball ball, PhysicsValuesDTO phyValues) {
         ball.doMovement(phyValues);
     }
 
 
-    public void doBallVerticalRebound(Ball ball, PhysicValuesDTO phyValues) {
+    public void doBallVerticalRebound(Ball ball, PhysicsValuesDTO phyValues) {
         ball.verticalRebound();
     }
 
 
-    public void doBallHoritzontalRebound(Ball ball, PhysicValuesDTO phyValues) {
+    public void doBallHoritzontalRebound(Ball ball, PhysicsValuesDTO phyValues) {
         ball.horizontalRebound();
     }
 
 
-    synchronized public ArrayList<RenderableObject> getRenderizableObjects() {
-        ArrayList<RenderableObject> renderizableObjects
+    synchronized public ArrayList<RenderableObject> getRenderableObjects() {
+        ArrayList<RenderableObject> renderableObjects
                 = new ArrayList(Ball.getAliveQuantity() * 2);
 
         this.balls.forEach((id, ball) -> {
-            renderizableObjects.add(ball.getRenderizableObject());
+            renderableObjects.add(ball.getRenderizableObject());
         });
 
-        return renderizableObjects;
+        return renderableObjects;
     }
 
 
@@ -93,15 +93,18 @@ public class Model {
     /**
      * PROTECTED
      */
-    protected void eventDetection(Ball ballToCheck, PhysicValuesDTO phyValues) {
+    protected void eventDetection(Ball ballToCheck, PhysicsValuesDTO phyValues) {
         if (ballToCheck.getState() != BallState.ALIVE) {
             return;
         }
 
         ArrayList<Ball> ballsWithEvent = new ArrayList(4096);
 
-        // Check limits
-        // Check for events with other objects
+        // Check movent is out of universe limits 
+        
+        // Check if object want to goin special areas
+        
+        // Check for collisions with other objects
         this.balls.forEach((key, ball) -> {
         });
 

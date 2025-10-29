@@ -3,9 +3,10 @@ package balls.physics;
 
 import helpers.DoubleVector;
 import helpers.Position;
+import java.io.Serializable;
 
 
-public class PhysicValuesDTO {
+public class PhysicsValuesDTO implements Serializable {
 
     public final double mass;
     public final double maxModuleAcceleration;
@@ -13,16 +14,16 @@ public class PhysicValuesDTO {
     public final double maxModuleSpeed;
     public final Position position;
     public final DoubleVector speed;        // pixels per milliseconds
-    public final DoubleVector acceleration; // speed per milliseconds
+    public final DoubleVector acceleration; // pixels per milliseconds^2
 
 
-    public PhysicValuesDTO(
-            double mass, 
+    public PhysicsValuesDTO(
+            double mass,
             double maxAccelerationModule,
-            double maxDecelerationModule, 
+            double maxDecelerationModule,
             double maxSpeedModule,
             Position position,
-            DoubleVector speed, 
+            DoubleVector speed,
             DoubleVector acceleration) {
 
         this.mass = mass;
@@ -30,8 +31,8 @@ public class PhysicValuesDTO {
         this.maxModuleDeceleration = maxDecelerationModule;
         this.maxModuleSpeed = maxSpeedModule;
         this.position = position;
-        this.speed = acceleration;
-        this.acceleration = speed;
+        this.speed = speed;
+        this.acceleration = acceleration;
     }
 
 }

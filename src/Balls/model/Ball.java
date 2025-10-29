@@ -7,7 +7,7 @@ package balls.model;
 
 
 import balls.physics.BasicPhysicsEngine;
-import balls.physics.PhysicValuesDTO;
+import balls.physics.PhysicsValuesDTO;
 import balls.view.RenderableObject;
 import helpers.DoubleVector;
 
@@ -53,7 +53,7 @@ public class Ball implements Runnable {
     /**
      * PUBLICS
      */
-    public void doMovement(PhysicValuesDTO phyValues) {
+    public void doMovement(PhysicsValuesDTO phyValues) {
         this.phyEngine.setPhysicalValues(phyValues);
     }
 
@@ -63,7 +63,7 @@ public class Ball implements Runnable {
     }
 
 
-    public void setPhysicalChanges(PhysicValuesDTO newPhyValues) {
+    public void setPhysicalChanges(PhysicsValuesDTO newPhyValues) {
         this.phyEngine.setPhysicalValues(newPhyValues);
     }
 
@@ -139,12 +139,12 @@ public class Ball implements Runnable {
 
     @Override
     public void run() {
-        PhysicValuesDTO newPhyValues;
+        PhysicsValuesDTO newPhyValues;
 
         while (this.getState() != BallState.DEAD) {
 
             if (this.getState() == BallState.ALIVE) {
-                newPhyValues = this.phyEngine.calcNewPhysicalValues();
+                newPhyValues = this.phyEngine.calcNewPhysicsValues();
                 this.model.eventDetection(this, newPhyValues);
 
                 //

@@ -13,17 +13,17 @@ import static java.lang.System.currentTimeMillis;
  * A SIMPLE PHYSICAL MODEL APPLIED TO DYNAMIC OBJECTS BY DEFAULT
  *
  */
-public class BasicPhysicsEngine {
+public class BasicPhysicsEngine implements PhysicsEngine {
 
     private static boolean debugMode = false;
 
-    private PhysicValuesDTO phyValues; // Convertir en referencia atómica
+    private PhysicsValuesDTO phyValues; // Convertir en referencia atómica
 
 
     /**
      * CONSTRUCTORS
      */
-    public BasicPhysicsEngine(PhysicValuesDTO phyValues) {
+    public BasicPhysicsEngine(PhysicsValuesDTO phyValues) {
         this.phyValues = phyValues;
     }
 
@@ -31,7 +31,8 @@ public class BasicPhysicsEngine {
     /**
      * PUBLICS
      */
-    public PhysicValuesDTO calcNewPhysicalValues() {
+    @Override
+    public PhysicsValuesDTO calcNewPhysicsValues() {
         // Calculate thee time elapsed since the last displacement calculation
         long timeStamp = currentTimeMillis();
         long elapsedMillis = timeStamp - this.phyValues.position.getTimeStamp();
@@ -48,7 +49,7 @@ public class BasicPhysicsEngine {
                         this.phyValues.acceleration.scale(elapsedMillis));
 
         // Creating a new DTO and return it
-        return new PhysicValuesDTO(
+        return new PhysicsValuesDTO(
                 this.phyValues.mass,
                 this.phyValues.maxModuleAcceleration,
                 this.phyValues.maxModuleDeceleration,
@@ -64,12 +65,12 @@ public class BasicPhysicsEngine {
     }
 
 
-    public PhysicValuesDTO getPhysicalValues() {
+    public PhysicsValuesDTO getPhysicalValues() {
         return this.phyValues;
     }
 
 
-    public void setPhysicalValues(PhysicValuesDTO newPhyValues) {
+    public void setPhysicalValues(PhysicsValuesDTO newPhyValues) {
         this.phyValues = newPhyValues;
     }
 }
