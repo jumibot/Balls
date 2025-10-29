@@ -68,8 +68,8 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderableObject> getRenderizableObjects() {
-        return this.controller.getRenderizableObjects();
+    protected ArrayList<RenderableObject> getRenderableObjects() {
+        return this.controller.getRenderableObjects();
     }
 
 

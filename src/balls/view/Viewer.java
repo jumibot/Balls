@@ -86,7 +86,7 @@ public class Viewer extends Canvas implements Runnable {
         DoubleVector coordinates;
         ArrayList<RenderableObject> renderizableObjects;
 
-        renderizableObjects = this.view.getRenderizableObjects();
+        renderizableObjects = this.view.getRenderableObjects();
         for (RenderableObject renderizableObject : renderizableObjects) {
             coordinates = renderizableObject.getCoordinates();
 

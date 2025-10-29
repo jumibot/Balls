@@ -98,7 +98,7 @@ public class Ball implements Runnable {
     }
 
 
-    protected synchronized RenderableObject getRenderizableObject() {
+    protected synchronized RenderableObject getRenderableObject() {
         if (this.state != BallState.ALIVE) {
             return null;
         }
@@ -145,7 +145,7 @@ public class Ball implements Runnable {
 
             if (this.getState() == BallState.ALIVE) {
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.eventDetection(this, newPhyValues);
+                this.model.detectEvents(this, newPhyValues);
 
                 //
                 // Comprobar si se puede realizar el movimiento
