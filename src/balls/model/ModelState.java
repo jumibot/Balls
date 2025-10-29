@@ -3,13 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls;
+package balls.model;
+
+
+import java.io.Serializable;
 
 
 /**
  *
  * @author juanm
  */
-public class MainBalls {
-    
+public enum ModelState implements Serializable {
+    STARTING,
+    ALIVE,
+    PAUSED,
+    STOPED
 }

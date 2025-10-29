@@ -29,7 +29,7 @@ public class Ball implements Runnable {
 
     private final int id;
     public final int imageId;
-    public final int maxSizeInPx;
+    public final int radius;
 
     private final BasicPhysicsEngine phyEngine; // Convert to Atomic Reference
 
@@ -37,14 +37,13 @@ public class Ball implements Runnable {
     /**
      * CONSTRUCTORS
      */
-    public Ball(int imageId, int maxSizeInPx, BasicPhysicsEngine phyEngine) {
+    public Ball(int imageId, int radius, BasicPhysicsEngine phyEngine) {
         this.model = null;
-        this.thread = new Thread(this);
-        this.thread.setName("Ball Thread · " + Ball.createdQuantity);
+        this.thread = null;
 
         this.id = Ball.incCreatedQuantity();
         this.imageId = imageId;
-        this.maxSizeInPx = maxSizeInPx;
+        this.radius = radius;
 
         this.phyEngine = phyEngine;
     }
@@ -82,6 +81,9 @@ public class Ball implements Runnable {
             return false;
         }
 
+        this.thread = new Thread(this);
+        this.thread.setName("Ball Thread · " + this.id);
+
         this.setState(BallState.ALIVE);
         this.thread.start();
         Ball.aliveQuantity++;
@@ -98,7 +100,7 @@ public class Ball implements Runnable {
     }
 
 
-    protected synchronized RenderableObject getRenderizableObject() {
+    protected synchronized RenderableObject getRenderableObject() {
         if (this.state != BallState.ALIVE) {
             return null;
         }
@@ -106,7 +108,7 @@ public class Ball implements Runnable {
         return new RenderableObject(
                 this.id,
                 this.imageId,
-                this.maxSizeInPx,
+                this.radius,
                 this.phyEngine.getPhysicalValues()
         );
     }
@@ -117,8 +119,24 @@ public class Ball implements Runnable {
     }
 
 
-    protected void horizontalRebound() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected void horizontalRebound(PhysicsValuesDTO phyValues) {
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        -phyValues.speed.getX(),
+                        phyValues.speed.getY());
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        phyValues.mass,
+                        phyValues.maxModuleAcceleration,
+                        phyValues.maxModuleDeceleration,
+                        phyValues.maxModuleSpeed,
+                        phyValues.position,
+                        newSpeed,
+                        phyValues.acceleration
+                );
+
+        this.setPhysicalChanges(reboundPhyValues);
     }
 
 
@@ -132,8 +150,24 @@ public class Ball implements Runnable {
     }
 
 
-    protected void verticalRebound() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected void verticalRebound(PhysicsValuesDTO phyValues) {
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        phyValues.speed.getX(),
+                        -phyValues.speed.getY());
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        phyValues.mass,
+                        phyValues.maxModuleAcceleration,
+                        phyValues.maxModuleDeceleration,
+                        phyValues.maxModuleSpeed,
+                        phyValues.position,
+                        newSpeed,
+                        phyValues.acceleration
+                );
+
+        this.setPhysicalChanges(reboundPhyValues);
     }
 
 
@@ -141,22 +175,17 @@ public class Ball implements Runnable {
     public void run() {
         PhysicsValuesDTO newPhyValues;
 
-        while (this.getState() != BallState.DEAD) {
+        while ((this.getState() != BallState.DEAD)
+                && (this.model.getState() != ModelState.STOPED)) {
 
-            if (this.getState() == BallState.ALIVE) {
+            if ((this.getState() == BallState.ALIVE)
+                && (this.model.getState() == ModelState.ALIVE)) {
+                
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.eventDetection(this, newPhyValues);
-
-                //
-                // Comprobar si se puede realizar el movimiento
-                // Si se puede se setean los nuevos valores físicos
-                // STARTING, ALIVE, PAUSED, COLLIDED, DEAD
-                //
-                //this.nextMove(newPos, newPhyVar); // Try to move
+                this.model.detectEvents(this, newPhyValues);
             }
 
             try {
-                /* Descansar */
                 Thread.sleep(40);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in ball thread! (Ball) · " + ex.getMessage());

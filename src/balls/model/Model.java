@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import balls.controller.Controller;
 import balls.physics.PhysicsValuesDTO;
 import balls.view.RenderableObject;
-import Helpers.State;
 
 
 /**
@@ -18,7 +17,7 @@ import Helpers.State;
 public class Model {
 
     private Controller controller = null;
-    private State state = State.STARTING;
+    private ModelState state = ModelState.STARTING;
     private final int maxBallsQuantity;
     private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
 
@@ -49,17 +48,17 @@ public class Model {
 
 
     public void doBallMovement(Ball ball, PhysicsValuesDTO phyValues) {
-        ball.doMovement(phyValues);
-    }
-
-
-    public void doBallVerticalRebound(Ball ball, PhysicsValuesDTO phyValues) {
-        ball.verticalRebound();
+        ball.setPhysicalChanges(phyValues);
     }
 
 
     public void doBallHoritzontalRebound(Ball ball, PhysicsValuesDTO phyValues) {
-        ball.horizontalRebound();
+        ball.horizontalRebound(phyValues);
+    }
+
+
+    public void doBallVerticalRebound(Ball ball, PhysicsValuesDTO phyValues) {
+        ball.verticalRebound(phyValues);
     }
 
 
@@ -68,10 +67,15 @@ public class Model {
                 = new ArrayList(Ball.getAliveQuantity() * 2);
 
         this.balls.forEach((id, ball) -> {
-            renderableObjects.add(ball.getRenderizableObject());
+            renderableObjects.add(ball.getRenderableObject());
         });
 
         return renderableObjects;
+    }
+
+
+    public ModelState getState() {
+        return this.state;
     }
 
 
@@ -86,14 +90,14 @@ public class Model {
 
     public void setController(Controller controller) {
         this.controller = controller;
-        this.state = State.ALIVE;
+        this.state = ModelState.ALIVE;
     }
 
 
     /**
      * PROTECTED
      */
-    protected void eventDetection(Ball ballToCheck, PhysicsValuesDTO phyValues) {
+    protected void detectEvents(Ball ballToCheck, PhysicsValuesDTO phyValues) {
         if (ballToCheck.getState() != BallState.ALIVE) {
             return;
         }
@@ -101,11 +105,10 @@ public class Model {
         ArrayList<Ball> ballsWithEvent = new ArrayList(4096);
 
         // Check movent is out of universe limits 
-        
         // Check if object want to goin special areas
-        
         // Check for collisions with other objects
         this.balls.forEach((key, ball) -> {
+
         });
 
         if (ballsWithEvent.size() > 0) {
@@ -115,7 +118,7 @@ public class Model {
 
 
     protected boolean isAlive() {
-        return this.state == State.ALIVE;
+        return this.state == ModelState.ALIVE;
     }
 
 

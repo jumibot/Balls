@@ -31,3 +31,4 @@ manifest.mf
 hs_err_pid*
 replay_pid*
 /build/
+/dist/

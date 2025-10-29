@@ -43,12 +43,12 @@ public class Controller {
     }
 
 
-    public ArrayList<RenderableObject> getRenderizableObjects() {
+    public ArrayList<RenderableObject> getRenderableObjects() {
         return this.model.getRenderableObjects();
     }
 
 
-    public void eventManagement(Ball mainBall, ArrayList<Ball> RelatedBalls) {
+    public void manageEvent(Ball mainBall, ArrayList<Ball> RelatedBalls) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
