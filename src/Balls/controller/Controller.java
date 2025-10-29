@@ -6,7 +6,7 @@
 package balls.controller;
 
 
-import balls.view.RenderizableObject;
+import balls.view.RenderableObject;
 import balls.view.View;
 import balls.model.Model;
 import balls.model.Ball;
@@ -43,7 +43,7 @@ public class Controller {
     }
 
 
-    public ArrayList<RenderizableObject> getRenderizableObjects() {
+    public ArrayList<RenderableObject> getRenderizableObjects() {
         return this.model.getRenderizableObjects();
     }
 

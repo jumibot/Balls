@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Balls.model;
+package balls.model;
 
 
 import java.io.Serializable;
@@ -18,5 +18,5 @@ public enum Event implements Serializable {
     NORTH_LIMIT_REACHED,
     SOUTH_LIMIT_REACHED,
     EAST_LIMIT_REACHED,
-    WEAST_LIMIT_REACHED
+    WEST_LIMIT_REACHED
 }

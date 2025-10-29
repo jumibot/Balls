@@ -1,7 +1,7 @@
 package balls.view;
 
 
-import Helpers.DoubleVector;
+import helpers.DoubleVector;
 import Images.ImageDTO;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -84,10 +84,10 @@ public class Viewer extends Canvas implements Runnable {
 
     private void paintVisualBalls(Graphics g) {
         DoubleVector coordinates;
-        ArrayList<RenderizableObject> renderizableObjects;
+        ArrayList<RenderableObject> renderizableObjects;
 
         renderizableObjects = this.view.getRenderizableObjects();
-        for (RenderizableObject renderizableObject : renderizableObjects) {
+        for (RenderableObject renderizableObject : renderizableObjects) {
             coordinates = renderizableObject.getCoordinates();
 
             if (coordinates.getX() <= this.pixWidth && coordinates.getY() <= this.pixHeigh

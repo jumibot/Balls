@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import balls.controller.Controller;
-import balls.physics.PhysicalValuesDTO;
-import balls.view.RenderizableObject;
+import balls.physics.PhysicValuesDTO;
+import balls.view.RenderableObject;
 import Helpers.State;
 
 
@@ -48,23 +48,23 @@ public class Model {
     }
 
 
-    public void doBallMovement(Ball ball, PhysicalValuesDTO phyValues) {
+    public void doBallMovement(Ball ball, PhysicValuesDTO phyValues) {
         ball.doMovement(phyValues);
     }
 
 
-    public void doBallVerticalRebound(Ball ball, PhysicalValuesDTO phyValues) {
+    public void doBallVerticalRebound(Ball ball, PhysicValuesDTO phyValues) {
         ball.verticalRebound();
     }
 
 
-    public void doBallHoritzontalRebound(Ball ball, PhysicalValuesDTO phyValues) {
+    public void doBallHoritzontalRebound(Ball ball, PhysicValuesDTO phyValues) {
         ball.horizontalRebound();
     }
 
 
-    synchronized public ArrayList<RenderizableObject> getRenderizableObjects() {
-        ArrayList<RenderizableObject> renderizableObjects
+    synchronized public ArrayList<RenderableObject> getRenderizableObjects() {
+        ArrayList<RenderableObject> renderizableObjects
                 = new ArrayList(Ball.getAliveQuantity() * 2);
 
         this.balls.forEach((id, ball) -> {
@@ -93,7 +93,7 @@ public class Model {
     /**
      * PROTECTED
      */
-    protected void eventDetection(Ball ballToCheck, PhysicalValuesDTO phyValues) {
+    protected void eventDetection(Ball ballToCheck, PhysicValuesDTO phyValues) {
         if (ballToCheck.getState() != BallState.ALIVE) {
             return;
         }

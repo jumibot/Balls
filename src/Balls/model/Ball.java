@@ -6,10 +6,10 @@
 package balls.model;
 
 
-import balls.physics.BasicPhysicalEngine;
-import balls.physics.PhysicalValuesDTO;
-import balls.view.RenderizableObject;
-import Helpers.DoubleVector;
+import balls.physics.BasicPhysicsEngine;
+import balls.physics.PhysicValuesDTO;
+import balls.view.RenderableObject;
+import helpers.DoubleVector;
 
 
 /**
@@ -31,13 +31,13 @@ public class Ball implements Runnable {
     public final int imageId;
     public final int maxSizeInPx;
 
-    private final BasicPhysicalEngine phyEngine; // Convert to Atomic Reference
+    private final BasicPhysicsEngine phyEngine; // Convert to Atomic Reference
 
 
     /**
      * CONSTRUCTORS
      */
-    public Ball(int imageId, int maxSizeInPx, BasicPhysicalEngine phyEngine) {
+    public Ball(int imageId, int maxSizeInPx, BasicPhysicsEngine phyEngine) {
         this.model = null;
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + Ball.createdQuantity);
@@ -53,7 +53,7 @@ public class Ball implements Runnable {
     /**
      * PUBLICS
      */
-    public void doMovement(PhysicalValuesDTO phyValues) {
+    public void doMovement(PhysicValuesDTO phyValues) {
         this.phyEngine.setPhysicalValues(phyValues);
     }
 
@@ -63,7 +63,7 @@ public class Ball implements Runnable {
     }
 
 
-    public void setPhysicalChanges(PhysicalValuesDTO newPhyValues) {
+    public void setPhysicalChanges(PhysicValuesDTO newPhyValues) {
         this.phyEngine.setPhysicalValues(newPhyValues);
     }
 
@@ -98,12 +98,12 @@ public class Ball implements Runnable {
     }
 
 
-    protected synchronized RenderizableObject getRenderizableObject() {
+    protected synchronized RenderableObject getRenderizableObject() {
         if (this.state != BallState.ALIVE) {
             return null;
         }
 
-        return new RenderizableObject(
+        return new RenderableObject(
                 this.id,
                 this.imageId,
                 this.maxSizeInPx,
@@ -139,7 +139,7 @@ public class Ball implements Runnable {
 
     @Override
     public void run() {
-        PhysicalValuesDTO newPhyValues;
+        PhysicValuesDTO newPhyValues;
 
         while (this.getState() != BallState.DEAD) {
 

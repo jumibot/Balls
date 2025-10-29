@@ -6,8 +6,8 @@
 package balls.view;
 
 
-import balls.physics.PhysicalValuesDTO;
-import Helpers.DoubleVector;
+import balls.physics.PhysicValuesDTO;
+import helpers.DoubleVector;
 import java.awt.Graphics;
 
 
@@ -15,17 +15,17 @@ import java.awt.Graphics;
  *
  * @author juanm
  */
-public class RenderizableObject {
+public class RenderableObject {
 
     private final int id;
     private final int imageId;
     private final int maxSizeInPx;
-    private final PhysicalValuesDTO phyValues;
+    private final PhysicValuesDTO phyValues;
     // Color
     // ...
 
 
-    public RenderizableObject(int id, int imageId, int maxSizeInPx, PhysicalValuesDTO phyValues) {
+    public RenderableObject(int id, int imageId, int maxSizeInPx, PhysicValuesDTO phyValues) {
 
         this.id = id;
         this.imageId = imageId;

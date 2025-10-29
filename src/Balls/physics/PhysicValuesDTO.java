@@ -1,11 +1,11 @@
 package balls.physics;
 
 
-import Helpers.DoubleVector;
-import Helpers.Position;
+import helpers.DoubleVector;
+import helpers.Position;
 
 
-public class PhysicalValuesDTO {
+public class PhysicValuesDTO {
 
     public final double mass;
     public final double maxModuleAcceleration;
@@ -16,7 +16,7 @@ public class PhysicalValuesDTO {
     public final DoubleVector acceleration; // speed per milliseconds
 
 
-    public PhysicalValuesDTO(
+    public PhysicValuesDTO(
             double mass, 
             double maxAccelerationModule,
             double maxDecelerationModule, 

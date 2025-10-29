@@ -6,14 +6,14 @@
 package balls.physics;
 
 
-import Helpers.Position;
+import helpers.Position;
 
 
 /**
  *
  * @author juanm
  */
-interface PhysicalEngineInterface {
-    public void calcNewLocation(Position pos, PhysicalValuesDTO phyValues);
+interface PhysicslEngineInterface {
+    public void calcNewLocation(Position pos, PhysicValuesDTO phyValues);
     
 }

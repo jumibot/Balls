@@ -2,7 +2,7 @@ package balls.model;
 
 
 import java.util.Random;
-import Helpers.DoubleVector;
+import helpers.DoubleVector;
 
 
 /**
