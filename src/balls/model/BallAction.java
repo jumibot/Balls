@@ -16,5 +16,6 @@ public enum BallAction {
     DIE,
     TRY_TO_GO_INSIDE,
     EXPLODE_IN_FRAGMENTS,
-    MOVE
+    MOVE,
+    NONE
 }

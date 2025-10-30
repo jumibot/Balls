@@ -11,6 +11,7 @@ import balls.view.View;
 import balls.model.Model;
 import balls.model.Ball;
 import balls.model.BallAction;
+import balls.model.BallState;
 import balls.model.EventType;
 import balls.physics.PhysicsValuesDTO;
 import java.util.ArrayList;
@@ -52,7 +53,28 @@ public class Controller {
 
 
     public BallAction decideAction(EventType eventType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        BallAction ballAction;
+
+        switch (eventType) {
+            case NORTH_LIMIT_REACHED:
+                ballAction = BallAction.HORIZONTAL_REBOUND;
+                break;
+            case SOUTH_LIMIT_REACHED:
+                ballAction = BallAction.HORIZONTAL_REBOUND;
+                break;
+            case EAST_LIMIT_REACHED:
+                ballAction = BallAction.VERTICAL_REBOUND;
+                break;
+            case WEST_LIMIT_REACHED:
+                ballAction = BallAction.VERTICAL_REBOUND;
+                break;
+
+            default:
+                // To avoid zombie state
+                ballAction = BallAction.NONE;
+        }
+
+        return ballAction;
     }
 
 
