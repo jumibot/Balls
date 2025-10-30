@@ -119,7 +119,7 @@ public class Ball implements Runnable {
     }
 
 
-    protected void horizontalRebound(PhysicsValuesDTO phyValues) {
+    protected void doHorizontalRebound(PhysicsValuesDTO phyValues) {
         DoubleVector newSpeed
                 = new DoubleVector(
                         -phyValues.speed.getX(),
@@ -150,7 +150,7 @@ public class Ball implements Runnable {
     }
 
 
-    protected void verticalRebound(PhysicsValuesDTO phyValues) {
+    protected void doVerticalRebound(PhysicsValuesDTO phyValues) {
         DoubleVector newSpeed
                 = new DoubleVector(
                         phyValues.speed.getX(),
@@ -182,7 +182,7 @@ public class Ball implements Runnable {
                 && (this.model.getState() == ModelState.ALIVE)) {
                 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.detectEvents(this, newPhyValues);
+                this.model.processEvents(this, newPhyValues);
             }
 
             try {

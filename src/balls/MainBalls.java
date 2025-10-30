@@ -22,7 +22,7 @@ public class MainBalls {
 
     public static void main(String[] args) {
         View view = new View();
-        Model model = new Model(100);
+        Model model = new Model(100, 1000, 1000);
         MainBalls.controller = new Controller(view, model);
     }
 }

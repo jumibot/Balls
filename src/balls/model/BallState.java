@@ -17,5 +17,6 @@ public enum BallState implements Serializable {
     STARTING,
     ALIVE,
     PAUSED,
+    HANDS_OFF,
     DEAD
 }

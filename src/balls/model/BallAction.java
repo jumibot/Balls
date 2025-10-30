@@ -6,17 +6,15 @@
 package balls.model;
 
 
-import java.io.Serializable;
-
-
 /**
  *
  * @author juanm
  */
-public enum EventTypes implements Serializable {
-    COLLIDED,
-    NORTH_LIMIT_REACHED,
-    SOUTH_LIMIT_REACHED,
-    EAST_LIMIT_REACHED,
-    WEST_LIMIT_REACHED
+public enum BallAction {
+    VERTICAL_REBOUND,
+    HORIZONTAL_REBOUND,
+    DIE,
+    TRY_TO_GO_INSIDE,
+    EXPLODE_IN_FRAGMENTS,
+    MOVE
 }

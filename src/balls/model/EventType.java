@@ -6,11 +6,18 @@
 package balls.model;
 
 
+import java.io.Serializable;
+
+
 /**
  *
  * @author juanm
  */
-public class BallEventDTO {
-    public Ball ball;
-    public EventType eventType;
+public enum EventType implements Serializable {
+    COLLIDED,
+    NORTH_LIMIT_REACHED,
+    SOUTH_LIMIT_REACHED,
+    EAST_LIMIT_REACHED,
+    WEST_LIMIT_REACHED,
+    NONE
 }

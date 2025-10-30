@@ -10,6 +10,9 @@ import balls.view.RenderableObject;
 import balls.view.View;
 import balls.model.Model;
 import balls.model.Ball;
+import balls.model.BallAction;
+import balls.model.EventType;
+import balls.physics.PhysicsValuesDTO;
 import java.util.ArrayList;
 
 
@@ -48,7 +51,12 @@ public class Controller {
     }
 
 
-    public void manageEvent(Ball mainBall, ArrayList<Ball> RelatedBalls) {
+    public BallAction decideAction(EventType eventType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    public BallAction decideAction(EventType eventType, ArrayList<Ball> RelatedBalls) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
