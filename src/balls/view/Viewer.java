@@ -54,7 +54,7 @@ public class Viewer extends Canvas implements Runnable {
     public void activate() {
         this.thread = new Thread(this);
         this.thread.setName("VIEWER Thread · Create and display frames");
-        //this.thread.setPriority(Thread.MAX_PRIORITY-1);        this.thread.start();
+        this.thread.start();
     }
 
 
@@ -92,6 +92,7 @@ public class Viewer extends Canvas implements Runnable {
 
             if (coordinates.getX() <= this.pixWidth && coordinates.getY() <= this.pixHeigh
                     && coordinates.getX() >= 0 && coordinates.getY() >= 0) {
+                
                 renderizableObject.paint(g);
             }
         }
@@ -101,7 +102,7 @@ public class Viewer extends Canvas implements Runnable {
     public void run() {
         long lastPaintMillisTime;
         long lastPaintMillis;
-        long delayMillis;
+        long delayMillis = 250;
         long millisPerFrame;
         int framesCounter;
 
@@ -110,7 +111,7 @@ public class Viewer extends Canvas implements Runnable {
         if ((this.pixHeigh <= 0) || (this.pixWidth <= 0)) {
             System.out.println(
                     "Canvas size error: (" + this.pixWidth + "," + this.pixHeigh + ")");
-            return; // =======================================================>>
+            return; // ========================================================>
         }
 
         // Show frames
@@ -123,12 +124,17 @@ public class Viewer extends Canvas implements Runnable {
                 this.paint();
             }
 
+            System.out.println(lastPaintMillisTime);
+            
             lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
             delayMillis = max(0, millisPerFrame - lastPaintMillis);
+            
             try {
                 Thread.sleep(delayMillis);
             } catch (InterruptedException ex) {
             }
+            
+            System.out.println(lastPaintMillisTime);
         }
     }
 }

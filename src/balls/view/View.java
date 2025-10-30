@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package balls.view;
 
 
@@ -36,16 +31,16 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private Images backgroundImages;
     private ImageDTO background;
 
-    private final int GAME_PIX_HEIGHT = 700;
-    private final int GAME_PIX_WIDTH = 1300;
+    private final int GAME_PIX_HEIGHT = 1000;
+    private final int GAME_PIX_WIDTH = 1000;
 
 
     /**
      * CONSTRUCTOR
      */
     public View() {
-        this.loadObjectImages();
-        this.loadBackgroundImages();
+        this.objectImages = this.loadObjectImages();
+        this.backgroundImages = this.loadBackgroundImages();
         this.background = this.backgroundImages.getRamdomImageDto();
 
         this.controlPanel = new ControlPanel(this);
@@ -111,22 +106,26 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    private void loadBackgroundImages() {
-        this.objectImages = new Images("src/tg/images/assets/");
-        this.objectImages.addImageToManifest("background-1.png");
-        this.objectImages.addImageToManifest("background-2.png");
-        this.objectImages.addImageToManifest("background-3.png");
-        this.objectImages.addImageToManifest("background-4.png");
-        this.objectImages.addImageToManifest("background-5.png");
+    private Images loadBackgroundImages() {
+        Images images = new Images("src/images/assets/");
+        images.addImageToManifest("background-1.png");
+        images.addImageToManifest("background-2.jpeg");
+        images.addImageToManifest("background-3.jpeg");
+        images.addImageToManifest("background-4.jpeg");
+        images.addImageToManifest("background-5.jpg");
+
+        return images;
     }
 
 
-    private void loadObjectImages() {
-        this.objectImages = new Images("src/tg/images/assets/");
-        this.objectImages.addImageToManifest("asteroid-1-mini.png");
-        this.objectImages.addImageToManifest("asteroid-2-mini.png");
-        this.objectImages.addImageToManifest("spaceship-1.png");
-        this.objectImages.addImageToManifest("spaceship-2.png");
+    private Images loadObjectImages() {
+        Images images = new Images("src/images/assets/");
+        images.addImageToManifest("asteroid-1-mini.png");
+        images.addImageToManifest("asteroid-2-mini.png");
+        images.addImageToManifest("spaceship-1.png");
+        images.addImageToManifest("spaceship-2.png");
+
+        return images;
     }
 
 

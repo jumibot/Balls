@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package balls.controller;
 
 
@@ -11,9 +6,7 @@ import balls.view.View;
 import balls.model.Model;
 import balls.model.Ball;
 import balls.model.BallAction;
-import balls.model.BallState;
 import balls.model.EventType;
-import balls.physics.PhysicsValuesDTO;
 import java.util.ArrayList;
 
 
@@ -44,6 +37,10 @@ public class Controller {
      */
     public void addBall(Ball newBall) {
         this.model.addBall(newBall);
+    }
+    
+    public void newRandomBall() {
+        this.model.newRandomBall();
     }
 
 

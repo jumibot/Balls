@@ -21,6 +21,10 @@ public class RandomArrayList<T> extends ArrayList<T> {
         super();
     }
 
+    public RandomArrayList(int size) {
+        super(size);
+    }
+
     // Constructor que acepta otra colección (opcional)
     public RandomArrayList(java.util.Collection<? extends T> c) {
         super(c);

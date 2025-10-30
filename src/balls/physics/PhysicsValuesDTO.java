@@ -10,7 +10,6 @@ public class PhysicsValuesDTO implements Serializable {
 
     public final double mass;
     public final double maxModuleAcceleration;
-    public final double maxModuleDeceleration;
     public final double maxModuleSpeed;
     public final Position position;
     public final DoubleVector speed;        // pixels per milliseconds
@@ -20,7 +19,6 @@ public class PhysicsValuesDTO implements Serializable {
     public PhysicsValuesDTO(
             double mass,
             double maxAccelerationModule,
-            double maxDecelerationModule,
             double maxSpeedModule,
             Position position,
             DoubleVector speed,
@@ -28,7 +26,6 @@ public class PhysicsValuesDTO implements Serializable {
 
         this.mass = mass;
         this.maxModuleAcceleration = maxAccelerationModule;
-        this.maxModuleDeceleration = maxDecelerationModule;
         this.maxModuleSpeed = maxSpeedModule;
         this.position = position;
         this.speed = speed;

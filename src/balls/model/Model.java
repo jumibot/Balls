@@ -16,7 +16,7 @@ import balls.view.RenderableObject;
  */
 public class Model {
 
-    private final int maxBallsQuantity;
+    private final int maxBalls;
     private final int worldWidth;
     private final int worldHeight;
 
@@ -29,7 +29,7 @@ public class Model {
      * CONSTRUCTORS
      */
     public Model(int maxBallsQuantity, int worldWidth, int worldHeight) {
-        this.maxBallsQuantity = maxBallsQuantity;
+        this.maxBalls = maxBallsQuantity;
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
     }
@@ -39,7 +39,7 @@ public class Model {
      * PUBLIC
      */
     synchronized public boolean addBall(Ball newBall) {
-        if (this.maxBallsQuantity >= Ball.getAliveQuantity()) {
+        if (this.maxBalls >= Ball.getAliveQuantity()) {
             System.out.println("Max balls quantity reached · Model");
             return false; // =======================================>
         }
@@ -51,6 +51,9 @@ public class Model {
         return true;
     }
 
+    public int getMaxBalls() {
+        return this.maxBalls;
+    }
 
     synchronized public ArrayList<RenderableObject> getRenderableObjects() {
         ArrayList<RenderableObject> renderableObjects
@@ -78,6 +81,11 @@ public class Model {
     }
 
 
+    public void newRandomBall() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
     public void setController(Controller controller) {
         this.controller = controller;
         this.state = ModelState.ALIVE;

@@ -52,7 +52,6 @@ public class BasicPhysicsEngine implements PhysicsEngine {
         return new PhysicsValuesDTO(
                 this.phyValues.mass,
                 this.phyValues.maxModuleAcceleration,
-                this.phyValues.maxModuleDeceleration,
                 this.phyValues.maxModuleSpeed,
                 newPosition,
                 newSpeed,
