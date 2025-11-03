@@ -38,7 +38,8 @@ public class Controller {
     public void addBall(Ball newBall) {
         this.model.addBall(newBall);
     }
-    
+
+
     public void newRandomBall() {
         this.model.newRandomBall();
     }

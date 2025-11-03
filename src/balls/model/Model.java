@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import balls.controller.Controller;
 import balls.physics.PhysicsValuesDTO;
 import balls.view.RenderableObject;
+import helpers.DoubleVector;
 
 
 /**
@@ -17,10 +18,10 @@ import balls.view.RenderableObject;
 public class Model {
 
     private final int maxBalls;
-    private final int worldWidth;
-    private final int worldHeight;
+    private final DoubleVector wordDimension;
 
     private Controller controller = null;
+    private BallGenerator ballGenerator = null;
     private ModelState state = ModelState.STARTING;
     private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
 
@@ -28,10 +29,20 @@ public class Model {
     /**
      * CONSTRUCTORS
      */
-    public Model(int maxBallsQuantity, int worldWidth, int worldHeight) {
+    public Model(int maxBallsQuantity, DoubleVector wordDimension) {
         this.maxBalls = maxBallsQuantity;
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
+        this.wordDimension = wordDimension;
+
+        this.ballGenerator = new BallGenerator(
+                this, // Model
+                400, 1, // Mass range
+                300,
+                0.001, // Max acceleration in px X millisecond^-2
+                0.2, // MaxSpeed,
+                40, 1 // Size range in px
+        );
+
+        this.ballGenerator.activate();
     }
 
 
@@ -39,21 +50,28 @@ public class Model {
      * PUBLIC
      */
     synchronized public boolean addBall(Ball newBall) {
-        if (this.maxBalls >= Ball.getAliveQuantity()) {
+        if (Ball.getAliveQuantity() >= this.maxBalls) {
             System.out.println("Max balls quantity reached · Model");
             return false; // =======================================>
         }
 
-        this.balls.put(newBall.getId(), newBall);
         newBall.setModel(this);
-        newBall.activate();
+        if (!newBall.activate()) {
+            System.out.println("Can not activate ball <" + newBall.getId() + "> · Model");
+            return false;
+
+        }
+        System.out.println("Ball <" + newBall.getId() + "> Activated · Model");
+        this.balls.put(newBall.getId(), newBall);
 
         return true;
     }
 
+
     public int getMaxBalls() {
         return this.maxBalls;
     }
+
 
     synchronized public ArrayList<RenderableObject> getRenderableObjects() {
         ArrayList<RenderableObject> renderableObjects
@@ -72,6 +90,16 @@ public class Model {
     }
 
 
+    public DoubleVector getWorldDimension() {
+        return this.wordDimension;
+    }
+
+
+    public boolean isAlive() {
+        return this.state == ModelState.ALIVE;
+    }
+
+
     public void killBall(int ballId) {
         /* 
         TO-DO:
@@ -85,7 +113,7 @@ public class Model {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
+
     public void setController(Controller controller) {
         this.controller = controller;
         this.state = ModelState.ALIVE;
@@ -95,12 +123,7 @@ public class Model {
     /**
      * PROTECTED
      */
-    protected boolean isAlive() {
-        return this.state == ModelState.ALIVE;
-    }
-
-
-    protected void processEvents(Ball ballToCheck, PhysicsValuesDTO phyValues) {
+    protected void processBallEvents(Ball ballToCheck, PhysicsValuesDTO phyValues) {
         if (ballToCheck.getState() != BallState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
@@ -113,6 +136,7 @@ public class Model {
             limitEvent = this.checkLimitEvent(phyValues);
 
             if (limitEvent != EventType.NONE) {
+                System.err.println("Limit Event " + ballToCheck + " · Model"); //*+
                 this.doBallAction(
                         this.controller.decideAction(
                                 limitEvent), ballToCheck, phyValues);
@@ -158,11 +182,11 @@ public class Model {
 
         if (phyValues.position.getX() < 0) {
             return (EventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.position.getX() >= this.worldWidth) {
+        } else if (phyValues.position.getX() >= this.wordDimension.getX()) {
             return (EventType.EAST_LIMIT_REACHED);
         } else if (phyValues.position.getY() < 0) {
             return (EventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.position.getY() >= this.worldHeight) {
+        } else if (phyValues.position.getY() >= this.wordDimension.getY()) {
             return (EventType.SOUTH_LIMIT_REACHED);
         }
 
@@ -170,20 +194,20 @@ public class Model {
     }
 
 
-    private void doBallAction(BallAction ballAction, Ball ball, PhysicsValuesDTO phyValues) {
+    private void doBallAction(BallAction ballAction, Ball ball, PhysicsValuesDTO phyNewValues) {
         switch (ballAction) {
             case MOVE:
-                ball.doMovement(phyValues);
+                ball.doMovement(phyNewValues);
                 ball.setState(BallState.ALIVE);
                 break;
 
             case VERTICAL_REBOUND:
-                ball.doVerticalRebound(phyValues);
+                ball.doVerticalRebound(phyNewValues);
                 ball.setState(BallState.ALIVE);
                 break;
 
             case HORIZONTAL_REBOUND:
-                ball.doHorizontalRebound(phyValues);
+                ball.doHorizontalRebound(phyNewValues);
                 ball.setState(BallState.ALIVE);
                 break;
 

@@ -84,6 +84,6 @@ public class DoubleVector implements Serializable {
 
     @Override
     public String toString() {
-        return "(" + this.x + " : " + this.y + ")";
+        return "(" + (int) this.x + " : " + (int) this.y + ")";
     }
 }

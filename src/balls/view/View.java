@@ -64,6 +64,11 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
      * PROTECTED
      */
     protected ArrayList<RenderableObject> getRenderableObjects() {
+        if (this.controller == null) {
+            System.err.println("Controller is null. Can not get renderable objects · View ");
+            return null;
+        }
+
         return this.controller.getRenderableObjects();
     }
 

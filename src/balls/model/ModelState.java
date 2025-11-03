@@ -17,5 +17,5 @@ public enum ModelState implements Serializable {
     STARTING,
     ALIVE,
     PAUSED,
-    STOPED
+    STOPPED
 }

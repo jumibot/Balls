@@ -11,6 +11,7 @@ package balls.model;
  * @author juanm
  */
 public class BallEventDTO {
+
     public Ball ball;
     public EventType eventType;
 }

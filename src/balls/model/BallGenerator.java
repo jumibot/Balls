@@ -2,12 +2,10 @@ package balls.model;
 
 
 import balls.physics.BasicPhysicsEngine;
-import balls.physics.PhysicsEngine;
 import balls.physics.PhysicsValuesDTO;
 import java.util.Random;
 import helpers.DoubleVector;
 import helpers.Position;
-import static java.lang.Integer.max;
 
 
 /**
@@ -17,17 +15,16 @@ import static java.lang.Integer.max;
  */
 public class BallGenerator implements Runnable {
 
-    private Model model;
+    private final Model model;
     private Thread thread;
 
-    private final int maxBalls;
-    private final double maxMass;
-    private final double minMass;
-    private final int maxCreationDelay;       // In millis
-    private final double maxAcceleration;     // px/milliseconds^2
-    private final double maxSpeed;
-    private final int maxSize;
-    private final int minSize;
+    private double maxMass;
+    private double minMass;
+    private int maxCreationDelay;       // In millis
+    private double maxAcceleration;     // px/milliseconds^2
+    private double maxSpeed;
+    private int maxSize;
+    private int minSize;
 
     private static Random rnd = new Random();
 
@@ -37,13 +34,11 @@ public class BallGenerator implements Runnable {
      *
      * @param theGame
      */
-    public BallGenerator(Model model, int maxBalls, double maxMass, double minMass,
+    public BallGenerator(Model model, double maxMass, double minMass,
             int maxCreationDelay, double maxAcceleration, double maxSpeed,
             int maxSize, int minSize) {
 
         this.model = model;
-
-        this.maxBalls = maxBalls;
         this.maxMass = maxMass;
         this.minMass = minMass;
         this.maxCreationDelay = maxCreationDelay;
@@ -58,21 +53,88 @@ public class BallGenerator implements Runnable {
      * PROTECTED
      */
     protected void activate() {
+        if (this.model.getState() == ModelState.ALIVE) {
+            System.out.println("Model is already ALIVE · BallGenerator");
+            return;
+        }
+        if (this.model.getState() == ModelState.PAUSED) {
+            System.out.println("Model is already PAUSED · BallGenerator");
+            return;
+        }
+
         this.thread = new Thread(this);
-        this.thread.setName("Ball Generator Thread");
+        this.thread.setName("Ball Generator Thread · BallGenerator");
         this.thread.start();
+    }
+
+
+    protected double getMmaxMass() {
+        return this.maxMass;
+    }
+
+
+    protected double getMinMass() {
+        return this.minMass;
+    }
+
+
+    protected int getMaxCreationDelay() {
+        return this.maxCreationDelay;
+    }
+
+
+    protected double getMaxAcceleration() {
+        return this.maxAcceleration;
+    }
+
+
+    protected double getMaxSpeed() {
+        return this.maxSpeed;
+    }
+
+
+    protected int getMaxSize() {
+        return this.maxSize;
+    }
+
+
+    protected int getMinSize() {
+        return this.minSize;
+    }
+
+
+    protected void setMmaxMass(double maxMass) {
+        this.maxMass = maxMass;
+    }
+
+
+    protected void setMinMass(double minMass) {
+        this.minMass = minMass;
+    }
+
+
+    protected void setMaxCreationDelay(int maxCreationDelay) {
+        this.maxCreationDelay = maxCreationDelay;
     }
 
 
     protected void setMaxAcceleration(double maxAcceleration) {
         this.maxAcceleration = maxAcceleration;
-        this.maxDeceleration = maxDeceleration;
     }
 
 
-    protected void setMaxBalls(int maxBalls) {
-        // No puede sobrepasar el máximo establecido en el modelo
-        this.maxBalls = max(maxBalls, 25);
+    protected void setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+
+    protected void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
+
+
+    protected void setMinSize(int minSize) {
+        this.minSize = minSize;
     }
 
 
@@ -88,7 +150,6 @@ public class BallGenerator implements Runnable {
                 this.randomSpeed(),
                 this.randomAcceleration()
         );
-        
 
         BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
 
@@ -107,6 +168,7 @@ public class BallGenerator implements Runnable {
         return newAcceleration;
     }
 
+
     private DoubleVector randomSpeed() {
         DoubleVector newAcceleration = new DoubleVector(
                 BallGenerator.rnd.nextGaussian() * this.maxSpeed,
@@ -122,11 +184,11 @@ public class BallGenerator implements Runnable {
 
 
     private Position randomPosition() {
-        float x, y;
+        double x, y;
 
         // Recuperar tamaño del mundo establecido en el modelo
-        x = BallGenerator.rnd.nextFloat() * 1300f;
-        y = BallGenerator.rnd.nextFloat() * 800f;
+        x = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().getX();
+        y = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().getY();
 
         Position position = new Position(x, y);
 
@@ -145,11 +207,11 @@ public class BallGenerator implements Runnable {
     @Override
     public void run() {
         // Show frames
-        while (true) { // TO-DO End condition
+        while (this.model.getState() != ModelState.STOPPED) { // TO-DO End condition
 
-            if (true) { // TO-DO Pause condition
+            if (this.model.getState() == ModelState.ALIVE) { // TO-DO Pause condition
                 if (!this.model.addBall(this.newRandomBall())) {
-                    System.out.println("Max number of live balls reached!");
+//                    System.out.println("Max number of live balls reached! · BallGenerator");
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException ex) {
@@ -158,7 +220,7 @@ public class BallGenerator implements Runnable {
             }
 
             try {
-                Thread.sleep(BallGenerator.rnd.nextInt(this.maxCreationDelay - this.minMillisCreationDelay) + this.minMillisCreationDelay);
+                Thread.sleep(BallGenerator.rnd.nextInt(this.maxCreationDelay));
             } catch (InterruptedException ex) {
             }
         }

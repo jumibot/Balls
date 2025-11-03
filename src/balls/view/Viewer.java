@@ -24,8 +24,8 @@ public class Viewer extends Canvas implements Runnable {
     private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
-    private int pixHeigh;
-    private int pixWidth;
+    private int viewHeigh;
+    private int viewWidth;
 
     private ImageDTO background;
 
@@ -33,18 +33,17 @@ public class Viewer extends Canvas implements Runnable {
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, int pixHeigh, int pixWidth, ImageDTO background) {
+    public Viewer(View view, int viewHeigh, int viewWidth, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
         this.delayInMillis = 30;
         this.view = view;
-        this.pixHeigh = pixHeigh;
-        this.pixWidth = pixWidth;
+        this.viewHeigh = viewHeigh;
+        this.viewWidth = viewWidth;
         this.background = background;
 
-        Dimension d = new Dimension(pixWidth, pixHeigh);
+        Dimension d = new Dimension(viewWidth, viewHeigh);
         this.setPreferredSize(d);
-
     }
 
 
@@ -72,7 +71,7 @@ public class Viewer extends Canvas implements Runnable {
 
         // Paint background
         Graphics gg = bs.getDrawGraphics();
-        gg.drawImage(this.background.image, 0, 0, this.pixWidth, this.pixHeigh, null);
+        gg.drawImage(this.background.image, 0, 0, this.viewWidth, this.viewHeigh, null);
 
         // Paint visual objects
         this.paintVisualBalls(gg);
@@ -84,33 +83,42 @@ public class Viewer extends Canvas implements Runnable {
 
     private void paintVisualBalls(Graphics g) {
         DoubleVector coordinates;
-        ArrayList<RenderableObject> renderizableObjects;
+        ArrayList<RenderableObject> renderableObjects = this.view.getRenderableObjects();
 
-        renderizableObjects = this.view.getRenderableObjects();
-        for (RenderableObject renderizableObject : renderizableObjects) {
-            coordinates = renderizableObject.getCoordinates();
+        if (renderableObjects == null) {
+            return;
+        }
 
-            if (coordinates.getX() <= this.pixWidth && coordinates.getY() <= this.pixHeigh
+        for (RenderableObject renderableObject : renderableObjects) {
+            coordinates = renderableObject.getCoordinates();
+
+            if (coordinates.getX() <= this.viewWidth && coordinates.getY() <= this.viewHeigh
                     && coordinates.getX() >= 0 && coordinates.getY() >= 0) {
-                
-                renderizableObject.paint(g);
+
+                System.out.println("Paint " + renderableObject + coordinates);
+
+                renderableObject.paint(g);
+
+            } else {
+                System.out.println("NO Paint" + renderableObject + coordinates);
             }
         }
     }
+
 
     @Override
     public void run() {
         long lastPaintMillisTime;
         long lastPaintMillis;
-        long delayMillis = 250;
+        long delayMillis = 1000;
         long millisPerFrame;
         int framesCounter;
 
         this.createBufferStrategy(2);
 
-        if ((this.pixHeigh <= 0) || (this.pixWidth <= 0)) {
+        if ((this.viewHeigh <= 0) || (this.viewWidth <= 0)) {
             System.out.println(
-                    "Canvas size error: (" + this.pixWidth + "," + this.pixHeigh + ")");
+                    "Canvas size error: (" + this.viewWidth + "," + this.viewHeigh + ")");
             return; // ========================================================>
         }
 
@@ -124,17 +132,14 @@ public class Viewer extends Canvas implements Runnable {
                 this.paint();
             }
 
-            System.out.println(lastPaintMillisTime);
-            
             lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
             delayMillis = max(0, millisPerFrame - lastPaintMillis);
-            
+
             try {
                 Thread.sleep(delayMillis);
             } catch (InterruptedException ex) {
             }
-            
-            System.out.println(lastPaintMillisTime);
+
         }
     }
 }

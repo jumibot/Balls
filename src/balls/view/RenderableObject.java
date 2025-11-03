@@ -57,4 +57,9 @@ public class RenderableObject {
     synchronized public void paint(Graphics gr) {
 
     }
+    
+    @Override
+    public String toString() {
+        return "RenderableObject<" +  this.id + "> ";
+    }
 }

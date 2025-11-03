@@ -46,6 +46,7 @@ public class Ball implements Runnable {
         this.radius = radius;
 
         this.phyEngine = phyEngine;
+        this.state = BallState.STARTING;
     }
 
 
@@ -53,6 +54,8 @@ public class Ball implements Runnable {
      * PUBLICS
      */
     public void doMovement(PhysicsValuesDTO phyValues) {
+
+//        System.out.println("Do movement · Ball <" + this.id + "> " + phyValues.position);
         this.phyEngine.setPhysicalValues(phyValues);
     }
 
@@ -71,22 +74,27 @@ public class Ball implements Runnable {
      * PROTECTED
      */
     protected synchronized boolean activate() {
+        if (this.model == null) {
+            System.err.println("Activation error due ball model is null! · (Ball)");
+            return false;
+        }
+
         if (!this.model.isAlive()) {
-            System.err.println("ERROR Model is not alive! · (Ball)");
+            System.err.println("Activation error due model is not alive! · (Ball)");
             return false;
         }
 
         if (this.state != BallState.STARTING) {
-            System.err.println("ERROR Ball is not starting! · (Ball)");
+            System.err.println("Activation error due ball is not starting! · (Ball)");
             return false;
         }
 
+        Ball.incAliveQuantity();
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + this.id);
 
         this.setState(BallState.ALIVE);
         this.thread.start();
-        Ball.aliveQuantity++;
         return true;
     }
 
@@ -129,7 +137,6 @@ public class Ball implements Runnable {
                 = new PhysicsValuesDTO(
                         phyValues.mass,
                         phyValues.maxModuleAcceleration,
-                        phyValues.maxModuleDeceleration,
                         phyValues.maxModuleSpeed,
                         phyValues.position,
                         newSpeed,
@@ -160,7 +167,6 @@ public class Ball implements Runnable {
                 = new PhysicsValuesDTO(
                         phyValues.mass,
                         phyValues.maxModuleAcceleration,
-                        phyValues.maxModuleDeceleration,
                         phyValues.maxModuleSpeed,
                         phyValues.position,
                         newSpeed,
@@ -176,13 +182,13 @@ public class Ball implements Runnable {
         PhysicsValuesDTO newPhyValues;
 
         while ((this.getState() != BallState.DEAD)
-                && (this.model.getState() != ModelState.STOPED)) {
+                && (this.model.getState() != ModelState.STOPPED)) {
 
             if ((this.getState() == BallState.ALIVE)
-                && (this.model.getState() == ModelState.ALIVE)) {
-                
+                    && (this.model.getState() == ModelState.ALIVE)) {
+
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.processEvents(this, newPhyValues);
+                this.model.processBallEvents(this, newPhyValues);
             }
 
             try {
@@ -191,6 +197,10 @@ public class Ball implements Runnable {
                 System.err.println("ERROR Sleeping in ball thread! (Ball) · " + ex.getMessage());
             }
         }
+    }
+    
+    public String toString() {
+        return "Ball<" + this.id + ">";
     }
 
 
@@ -216,5 +226,12 @@ public class Ball implements Runnable {
         Ball.createdQuantity++;
 
         return Ball.createdQuantity;
+    }
+
+
+    static synchronized protected int incAliveQuantity() {
+        Ball.aliveQuantity++;
+
+        return Ball.aliveQuantity;
     }
 }
