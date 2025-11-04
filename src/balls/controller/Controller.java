@@ -27,6 +27,7 @@ public class Controller {
 
         this.view = view;
         this.view.setController(this);
+        this.view.activate();
 
         /* TO-DO -> Arrancar el generador de bolas */
     }
@@ -55,16 +56,17 @@ public class Controller {
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                ballAction = BallAction.HORIZONTAL_REBOUND;
+                ballAction = BallAction.VERTICAL_REBOUND;
                 break;
             case SOUTH_LIMIT_REACHED:
-                ballAction = BallAction.HORIZONTAL_REBOUND;
+                ballAction = BallAction.VERTICAL_REBOUND;
                 break;
             case EAST_LIMIT_REACHED:
-                ballAction = BallAction.VERTICAL_REBOUND;
+                ballAction = BallAction.HORIZONTAL_REBOUND;
+
                 break;
             case WEST_LIMIT_REACHED:
-                ballAction = BallAction.VERTICAL_REBOUND;
+                ballAction = BallAction.HORIZONTAL_REBOUND;
                 break;
 
             default:

@@ -57,9 +57,12 @@ public class RenderableObject {
     synchronized public void paint(Graphics gr) {
 
     }
-    
+
+
     @Override
     public String toString() {
-        return "RenderableObject<" +  this.id + "> ";
+        return "RenderableObject<" + this.id
+                + "> p" + this.phyValues.position
+                + " s" + this.phyValues.speed;
     }
 }

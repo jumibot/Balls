@@ -65,6 +65,7 @@ public class BallGenerator implements Runnable {
         this.thread = new Thread(this);
         this.thread.setName("Ball Generator Thread · BallGenerator");
         this.thread.start();
+        System.out.println("Ball Generator activated! · BallGenerator");
     }
 
 
@@ -211,11 +212,7 @@ public class BallGenerator implements Runnable {
 
             if (this.model.getState() == ModelState.ALIVE) { // TO-DO Pause condition
                 if (!this.model.addBall(this.newRandomBall())) {
-//                    System.out.println("Max number of live balls reached! · BallGenerator");
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException ex) {
-                    }
+                    // Max number of live balls reached!
                 }
             }
 

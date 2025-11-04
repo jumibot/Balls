@@ -86,6 +86,7 @@ public class Viewer extends Canvas implements Runnable {
         ArrayList<RenderableObject> renderableObjects = this.view.getRenderableObjects();
 
         if (renderableObjects == null) {
+            System.out.println("RenderableObjects ArrayList is null · Viewer");
             return;
         }
 
@@ -95,12 +96,10 @@ public class Viewer extends Canvas implements Runnable {
             if (coordinates.getX() <= this.viewWidth && coordinates.getY() <= this.viewHeigh
                     && coordinates.getX() >= 0 && coordinates.getY() >= 0) {
 
-                System.out.println("Paint " + renderableObject + coordinates);
-
                 renderableObject.paint(g);
 
             } else {
-                System.out.println("NO Paint" + renderableObject + coordinates);
+                System.out.println("NO Paint" + renderableObject);
             }
         }
     }

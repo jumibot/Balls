@@ -48,7 +48,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.viewer = new Viewer(this, GAME_PIX_HEIGHT, GAME_PIX_WIDTH, this.background);
 
         this.createFrame();
-        this.viewer.activate();
     }
 
 
@@ -59,6 +58,9 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.controller = controller;
     }
 
+    public void activate() {
+        this.viewer.activate();
+    }
 
     /**
      * PROTECTED

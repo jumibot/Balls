@@ -51,8 +51,8 @@ public class Model {
      */
     synchronized public boolean addBall(Ball newBall) {
         if (Ball.getAliveQuantity() >= this.maxBalls) {
-            System.out.println("Max balls quantity reached · Model");
-            return false; // =======================================>
+            // Max balls quantity reached
+            return false; // =================================================>
         }
 
         newBall.setModel(this);
@@ -78,7 +78,9 @@ public class Model {
                 = new ArrayList(Ball.getAliveQuantity() * 2);
 
         this.balls.forEach((id, ball) -> {
-            renderableObjects.add(ball.getRenderableObject());
+            if (ball.getRenderableObject() != null) {
+                renderableObjects.add(ball.getRenderableObject());
+            }
         });
 
         return renderableObjects;
@@ -123,7 +125,11 @@ public class Model {
     /**
      * PROTECTED
      */
-    protected void processBallEvents(Ball ballToCheck, PhysicsValuesDTO phyValues) {
+    protected void processBallEvents(
+            Ball ballToCheck,
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues) {
+
         if (ballToCheck.getState() != BallState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
@@ -133,13 +139,14 @@ public class Model {
         EventType limitEvent = EventType.NONE;
 
         try {
-            limitEvent = this.checkLimitEvent(phyValues);
+            limitEvent = this.checkLimitEvent(newPhyValues);
 
             if (limitEvent != EventType.NONE) {
-                System.err.println("Limit Event " + ballToCheck + " · Model"); //*+
                 this.doBallAction(
-                        this.controller.decideAction(
-                                limitEvent), ballToCheck, phyValues);
+                        this.controller.decideAction(limitEvent),
+                        ballToCheck,
+                        newPhyValues,
+                        oldPhyValues);
             }
         } catch (Exception e) {
             // Fallback anti-zombi: If exception ocurrs back to previous state
@@ -157,7 +164,7 @@ public class Model {
             return; // ========================================================>
         }
 
-        this.doBallAction(BallAction.MOVE, ballToCheck, phyValues);
+        this.doBallAction(BallAction.MOVE, ballToCheck, newPhyValues, oldPhyValues);
 
         // 2 - Check if object want to go inside special areas
         // 3 - Check for collisions with other objects
@@ -194,20 +201,25 @@ public class Model {
     }
 
 
-    private void doBallAction(BallAction ballAction, Ball ball, PhysicsValuesDTO phyNewValues) {
+    private void doBallAction(
+            BallAction ballAction,
+            Ball ball,
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues) {
+
         switch (ballAction) {
             case MOVE:
-                ball.doMovement(phyNewValues);
+                ball.doMovement(newPhyValues);
                 ball.setState(BallState.ALIVE);
                 break;
 
             case VERTICAL_REBOUND:
-                ball.doVerticalRebound(phyNewValues);
+                ball.doVerticalRebound(newPhyValues, oldPhyValues);
                 ball.setState(BallState.ALIVE);
                 break;
 
             case HORIZONTAL_REBOUND:
-                ball.doHorizontalRebound(phyNewValues);
+                ball.doHorizontalRebound(newPhyValues, oldPhyValues);
                 ball.setState(BallState.ALIVE);
                 break;
 

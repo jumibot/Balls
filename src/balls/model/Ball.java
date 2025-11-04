@@ -10,6 +10,7 @@ import balls.physics.BasicPhysicsEngine;
 import balls.physics.PhysicsValuesDTO;
 import balls.view.RenderableObject;
 import helpers.DoubleVector;
+import helpers.Position;
 
 
 /**
@@ -108,8 +109,13 @@ public class Ball implements Runnable {
     }
 
 
+    protected PhysicsValuesDTO getPhysicsValues() {
+        return this.phyEngine.getPhysicalValues();
+    }
+
+
     protected synchronized RenderableObject getRenderableObject() {
-        if (this.state != BallState.ALIVE) {
+        if (this.state == BallState.DEAD || this.state == BallState.STARTING) {
             return null;
         }
 
@@ -127,23 +133,33 @@ public class Ball implements Runnable {
     }
 
 
-    protected void doHorizontalRebound(PhysicsValuesDTO phyValues) {
+    protected void doHorizontalRebound(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues) {
+
         DoubleVector newSpeed
                 = new DoubleVector(
-                        -phyValues.speed.getX(),
-                        phyValues.speed.getY());
+                        -newPhyValues.speed.getX(),
+                        newPhyValues.speed.getY());
+
+        Position newPosition
+                = new Position(
+                        0.5,
+                        newPhyValues.position.getY(),
+                        newPhyValues.position.getTimeStamp());
 
         PhysicsValuesDTO reboundPhyValues
                 = new PhysicsValuesDTO(
-                        phyValues.mass,
-                        phyValues.maxModuleAcceleration,
-                        phyValues.maxModuleSpeed,
-                        phyValues.position,
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
                         newSpeed,
-                        phyValues.acceleration
+                        newPhyValues.acceleration
                 );
 
         this.setPhysicalChanges(reboundPhyValues);
+        System.err.println("Horizontal rebound " + this); //*+
     }
 
 
@@ -157,23 +173,33 @@ public class Ball implements Runnable {
     }
 
 
-    protected void doVerticalRebound(PhysicsValuesDTO phyValues) {
+    protected void doVerticalRebound(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues) {
+
         DoubleVector newSpeed
                 = new DoubleVector(
-                        phyValues.speed.getX(),
-                        -phyValues.speed.getY());
+                        newPhyValues.speed.getX(),
+                        -newPhyValues.speed.getY());
+
+        Position newPosition
+                = new Position(
+                        newPhyValues.position.getX(),
+                        0.5,
+                        newPhyValues.position.getTimeStamp());
 
         PhysicsValuesDTO reboundPhyValues
                 = new PhysicsValuesDTO(
-                        phyValues.mass,
-                        phyValues.maxModuleAcceleration,
-                        phyValues.maxModuleSpeed,
-                        phyValues.position,
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
                         newSpeed,
-                        phyValues.acceleration
+                        newPhyValues.acceleration
                 );
 
         this.setPhysicalChanges(reboundPhyValues);
+        System.err.println("Vertical rebound " + this); //*+
     }
 
 
@@ -188,7 +214,7 @@ public class Ball implements Runnable {
                     && (this.model.getState() == ModelState.ALIVE)) {
 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.processBallEvents(this, newPhyValues);
+                this.model.processBallEvents(this, newPhyValues, this.phyEngine.getPhysicalValues());
             }
 
             try {
@@ -198,9 +224,12 @@ public class Ball implements Runnable {
             }
         }
     }
-    
+
+
     public String toString() {
-        return "Ball<" + this.id + ">";
+        return "Ball<" + this.id
+                + "> p" + this.phyEngine.getPhysicalValues().position
+                + " s" + this.phyEngine.getPhysicalValues().speed;
     }
 
 

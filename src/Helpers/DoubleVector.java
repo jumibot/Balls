@@ -84,6 +84,9 @@ public class DoubleVector implements Serializable {
 
     @Override
     public String toString() {
-        return "(" + (int) this.x + " : " + (int) this.y + ")";
+
+        return "("
+                + String.format("%.1f", this.x) + " : "
+                + String.format("%.1f", this.y) + ")";
     }
 }
