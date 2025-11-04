@@ -1,8 +1,8 @@
-package physics;
+package model.physics;
 
 
-import helpers.DoubleVector;
-import helpers.Position;
+import _helpers.DoubleVector;
+import _helpers.Position;
 import static java.lang.System.currentTimeMillis;
 
 

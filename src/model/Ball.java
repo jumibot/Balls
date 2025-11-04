@@ -6,11 +6,11 @@
 package model;
 
 
-import physics.BasicPhysicsEngine;
-import physics.PhysicsValuesDTO;
+import model.physics.BasicPhysicsEngine;
+import model.physics.PhysicsValuesDTO;
 import view.RenderableObject;
-import helpers.DoubleVector;
-import helpers.Position;
+import _helpers.DoubleVector;
+import _helpers.Position;
 
 
 /**

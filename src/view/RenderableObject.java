@@ -6,7 +6,7 @@
 package view;
 
 
-import physics.PhysicsValuesDTO;
+import model.physics.PhysicsValuesDTO;
 import java.awt.Graphics;
 
 

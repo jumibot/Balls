@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
-import physics.PhysicsValuesDTO;
+import model.physics.PhysicsValuesDTO;
 import view.RenderableObject;
-import helpers.DoubleVector;
+import _helpers.DoubleVector;
 
 
 /**

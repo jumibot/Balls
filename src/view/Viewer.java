@@ -1,8 +1,8 @@
 package view;
 
 
-import helpers.DoubleVector;
-import Images.ImageDTO;
+import _helpers.DoubleVector;
+import _images.ImageDTO;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;

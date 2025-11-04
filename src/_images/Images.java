@@ -1,7 +1,7 @@
-package Images;
+package _images;
 
 
-import Helpers.RandomArrayList;
+import _helpers.RandomArrayList;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;

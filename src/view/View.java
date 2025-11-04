@@ -2,8 +2,8 @@ package view;
 
 
 import controller.Controller;
-import Images.ImageDTO;
-import Images.Images;
+import _images.ImageDTO;
+import _images.Images;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

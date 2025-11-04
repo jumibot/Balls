@@ -9,7 +9,7 @@ package balls;
 import controller.Controller;
 import model.Model;
 import view.View;
-import helpers.DoubleVector;
+import _helpers.DoubleVector;
 
 
 /**
