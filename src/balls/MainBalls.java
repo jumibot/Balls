@@ -6,9 +6,9 @@
 package balls;
 
 
-import balls.controller.Controller;
-import balls.model.Model;
-import balls.view.View;
+import controller.Controller;
+import model.Model;
+import view.View;
 import helpers.DoubleVector;
 
 

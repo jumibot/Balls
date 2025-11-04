@@ -3,21 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.view;
+package model;
 
 
-import javax.swing.JPanel;
+import java.io.Serializable;
 
 
 /**
  *
  * @author juanm
  */
-public class ControlPanel extends JPanel {
-    View view;
-    
-    public ControlPanel(View view) {
-        this.view = view;
-    }
-    
+public enum EventType implements Serializable {
+    COLLIDED,
+    NORTH_LIMIT_REACHED,
+    SOUTH_LIMIT_REACHED,
+    EAST_LIMIT_REACHED,
+    WEST_LIMIT_REACHED,
+    NONE
 }

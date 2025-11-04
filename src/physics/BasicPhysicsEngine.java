@@ -1,4 +1,4 @@
-package balls.physics;
+package physics;
 
 
 import helpers.DoubleVector;

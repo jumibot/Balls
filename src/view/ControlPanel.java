@@ -3,19 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.model;
+package view;
+
+
+import javax.swing.JPanel;
 
 
 /**
  *
  * @author juanm
  */
-public enum BallAction {
-    VERTICAL_REBOUND,
-    HORIZONTAL_REBOUND,
-    DIE,
-    TRY_TO_GO_INSIDE,
-    EXPLODE_IN_FRAGMENTS,
-    MOVE,
-    NONE
+public class ControlPanel extends JPanel {
+    View view;
+    
+    public ControlPanel(View view) {
+        this.view = view;
+    }
+    
 }

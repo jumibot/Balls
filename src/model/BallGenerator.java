@@ -1,8 +1,8 @@
-package balls.model;
+package model;
 
 
-import balls.physics.BasicPhysicsEngine;
-import balls.physics.PhysicsValuesDTO;
+import physics.BasicPhysicsEngine;
+import physics.PhysicsValuesDTO;
 import java.util.Random;
 import helpers.DoubleVector;
 import helpers.Position;

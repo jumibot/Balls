@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.model;
+package model;
 
 
-import balls.physics.BasicPhysicsEngine;
-import balls.physics.PhysicsValuesDTO;
-import balls.view.RenderableObject;
+import physics.BasicPhysicsEngine;
+import physics.PhysicsValuesDTO;
+import view.RenderableObject;
 import helpers.DoubleVector;
 import helpers.Position;
 

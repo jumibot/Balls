@@ -1,7 +1,7 @@
-package balls.view;
+package view;
 
 
-import balls.controller.Controller;
+import controller.Controller;
 import Images.ImageDTO;
 import Images.Images;
 import java.awt.Container;

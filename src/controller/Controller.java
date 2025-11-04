@@ -1,12 +1,12 @@
-package balls.controller;
+package controller;
 
 
-import balls.view.RenderableObject;
-import balls.view.View;
-import balls.model.Model;
-import balls.model.Ball;
-import balls.model.BallAction;
-import balls.model.EventType;
+import view.RenderableObject;
+import view.View;
+import model.Model;
+import model.Ball;
+import model.BallAction;
+import model.EventType;
 import java.util.ArrayList;
 
 

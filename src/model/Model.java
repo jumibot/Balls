@@ -1,13 +1,13 @@
-package balls.model;
+package model;
 
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import balls.controller.Controller;
-import balls.physics.PhysicsValuesDTO;
-import balls.view.RenderableObject;
+import controller.Controller;
+import physics.PhysicsValuesDTO;
+import view.RenderableObject;
 import helpers.DoubleVector;
 
 

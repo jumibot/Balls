@@ -3,20 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.model;
-
-
-import java.io.Serializable;
+package model;
 
 
 /**
  *
  * @author juanm
  */
-public enum BallState implements Serializable {
-    STARTING,
-    ALIVE,
-    PAUSED,
-    HANDS_OFF,
-    DEAD
+public enum BallAction {
+    VERTICAL_REBOUND,
+    HORIZONTAL_REBOUND,
+    DIE,
+    TRY_TO_GO_INSIDE,
+    EXPLODE_IN_FRAGMENTS,
+    MOVE,
+    NONE
 }

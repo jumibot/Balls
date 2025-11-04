@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.view;
+package view;
 
 
-import balls.physics.PhysicsValuesDTO;
-import helpers.DoubleVector;
+import physics.PhysicsValuesDTO;
 import java.awt.Graphics;
 
 

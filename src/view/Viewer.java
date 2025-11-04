@@ -1,4 +1,4 @@
-package balls.view;
+package view;
 
 
 import helpers.DoubleVector;

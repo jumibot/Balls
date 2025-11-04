@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls.model;
+package physics;
 
 
 /**
  *
  * @author juanm
  */
-public class BallEventDTO {
+public interface PhysicsEngine {
 
-    public Ball ball;
-    public EventType eventType;
+    public PhysicsValuesDTO calcNewPhysicsValues();
+
 }
