@@ -139,14 +139,14 @@ public class Ball implements Runnable {
 
         DoubleVector newSpeed
                 = new DoubleVector(
-                        -newPhyValues.speed.getX(),
-                        newPhyValues.speed.getY());
+                        -newPhyValues.speed.x,
+                        newPhyValues.speed.y);
 
         Position newPosition
                 = new Position(
                         0.5,
-                        newPhyValues.position.getY(),
-                        newPhyValues.position.getTimeStamp());
+                        newPhyValues.position.y,
+                        newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
                 = new PhysicsValuesDTO(
@@ -179,14 +179,14 @@ public class Ball implements Runnable {
 
         DoubleVector newSpeed
                 = new DoubleVector(
-                        newPhyValues.speed.getX(),
-                        -newPhyValues.speed.getY());
+                        newPhyValues.speed.x,
+                        -newPhyValues.speed.y);
 
         Position newPosition
                 = new Position(
-                        newPhyValues.position.getX(),
+                        newPhyValues.position.x,
                         0.5,
-                        newPhyValues.position.getTimeStamp());
+                        newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
                 = new PhysicsValuesDTO(

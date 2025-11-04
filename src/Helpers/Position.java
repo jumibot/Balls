@@ -7,7 +7,7 @@ import static java.lang.System.currentTimeMillis;
 
 public class Position extends DoubleVector implements Serializable {
 
-    private final long timeStampInMillis;     // Absolute time in milliseconds
+    public final long timeStampInMillis;     // Absolute time in milliseconds
 
 
     /**
@@ -44,15 +44,15 @@ public class Position extends DoubleVector implements Serializable {
      */
     public Position add(DoubleVector dVector) {
         return new Position(
-                this.getX() + dVector.getX(),
-                this.getY() + dVector.getY());
+                this.x + dVector.x,
+                this.y + dVector.y);
     }
 
 
     public Position add(DoubleVector dVector, long timeStamp) {
         return new Position(
-                this.getX() + dVector.getX(),
-                this.getY() + dVector.getY(),
+                this.x + dVector.x,
+                this.y + dVector.y,
                 timeStamp);
     }
 
@@ -60,19 +60,14 @@ public class Position extends DoubleVector implements Serializable {
     public DoubleVector calculateOffset(DoubleVector pos) {
         DoubleVector offset
                 = new DoubleVector(
-                        this.getX() - pos.getX(),
-                        this.getY() - pos.getY());
+                        this.x - pos.x,
+                        this.y - pos.y);
 
         return offset;
     }
 
 
-    public long getTimeStamp() {
-        return this.timeStampInMillis;
-    }
-
-
-    public Position withTimeStamp(long ts) {
-        return new Position(this.getX(), this.getY(), ts);
+    public Position newWithTimeStamp(long ts) {
+        return new Position(this.x, this.y, ts);
     }
 }

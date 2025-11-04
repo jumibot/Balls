@@ -35,7 +35,7 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     public PhysicsValuesDTO calcNewPhysicsValues() {
         // Calculate thee time elapsed since the last displacement calculation
         long timeStamp = currentTimeMillis();
-        long elapsedMillis = timeStamp - this.phyValues.position.getTimeStamp();
+        long elapsedMillis = timeStamp - this.phyValues.position.timeStampInMillis;
 
         // Calculate the displacement due to object speed -> e = v*t
         DoubleVector offset = this.phyValues.speed.scale(elapsedMillis);

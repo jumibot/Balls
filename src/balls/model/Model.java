@@ -187,13 +187,13 @@ public class Model {
         //     In a corner only one event is considered. 
         //     The order of conditions defines the event priority.
 
-        if (phyValues.position.getX() < 0) {
+        if (phyValues.position.x< 0) {
             return (EventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.position.getX() >= this.wordDimension.getX()) {
+        } else if (phyValues.position.x >= this.wordDimension.x) {
             return (EventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.position.getY() < 0) {
+        } else if (phyValues.position.y< 0) {
             return (EventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.position.getY() >= this.wordDimension.getY()) {
+        } else if (phyValues.position.y>= this.wordDimension.y) {
             return (EventType.SOUTH_LIMIT_REACHED);
         }
 

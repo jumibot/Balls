@@ -91,10 +91,10 @@ public class Viewer extends Canvas implements Runnable {
         }
 
         for (RenderableObject renderableObject : renderableObjects) {
-            coordinates = renderableObject.getCoordinates();
+            coordinates = renderableObject.phyValues.position;
 
-            if (coordinates.getX() <= this.viewWidth && coordinates.getY() <= this.viewHeigh
-                    && coordinates.getX() >= 0 && coordinates.getY() >= 0) {
+            if (coordinates.x <= this.viewWidth && coordinates.y <= this.viewHeigh
+                    && coordinates.x >= 0 && coordinates.y >= 0) {
 
                 renderableObject.paint(g);
 

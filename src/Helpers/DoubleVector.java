@@ -6,9 +6,9 @@ import java.io.Serializable;
 
 public class DoubleVector implements Serializable {
 
-    private final double x;
-    private final double y;
-    private final double module;
+    public final double x;
+    public final double y;
+    public final double module;
 
 
     /**
@@ -43,16 +43,6 @@ public class DoubleVector implements Serializable {
     }
 
 
-    public double getX() {
-        return this.x;
-    }
-
-
-    public double getY() {
-        return this.y;
-    }
-
-
     public DoubleVector rotated(double angle) {
         double angleInRadians = Math.toRadians(angle);
         double x = this.x * Math.cos(angleInRadians) - this.y * Math.sin(angleInRadians);
@@ -75,7 +65,7 @@ public class DoubleVector implements Serializable {
     private double calcModule() {
         double module;
 
-        module = Math.pow(Math.abs(this.getX()), 2) + Math.pow(Math.abs(this.getY()), 2);
+        module = Math.pow(Math.abs(this.x), 2) + Math.pow(Math.abs(this.y), 2);
         module = Math.pow(module, 0.5);
 
         return module;

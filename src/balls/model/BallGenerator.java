@@ -188,8 +188,8 @@ public class BallGenerator implements Runnable {
         double x, y;
 
         // Recuperar tamaño del mundo establecido en el modelo
-        x = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().getX();
-        y = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().getY();
+        x = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().x;
+        y = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().y;
 
         Position position = new Position(x, y);
 
