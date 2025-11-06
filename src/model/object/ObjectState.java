@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.object;
 
 
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import java.io.Serializable;
  *
  * @author juanm
  */
-public enum BallState implements Serializable {
+public enum ObjectState implements Serializable {
     STARTING,
     ALIVE,
     PAUSED,

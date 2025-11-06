@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.object;
 
 
 import model.physics.BasicPhysicsEngine;
@@ -11,13 +11,15 @@ import model.physics.PhysicsValuesDTO;
 import view.RenderableObject;
 import _helpers.DoubleVector;
 import _helpers.Position;
+import model.Model;
+import model.ModelState;
 
 
 /**
  *
  * @author juanm
  */
-public class Ball implements Runnable {
+public class Object implements Runnable {
 
     /* TO-DO: Replace individual static counters by one static array of counters */
     private static int aliveQuantity = 0;
@@ -26,7 +28,7 @@ public class Ball implements Runnable {
 
     private Model model;
     private Thread thread;
-    private BallState state;
+    private ObjectState state;
 
     private final int id;
     public final int imageId;
@@ -38,16 +40,19 @@ public class Ball implements Runnable {
     /**
      * CONSTRUCTORS
      */
-    public Ball(int imageId, int radius, BasicPhysicsEngine phyEngine) {
+    public Object(
+            int imageId,
+            int radius,
+            BasicPhysicsEngine phyEngine) {
         this.model = null;
         this.thread = null;
 
-        this.id = Ball.incCreatedQuantity();
+        this.id = Object.incCreatedQuantity();
         this.imageId = imageId;
         this.radius = radius;
 
         this.phyEngine = phyEngine;
-        this.state = BallState.STARTING;
+        this.state = ObjectState.STARTING;
     }
 
 
@@ -71,10 +76,7 @@ public class Ball implements Runnable {
     }
 
 
-    /**
-     * PROTECTED
-     */
-    protected synchronized boolean activate() {
+    public synchronized boolean activate() {
         if (this.model == null) {
             System.err.println("Activation error due ball model is null! · (Ball)");
             return false;
@@ -85,37 +87,32 @@ public class Ball implements Runnable {
             return false;
         }
 
-        if (this.state != BallState.STARTING) {
+        if (this.state != ObjectState.STARTING) {
             System.err.println("Activation error due ball is not starting! · (Ball)");
             return false;
         }
 
-        Ball.incAliveQuantity();
+        Object.incAliveQuantity();
         this.thread = new Thread(this);
         this.thread.setName("Ball Thread · " + this.id);
 
-        this.setState(BallState.ALIVE);
+        this.setState(ObjectState.ALIVE);
         this.thread.start();
         return true;
     }
 
 
-    protected synchronized void die() {
-        if (this.state == BallState.ALIVE) {
-            this.state = BallState.DEAD;
-            Ball.deadQuantity++;
-            Ball.aliveQuantity--;
+    public synchronized void die() {
+        if (this.state == ObjectState.ALIVE) {
+            this.state = ObjectState.DEAD;
+            Object.deadQuantity++;
+            Object.aliveQuantity--;
         }
     }
 
 
-    protected PhysicsValuesDTO getPhysicsValues() {
-        return this.phyEngine.getPhysicalValues();
-    }
-
-
-    protected synchronized RenderableObject getRenderableObject() {
-        if (this.state == BallState.DEAD || this.state == BallState.STARTING) {
+    public synchronized RenderableObject getRenderableObject() {
+        if (this.state == ObjectState.DEAD || this.state == ObjectState.STARTING) {
             return null;
         }
 
@@ -128,12 +125,12 @@ public class Ball implements Runnable {
     }
 
 
-    protected BallState getState() {
+    public ObjectState getState() {
         return this.state;
     }
 
 
-    protected void doHorizontalRebound(
+    public void doHorizontalRebound(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues) {
 
@@ -163,17 +160,17 @@ public class Ball implements Runnable {
     }
 
 
-    protected void setModel(Model model) {
+    public void setModel(Model model) {
         this.model = model;
     }
 
 
-    protected synchronized void setState(BallState state) {
+    public synchronized void setState(ObjectState state) {
         this.state = state;
     }
 
 
-    protected void doVerticalRebound(
+    public void doVerticalRebound(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues) {
 
@@ -203,14 +200,22 @@ public class Ball implements Runnable {
     }
 
 
+    /**
+     * PROTECTED
+     */
+    protected PhysicsValuesDTO getPhysicsValues() {
+        return this.phyEngine.getPhysicalValues();
+    }
+
+
     @Override
     public void run() {
         PhysicsValuesDTO newPhyValues;
 
-        while ((this.getState() != BallState.DEAD)
+        while ((this.getState() != ObjectState.DEAD)
                 && (this.model.getState() != ModelState.STOPPED)) {
 
-            if ((this.getState() == BallState.ALIVE)
+            if ((this.getState() == ObjectState.ALIVE)
                     && (this.model.getState() == ModelState.ALIVE)) {
 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
@@ -226,6 +231,7 @@ public class Ball implements Runnable {
     }
 
 
+    @Override
     public String toString() {
         return "Ball<" + this.id
                 + "> p" + this.phyEngine.getPhysicalValues().position
@@ -236,31 +242,31 @@ public class Ball implements Runnable {
     /**
      * STATICS
      */
-    static protected int getCreatedQuantity() {
-        return Ball.createdQuantity;
+    static public int getCreatedQuantity() {
+        return Object.createdQuantity;
     }
 
 
-    static protected int getAliveQuantity() {
-        return Ball.aliveQuantity;
+    static public int getAliveQuantity() {
+        return Object.aliveQuantity;
     }
 
 
-    static protected int getDeadQuantity() {
-        return Ball.deadQuantity;
+    static public int getDeadQuantity() {
+        return Object.deadQuantity;
     }
 
 
     static synchronized protected int incCreatedQuantity() {
-        Ball.createdQuantity++;
+        Object.createdQuantity++;
 
-        return Ball.createdQuantity;
+        return Object.createdQuantity;
     }
 
 
     static synchronized protected int incAliveQuantity() {
-        Ball.aliveQuantity++;
+        Object.aliveQuantity++;
 
-        return Ball.aliveQuantity;
+        return Object.aliveQuantity;
     }
 }

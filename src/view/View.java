@@ -1,6 +1,7 @@
 package view;
 
 
+import _helpers.DoubleVector;
 import controller.Controller;
 import _images.ImageDTO;
 import _images.Images;
@@ -30,23 +31,21 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private Images objectImages;
     private Images backgroundImages;
     private ImageDTO background;
-
-    private final int GAME_PIX_HEIGHT = 1000;
-    private final int GAME_PIX_WIDTH = 1000;
+    private final DoubleVector worldDimension;
 
 
     /**
      * CONSTRUCTOR
      */
-    public View() {
+    public View(DoubleVector worldDimension) {
         this.objectImages = this.loadObjectImages();
         this.backgroundImages = this.loadBackgroundImages();
-        this.background = this.backgroundImages.getRamdomImageDto();
+        this.background = this.backgroundImages.getRamdomImage();
+        this.worldDimension = worldDimension;
 
         this.controlPanel = new ControlPanel(this);
 
-        this.viewer = new Viewer(this, GAME_PIX_HEIGHT, GAME_PIX_WIDTH, this.background);
-
+        this.viewer = new Viewer(this, this.worldDimension, this.background);
         this.createFrame();
     }
 
@@ -58,9 +57,11 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.controller = controller;
     }
 
+
     public void activate() {
         this.viewer.activate();
     }
+
 
     /**
      * PROTECTED
@@ -114,7 +115,8 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
 
     private Images loadBackgroundImages() {
-        Images images = new Images("src/images/assets/");
+        Images images = new Images("src/_images/assets/");
+
         images.addImageToManifest("background-1.png");
         images.addImageToManifest("background-2.jpeg");
         images.addImageToManifest("background-3.jpeg");
@@ -126,7 +128,8 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
 
     private Images loadObjectImages() {
-        Images images = new Images("src/images/assets/");
+        Images images = new Images("src/_images/assets/");
+
         images.addImageToManifest("asteroid-1-mini.png");
         images.addImageToManifest("asteroid-2-mini.png");
         images.addImageToManifest("spaceship-1.png");

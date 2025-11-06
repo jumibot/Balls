@@ -4,9 +4,9 @@ package controller;
 import view.RenderableObject;
 import view.View;
 import model.Model;
-import model.Ball;
-import model.BallAction;
-import model.EventType;
+import model.object.Object;
+import model.object.ObjectAction;
+import model.ObjectEventType;
 import java.util.ArrayList;
 
 
@@ -36,7 +36,7 @@ public class Controller {
     /**
      * PUBLICS
      */
-    public void addBall(Ball newBall) {
+    public void addBall(Object newBall) {
         this.model.addBall(newBall);
     }
 
@@ -51,34 +51,36 @@ public class Controller {
     }
 
 
-    public BallAction decideAction(EventType eventType) {
-        BallAction ballAction;
+    public ObjectAction decideAction(ObjectEventType eventType) {
+        ObjectAction ballAction;
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                ballAction = BallAction.VERTICAL_REBOUND;
+                ballAction = ObjectAction.VERTICAL_REBOUND;
                 break;
+                
             case SOUTH_LIMIT_REACHED:
-                ballAction = BallAction.VERTICAL_REBOUND;
+                ballAction = ObjectAction.VERTICAL_REBOUND;
                 break;
+                
             case EAST_LIMIT_REACHED:
-                ballAction = BallAction.HORIZONTAL_REBOUND;
-
+                ballAction = ObjectAction.HORIZONTAL_REBOUND;
                 break;
+                
             case WEST_LIMIT_REACHED:
-                ballAction = BallAction.HORIZONTAL_REBOUND;
+                ballAction = ObjectAction.HORIZONTAL_REBOUND;
                 break;
 
             default:
                 // To avoid zombie state
-                ballAction = BallAction.NONE;
+                ballAction = ObjectAction.NONE;
         }
 
         return ballAction;
     }
 
 
-    public BallAction decideAction(EventType eventType, ArrayList<Ball> RelatedBalls) {
+    public ObjectAction decideAction(ObjectEventType eventType, ArrayList<Object> RelatedBalls) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

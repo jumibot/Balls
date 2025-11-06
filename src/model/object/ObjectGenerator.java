@@ -1,11 +1,14 @@
-package model;
+package model.object;
 
 
+import model.object.Object;
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValuesDTO;
 import java.util.Random;
 import _helpers.DoubleVector;
 import _helpers.Position;
+import model.Model;
+import model.ModelState;
 
 
 /**
@@ -13,7 +16,7 @@ import _helpers.Position;
  * VISUAL DYNAMIC OBJECTS GENERATOR
  *
  */
-public class BallGenerator implements Runnable {
+public class ObjectGenerator implements Runnable {
 
     private final Model model;
     private Thread thread;
@@ -21,7 +24,7 @@ public class BallGenerator implements Runnable {
     private double maxMass;
     private double minMass;
     private int maxCreationDelay;       // In millis
-    private double maxAcceleration;     // px/milliseconds^2
+    private double maxAcceleration;     // px X milliseconds^-2
     private double maxSpeed;
     private int maxSize;
     private int minSize;
@@ -34,9 +37,15 @@ public class BallGenerator implements Runnable {
      *
      * @param theGame
      */
-    public BallGenerator(Model model, double maxMass, double minMass,
-            int maxCreationDelay, double maxAcceleration, double maxSpeed,
-            int maxSize, int minSize) {
+    public ObjectGenerator(
+            Model model,
+            double maxMass,
+            double minMass,
+            int maxCreationDelay,
+            double maxAcceleration,
+            double maxSpeed,
+            int maxSize,
+            int minSize) {
 
         this.model = model;
         this.maxMass = maxMass;
@@ -50,9 +59,9 @@ public class BallGenerator implements Runnable {
 
 
     /**
-     * PROTECTED
+     * PUBLIC
      */
-    protected void activate() {
+    public void activate() {
         if (this.model.getState() == ModelState.ALIVE) {
             System.out.println("Model is already ALIVE · BallGenerator");
             return;
@@ -69,6 +78,9 @@ public class BallGenerator implements Runnable {
     }
 
 
+    /**
+     * PROTECTED
+     */
     protected double getMmaxMass() {
         return this.maxMass;
     }
@@ -142,7 +154,7 @@ public class BallGenerator implements Runnable {
     /**
      * PRIVATE
      */
-    private Ball newRandomBall() {
+    private Object newRandomBall() {
         PhysicsValuesDTO phyValues = new PhysicsValuesDTO(
                 this.randomMass(),
                 this.maxAcceleration,
@@ -155,7 +167,7 @@ public class BallGenerator implements Runnable {
         BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
 
         // Signature => Ball(int imageId, int radius, BasicPhysicsEngine phyEngine)
-        Ball newBall = new Ball(1, 20, phyEngine);
+        Object newBall = new Object(1, 20, phyEngine);
 
         return newBall;
     }
@@ -163,24 +175,15 @@ public class BallGenerator implements Runnable {
 
     private DoubleVector randomAcceleration() {
         DoubleVector newAcceleration = new DoubleVector(
-                BallGenerator.rnd.nextGaussian() * this.maxAcceleration,
-                BallGenerator.rnd.nextGaussian() * this.maxAcceleration);
-
-        return newAcceleration;
-    }
-
-
-    private DoubleVector randomSpeed() {
-        DoubleVector newAcceleration = new DoubleVector(
-                BallGenerator.rnd.nextGaussian() * this.maxSpeed,
-                BallGenerator.rnd.nextGaussian() * this.maxSpeed);
+                ObjectGenerator.rnd.nextGaussian() * this.maxAcceleration,
+                ObjectGenerator.rnd.nextGaussian() * this.maxAcceleration);
 
         return newAcceleration;
     }
 
 
     private double randomMass() {
-        return this.minMass + BallGenerator.rnd.nextFloat() * (this.maxMass - this.minMass);
+        return this.minMass + ObjectGenerator.rnd.nextFloat() * (this.maxMass - this.minMass);
     }
 
 
@@ -188,8 +191,8 @@ public class BallGenerator implements Runnable {
         double x, y;
 
         // Recuperar tamaño del mundo establecido en el modelo
-        x = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().x;
-        y = BallGenerator.rnd.nextFloat() * this.model.getWorldDimension().y;
+        x = ObjectGenerator.rnd.nextFloat() * this.model.getWorldDimension().x;
+        y = ObjectGenerator.rnd.nextFloat() * this.model.getWorldDimension().y;
 
         Position position = new Position(x, y);
 
@@ -198,7 +201,16 @@ public class BallGenerator implements Runnable {
 
 
     private double randomSize() {
-        return this.minSize + BallGenerator.rnd.nextFloat() * (this.maxSize - this.minSize);
+        return this.minSize + ObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize);
+    }
+
+
+    private DoubleVector randomSpeed() {
+        DoubleVector newAcceleration = new DoubleVector(
+                ObjectGenerator.rnd.nextGaussian() * this.maxSpeed,
+                ObjectGenerator.rnd.nextGaussian() * this.maxSpeed);
+
+        return newAcceleration;
     }
 
 
@@ -217,7 +229,7 @@ public class BallGenerator implements Runnable {
             }
 
             try {
-                Thread.sleep(BallGenerator.rnd.nextInt(this.maxCreationDelay));
+                Thread.sleep(ObjectGenerator.rnd.nextInt(this.maxCreationDelay));
             } catch (InterruptedException ex) {
             }
         }

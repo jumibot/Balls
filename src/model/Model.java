@@ -1,6 +1,10 @@
 package model;
 
 
+import model.object.ObjectGenerator;
+import model.object.ObjectAction;
+import model.object.ObjectState;
+import model.object.Object;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,9 +25,9 @@ public class Model {
     private final DoubleVector wordDimension;
 
     private Controller controller = null;
-    private BallGenerator ballGenerator = null;
+    private ObjectGenerator ballGenerator = null;
     private ModelState state = ModelState.STARTING;
-    private Map<Integer, Ball> balls = new ConcurrentHashMap<>(4096);
+    private Map<Integer, Object> balls = new ConcurrentHashMap<>(4096);
 
 
     /**
@@ -33,7 +37,7 @@ public class Model {
         this.maxBalls = maxBallsQuantity;
         this.wordDimension = wordDimension;
 
-        this.ballGenerator = new BallGenerator(
+        this.ballGenerator = new ObjectGenerator(
                 this, // Model
                 400, 1, // Mass range
                 300,
@@ -49,8 +53,8 @@ public class Model {
     /**
      * PUBLIC
      */
-    synchronized public boolean addBall(Ball newBall) {
-        if (Ball.getAliveQuantity() >= this.maxBalls) {
+    synchronized public boolean addBall(Object newBall) {
+        if (Object.getAliveQuantity() >= this.maxBalls) {
             // Max balls quantity reached
             return false; // =================================================>
         }
@@ -75,7 +79,7 @@ public class Model {
 
     synchronized public ArrayList<RenderableObject> getRenderableObjects() {
         ArrayList<RenderableObject> renderableObjects
-                = new ArrayList(Ball.getAliveQuantity() * 2);
+                = new ArrayList(Object.getAliveQuantity() * 2);
 
         this.balls.forEach((id, ball) -> {
             if (ball.getRenderableObject() != null) {
@@ -125,23 +129,23 @@ public class Model {
     /**
      * PROTECTED
      */
-    protected void processBallEvents(
-            Ball ballToCheck,
+    public void processBallEvents(
+            Object ballToCheck,
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues) {
 
-        if (ballToCheck.getState() != BallState.ALIVE) {
+        if (ballToCheck.getState() != ObjectState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
 
-        BallState previousState = ballToCheck.getState();
-        ballToCheck.setState(BallState.HANDS_OFF);
-        EventType limitEvent = EventType.NONE;
+        ObjectState previousState = ballToCheck.getState();
+        ballToCheck.setState(ObjectState.HANDS_OFF);
+        ObjectEventType limitEvent = ObjectEventType.NONE;
 
         try {
             limitEvent = this.checkLimitEvent(newPhyValues);
 
-            if (limitEvent != EventType.NONE) {
+            if (limitEvent != ObjectEventType.NONE) {
                 this.doBallAction(
                         this.controller.decideAction(limitEvent),
                         ballToCheck,
@@ -150,21 +154,21 @@ public class Model {
             }
         } catch (Exception e) {
             // Fallback anti-zombi: If exception ocurrs back to previous state
-            if (ballToCheck.getState() == BallState.HANDS_OFF) {
+            if (ballToCheck.getState() == ObjectState.HANDS_OFF) {
                 ballToCheck.setState(previousState);
             }
 
         } finally {
-            if (ballToCheck.getState() == BallState.HANDS_OFF) {
-                ballToCheck.setState(BallState.ALIVE);
+            if (ballToCheck.getState() == ObjectState.HANDS_OFF) {
+                ballToCheck.setState(ObjectState.ALIVE);
             }
         }
 
-        if (limitEvent != EventType.NONE) {
+        if (limitEvent != ObjectEventType.NONE) {
             return; // ========================================================>
         }
 
-        this.doBallAction(BallAction.MOVE, ballToCheck, newPhyValues, oldPhyValues);
+        this.doBallAction(ObjectAction.MOVE, ballToCheck, newPhyValues, oldPhyValues);
 
         // 2 - Check if object want to go inside special areas
         // 3 - Check for collisions with other objects
@@ -174,7 +178,7 @@ public class Model {
     /**
      * PRIVATE
      */
-    synchronized private void removeBall(Ball ball) {
+    synchronized private void removeBall(Object ball) {
         if (this.balls.remove(ball.getId()) == null) {
             return; // ======= Elmento no esta en la lista ========>
         }
@@ -182,68 +186,68 @@ public class Model {
     }
 
 
-    private EventType checkLimitEvent(PhysicsValuesDTO phyValues) {
+    private ObjectEventType checkLimitEvent(PhysicsValuesDTO phyValues) {
         // Check if movement is out of world limits
         //     In a corner only one event is considered. 
         //     The order of conditions defines the event priority.
 
         if (phyValues.position.x< 0) {
-            return (EventType.WEST_LIMIT_REACHED);
+            return (ObjectEventType.WEST_LIMIT_REACHED);
         } else if (phyValues.position.x >= this.wordDimension.x) {
-            return (EventType.EAST_LIMIT_REACHED);
+            return (ObjectEventType.EAST_LIMIT_REACHED);
         } else if (phyValues.position.y< 0) {
-            return (EventType.NORTH_LIMIT_REACHED);
+            return (ObjectEventType.NORTH_LIMIT_REACHED);
         } else if (phyValues.position.y>= this.wordDimension.y) {
-            return (EventType.SOUTH_LIMIT_REACHED);
+            return (ObjectEventType.SOUTH_LIMIT_REACHED);
         }
 
-        return EventType.NONE;
+        return ObjectEventType.NONE;
     }
 
 
     private void doBallAction(
-            BallAction ballAction,
-            Ball ball,
+            ObjectAction ballAction,
+            Object ball,
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues) {
 
         switch (ballAction) {
             case MOVE:
                 ball.doMovement(newPhyValues);
-                ball.setState(BallState.ALIVE);
+                ball.setState(ObjectState.ALIVE);
                 break;
 
             case VERTICAL_REBOUND:
                 ball.doVerticalRebound(newPhyValues, oldPhyValues);
-                ball.setState(BallState.ALIVE);
+                ball.setState(ObjectState.ALIVE);
                 break;
 
             case HORIZONTAL_REBOUND:
                 ball.doHorizontalRebound(newPhyValues, oldPhyValues);
-                ball.setState(BallState.ALIVE);
+                ball.setState(ObjectState.ALIVE);
                 break;
 
             case DIE:
                 this.killBall(ball);
-                ball.setState(BallState.DEAD);
+                ball.setState(ObjectState.DEAD);
                 break;
 
             case TRY_TO_GO_INSIDE:
             case EXPLODE_IN_FRAGMENTS:
                 // to-do
-                ball.setState(BallState.ALIVE);
+                ball.setState(ObjectState.ALIVE);
                 break;
 
             default:
                 // To avoid zombie state
-                ball.setState(BallState.ALIVE);
+                ball.setState(ObjectState.ALIVE);
 
         }
 
     }
 
 
-    private void killBall(Ball ball) {
+    private void killBall(Object ball) {
         /* 
         TO-DO:
         Change ball state to finalize de thread execution
@@ -256,17 +260,17 @@ public class Model {
      * STATIC
      */
     public static long getAlivedBallsQuantity() {
-        return Ball.getAliveQuantity();
+        return Object.getAliveQuantity();
     }
 
 
     public static long getCreatedBallsQuantity() {
-        return Ball.getCreatedQuantity();
+        return Object.getCreatedQuantity();
     }
 
 
     public static long getDeadBallsQuantity() {
-        return Ball.getDeadQuantity();
+        return Object.getDeadQuantity();
     }
 
 }

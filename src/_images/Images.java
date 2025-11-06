@@ -41,7 +41,7 @@ public class Images {
     }
 
 
-    public ImageDTO getRamdomImageDto() {
+    public ImageDTO getRamdomImage() {
         if (!this.imagesLoaded) {
             this.loadAllImages();
         }
@@ -50,7 +50,7 @@ public class Images {
     }
 
 
-    public ImageDTO getImageDto(int order) {
+    public ImageDTO getImage(int order) {
         if (!this.imagesLoaded) {
             this.loadAllImages();
         }
@@ -76,7 +76,6 @@ public class Images {
 
         for (String imageUri : this.imagesManifest) {
             this.images.add(this.loadImage(assetsPath + imageUri));
-
         }
 
         this.imagesLoaded = true;

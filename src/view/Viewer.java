@@ -4,6 +4,7 @@ package view;
 import _helpers.DoubleVector;
 import _images.ImageDTO;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
@@ -24,25 +25,22 @@ public class Viewer extends Canvas implements Runnable {
     private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
-    private int viewHeigh;
-    private int viewWidth;
-
+    private final DoubleVector worldDimension;
     private ImageDTO background;
 
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, int viewHeigh, int viewWidth, ImageDTO background) {
+    public Viewer(View view, DoubleVector worldDimension, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
         this.delayInMillis = 30;
         this.view = view;
-        this.viewHeigh = viewHeigh;
-        this.viewWidth = viewWidth;
+        this.worldDimension = worldDimension; //*+
         this.background = background;
 
-        Dimension d = new Dimension(viewWidth, viewHeigh);
+        Dimension d = new Dimension((int) this.worldDimension.x, (int) this.worldDimension.y);
         this.setPreferredSize(d);
     }
 
@@ -71,17 +69,17 @@ public class Viewer extends Canvas implements Runnable {
 
         // Paint background
         Graphics gg = bs.getDrawGraphics();
-        gg.drawImage(this.background.image, 0, 0, this.viewWidth, this.viewHeigh, null);
+        gg.drawImage(this.background.image, 0, 0, (int) this.worldDimension.x, (int) this.worldDimension.y, null);
 
         // Paint visual objects
-        this.paintVisualBalls(gg);
+        this.paintRenderables(gg);
 
         bs.show();
         gg.dispose();
     }
 
 
-    private void paintVisualBalls(Graphics g) {
+    private void paintRenderables(Graphics g) {
         DoubleVector coordinates;
         ArrayList<RenderableObject> renderableObjects = this.view.getRenderableObjects();
 
@@ -93,7 +91,7 @@ public class Viewer extends Canvas implements Runnable {
         for (RenderableObject renderableObject : renderableObjects) {
             coordinates = renderableObject.phyValues.position;
 
-            if (coordinates.x <= this.viewWidth && coordinates.y <= this.viewHeigh
+            if (coordinates.x <= this.worldDimension.x && coordinates.y <= this.worldDimension.y
                     && coordinates.x >= 0 && coordinates.y >= 0) {
 
                 renderableObject.paint(g);
@@ -115,16 +113,14 @@ public class Viewer extends Canvas implements Runnable {
 
         this.createBufferStrategy(2);
 
-        if ((this.viewHeigh <= 0) || (this.viewWidth <= 0)) {
+        if ((this.worldDimension.x <= 0) || (this.worldDimension.y <= 0)) {
             System.out.println(
-                    "Canvas size error: (" + this.viewWidth + "," + this.viewHeigh + ")");
+                    "Canvas size error: (" + this.worldDimension.x + "," + this.worldDimension.y + ")");
             return; // ========================================================>
         }
-
-        // Show frames
+//         Show frames
         framesCounter = 0;
         millisPerFrame = 1000 / this.maxFramesPerSecond;
-
         while (true) { // TO-DO End condition
             lastPaintMillisTime = currentTimeMillis();
             if (true) { // TO-DO Pause condition
@@ -133,9 +129,8 @@ public class Viewer extends Canvas implements Runnable {
 
             lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
             delayMillis = max(0, millisPerFrame - lastPaintMillis);
-
             try {
-                Thread.sleep(delayMillis);
+                Thread.sleep(100);
             } catch (InterruptedException ex) {
             }
 

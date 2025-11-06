@@ -3,15 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package model.object;
 
 
 /**
  *
  * @author juanm
  */
-public class BallEventDTO {
-
-    public Ball ball;
-    public EventType eventType;
+public enum ObjectAction {
+    VERTICAL_REBOUND,
+    HORIZONTAL_REBOUND,
+    DIE,
+    TRY_TO_GO_INSIDE,
+    EXPLODE_IN_FRAGMENTS,
+    MOVE,
+    NONE
 }

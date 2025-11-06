@@ -6,18 +6,15 @@
 package model;
 
 
-import java.io.Serializable;
+import model.object.Object;
 
 
 /**
  *
  * @author juanm
  */
-public enum EventType implements Serializable {
-    COLLIDED,
-    NORTH_LIMIT_REACHED,
-    SOUTH_LIMIT_REACHED,
-    EAST_LIMIT_REACHED,
-    WEST_LIMIT_REACHED,
-    NONE
+public class ObjectEventDTO {
+
+    public Object ball;
+    public ObjectEventType eventType;
 }
