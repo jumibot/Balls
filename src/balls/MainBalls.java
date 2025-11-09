@@ -22,9 +22,9 @@ public class MainBalls {
 
 
     public static void main(String[] args) {
-        DoubleVector worldDimension = new DoubleVector(800,800);
+        DoubleVector worldDimension = new DoubleVector(1000,600);
         View view = new View(worldDimension);
-        Model model = new Model(2, worldDimension);
+        Model model = new Model(8000, worldDimension);
         MainBalls.controller = new Controller(view, model);
     }
 }

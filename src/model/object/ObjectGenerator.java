@@ -1,7 +1,6 @@
 package model.object;
 
 
-import model.object.Object;
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValuesDTO;
 import java.util.Random;
@@ -167,7 +166,7 @@ public class ObjectGenerator implements Runnable {
         BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
 
         // Signature => Ball(int imageId, int radius, BasicPhysicsEngine phyEngine)
-        Object newBall = new Object(1, 20, phyEngine);
+        Object newBall = new Object(1, this.randomSize(), phyEngine);
 
         return newBall;
     }
@@ -175,8 +174,9 @@ public class ObjectGenerator implements Runnable {
 
     private DoubleVector randomAcceleration() {
         DoubleVector newAcceleration = new DoubleVector(
-                ObjectGenerator.rnd.nextGaussian() * this.maxAcceleration,
-                ObjectGenerator.rnd.nextGaussian() * this.maxAcceleration);
+                ObjectGenerator.rnd.nextGaussian(),
+                ObjectGenerator.rnd.nextGaussian(),
+                ObjectGenerator.rnd.nextFloat() * this.maxAcceleration);
 
         return newAcceleration;
     }
@@ -200,15 +200,16 @@ public class ObjectGenerator implements Runnable {
     }
 
 
-    private double randomSize() {
-        return this.minSize + ObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize);
+    private int randomSize() {
+        return (int) (this.minSize + ObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize));
     }
 
 
     private DoubleVector randomSpeed() {
         DoubleVector newAcceleration = new DoubleVector(
-                ObjectGenerator.rnd.nextGaussian() * this.maxSpeed,
-                ObjectGenerator.rnd.nextGaussian() * this.maxSpeed);
+                ObjectGenerator.rnd.nextGaussian(),
+                ObjectGenerator.rnd.nextGaussian(),
+                ObjectGenerator.rnd.nextFloat() * this.maxSpeed);
 
         return newAcceleration;
     }

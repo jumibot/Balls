@@ -2,11 +2,12 @@ package view;
 
 
 import _helpers.DoubleVector;
+import _helpers.Position;
 import _images.ImageDTO;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 import static java.lang.Long.max;
 import static java.lang.System.currentTimeMillis;
@@ -19,28 +20,28 @@ import java.util.ArrayList;
  */
 public class Viewer extends Canvas implements Runnable {
 
-    private View view;
+    private final View view;
     private Thread thread;
 
     private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
-    private final DoubleVector worldDimension;
+    private final DoubleVector viewDimension;
     private ImageDTO background;
 
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, DoubleVector worldDimension, ImageDTO background) {
+    public Viewer(View view, DoubleVector viewDimension, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
         this.delayInMillis = 30;
         this.view = view;
-        this.worldDimension = worldDimension; //*+
+        this.viewDimension = viewDimension; //*+
         this.background = background;
 
-        Dimension d = new Dimension((int) this.worldDimension.x, (int) this.worldDimension.y);
+        Dimension d = new Dimension((int) this.viewDimension.x, (int) this.viewDimension.y);
         this.setPreferredSize(d);
     }
 
@@ -68,8 +69,8 @@ public class Viewer extends Canvas implements Runnable {
         }
 
         // Paint background
-        Graphics gg = bs.getDrawGraphics();
-        gg.drawImage(this.background.image, 0, 0, (int) this.worldDimension.x, (int) this.worldDimension.y, null);
+        Graphics2D gg = (Graphics2D) bs.getDrawGraphics();
+        gg.drawImage(this.background.image, 0, 0, (int) this.viewDimension.x, (int) this.viewDimension.y, null);
 
         // Paint visual objects
         this.paintRenderables(gg);
@@ -79,25 +80,30 @@ public class Viewer extends Canvas implements Runnable {
     }
 
 
-    private void paintRenderables(Graphics g) {
-        DoubleVector coordinates;
+    private void paintRenderables(Graphics2D g) {
+        Position position;
         ArrayList<RenderableObject> renderableObjects = this.view.getRenderableObjects();
 
         if (renderableObjects == null) {
             System.out.println("RenderableObjects ArrayList is null · Viewer");
-            return;
+            return; // =======================================================>>
+        }
+        if (renderableObjects.isEmpty()) {
+            System.out.println("No objects to render · Viewer");
+            return; // =======================================================>>
         }
 
         for (RenderableObject renderableObject : renderableObjects) {
-            coordinates = renderableObject.phyValues.position;
+            position = renderableObject.phyValues.position;
 
-            if (coordinates.x <= this.worldDimension.x && coordinates.y <= this.worldDimension.y
-                    && coordinates.x >= 0 && coordinates.y >= 0) {
+            // Prevent to paint objects out of view => clipping
+            if (position.x <= this.viewDimension.x && position.y <= this.viewDimension.y
+                    && position.x >= 0 && position.y >= 0) {
 
-                renderableObject.paint(g);
+                renderableObject.paint(g, position);
 
             } else {
-                System.out.println("NO Paint" + renderableObject);
+//                System.out.println("NO Paint" + renderableObject);
             }
         }
     }
@@ -107,15 +113,15 @@ public class Viewer extends Canvas implements Runnable {
     public void run() {
         long lastPaintMillisTime;
         long lastPaintMillis;
-        long delayMillis = 1000;
+        long delayMillis = 10;
         long millisPerFrame;
         int framesCounter;
 
         this.createBufferStrategy(2);
 
-        if ((this.worldDimension.x <= 0) || (this.worldDimension.y <= 0)) {
+        if ((this.viewDimension.x <= 0) || (this.viewDimension.y <= 0)) {
             System.out.println(
-                    "Canvas size error: (" + this.worldDimension.x + "," + this.worldDimension.y + ")");
+                    "Canvas size error: (" + this.viewDimension.x + "," + this.viewDimension.y + ")");
             return; // ========================================================>
         }
 //         Show frames
@@ -130,10 +136,9 @@ public class Viewer extends Canvas implements Runnable {
             lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
             delayMillis = max(0, millisPerFrame - lastPaintMillis);
             try {
-                Thread.sleep(100);
+                Thread.sleep(delayMillis);
             } catch (InterruptedException ex) {
             }
-
         }
     }
 }

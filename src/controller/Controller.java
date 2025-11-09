@@ -58,15 +58,15 @@ public class Controller {
             case NORTH_LIMIT_REACHED:
                 ballAction = ObjectAction.VERTICAL_REBOUND;
                 break;
-                
+
             case SOUTH_LIMIT_REACHED:
                 ballAction = ObjectAction.VERTICAL_REBOUND;
                 break;
-                
+
             case EAST_LIMIT_REACHED:
                 ballAction = ObjectAction.HORIZONTAL_REBOUND;
                 break;
-                
+
             case WEST_LIMIT_REACHED:
                 ballAction = ObjectAction.HORIZONTAL_REBOUND;
                 break;

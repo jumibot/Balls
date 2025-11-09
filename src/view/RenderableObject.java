@@ -6,8 +6,11 @@
 package view;
 
 
+import _helpers.DoubleVector;
+import java.awt.Color;
 import model.physics.PhysicsValuesDTO;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 
 /**
@@ -18,23 +21,32 @@ public class RenderableObject {
 
     public final int id;
     public final int imageId;
-    public final int maxSizeInPx;
+    public final int maxSize;
     public final PhysicsValuesDTO phyValues;
     // Color
     // ...
 
 
-    public RenderableObject(int id, int imageId, int maxSizeInPx, PhysicsValuesDTO phyValues) {
+    public RenderableObject(
+            int id,
+            int imageId,
+            int maxSize,
+            PhysicsValuesDTO phyValues) {
 
         this.id = id;
         this.imageId = imageId;
-        this.maxSizeInPx = maxSizeInPx;
+        this.maxSize = maxSize;
         this.phyValues = phyValues;
     }
 
 
-    synchronized public void paint(Graphics gr) {
-
+    synchronized public void paint(Graphics2D gr, DoubleVector pos) {
+        gr.setColor(Color.BLUE);
+        gr.fillOval(
+                (int) pos.x - this.maxSize,
+                (int) pos.y - this.maxSize,
+                2 * this.maxSize,
+                2 * this.maxSize);
     }
 
 

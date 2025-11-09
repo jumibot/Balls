@@ -14,11 +14,12 @@ import javax.imageio.ImageIO;
  */
 public class Images {
 
-    private RandomArrayList<String> imagesManifest;
-    private RandomArrayList<ImageDTO> images;
-    private boolean imagesLoaded = false;
-    private String assetsPath;
+    private final String assetsPath;
+    private final RandomArrayList<ImageDTO> images;
+    private final RandomArrayList<String> imagesManifest;
+
     private int imagesQuantity;
+    private boolean imagesLoaded = false;
 
 
     /**
@@ -41,15 +42,6 @@ public class Images {
     }
 
 
-    public ImageDTO getRamdomImage() {
-        if (!this.imagesLoaded) {
-            this.loadAllImages();
-        }
-
-        return this.images.choice();
-    }
-
-
     public ImageDTO getImage(int order) {
         if (!this.imagesLoaded) {
             this.loadAllImages();
@@ -69,7 +61,19 @@ public class Images {
     }
 
 
-    public void loadAllImages() {
+    public ImageDTO getRamdomImage() {
+        if (!this.imagesLoaded) {
+            this.loadAllImages();
+        }
+
+        return this.images.choice();
+    }
+
+
+    /**
+     * PRIVATE
+     */
+    private void loadAllImages() {
         if (this.imagesLoaded) {
             return;
         }

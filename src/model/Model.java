@@ -38,12 +38,12 @@ public class Model {
         this.wordDimension = wordDimension;
 
         this.ballGenerator = new ObjectGenerator(
-                this, // Model
-                400, 1, // Mass range
-                300,
-                0.001, // Max acceleration in px X millisecond^-2
-                0.2, // MaxSpeed,
-                40, 1 // Size range in px
+                this, // .... Model
+                400, 1, // .. Mass range
+                1, // ..... Max creation delay 
+                0.0005, // ....... Max acceleration in px X millisecond^-2
+                0.5, // ..... MaxSpeed,
+                3, 1 // ..... Size range in px
         );
 
         this.ballGenerator.activate();
@@ -218,12 +218,12 @@ public class Model {
                 break;
 
             case VERTICAL_REBOUND:
-                ball.doVerticalRebound(newPhyValues, oldPhyValues);
+                ball.reboundInY(newPhyValues, oldPhyValues, this.wordDimension);
                 ball.setState(ObjectState.ALIVE);
                 break;
 
             case HORIZONTAL_REBOUND:
-                ball.doHorizontalRebound(newPhyValues, oldPhyValues);
+                ball.reboundInX(newPhyValues, oldPhyValues, this.wordDimension);
                 ball.setState(ObjectState.ALIVE);
                 break;
 

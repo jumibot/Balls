@@ -21,6 +21,20 @@ public class DoubleVector implements Serializable {
     }
 
 
+    public DoubleVector(double x, double y, double fixedModule) {
+        double module;
+
+        // Adjust the vector module       
+        module = Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2);
+        module = Math.pow(module, 0.5);
+
+        this.x = x / module * fixedModule;
+        this.y = y / module * fixedModule;
+
+        this.module = this.calcModule();
+    }
+
+
     public DoubleVector(DoubleVector dVector) {
         this.x = dVector.x;
         this.y = dVector.y;
@@ -76,7 +90,7 @@ public class DoubleVector implements Serializable {
     public String toString() {
 
         return "("
-                + String.format("%.1f", this.x) + " : "
-                + String.format("%.1f", this.y) + ")";
+                + String.format("%.3f", this.x) + " : "
+                + String.format("%.3f", this.y) + ")";
     }
 }

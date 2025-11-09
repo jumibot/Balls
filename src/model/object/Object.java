@@ -130,9 +130,10 @@ public class Object implements Runnable {
     }
 
 
-    public void doHorizontalRebound(
+    public void reboundInX(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues) {
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -141,8 +142,8 @@ public class Object implements Runnable {
 
         Position newPosition
                 = new Position(
-                        0.5,
-                        newPhyValues.position.y,
+                        Math.max(0.5, newPhyValues.position.x),
+                        Math.min(worldDimension.y - 0.5, newPhyValues.position.y),
                         newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
@@ -156,7 +157,36 @@ public class Object implements Runnable {
                 );
 
         this.setPhysicalChanges(reboundPhyValues);
-        System.err.println("Horizontal rebound " + this); //*+
+//        System.err.println("Horizontal rebound " + this); //*+
+    }
+
+
+    public void reboundInY(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
+
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        newPhyValues.speed.x,
+                        -newPhyValues.speed.y);
+
+        Position newPosition
+                = new Position(
+                        this.adjustBounds(worldDimension, newPhyValues, 0.5),
+                        newPhyValues.position.timeStampInMillis);
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
+                        newSpeed,
+                        newPhyValues.acceleration
+                );
+
+        this.setPhysicalChanges(reboundPhyValues);
+//        System.err.println("Vertical rebound " + this); //*+
     }
 
 
@@ -167,36 +197,6 @@ public class Object implements Runnable {
 
     public synchronized void setState(ObjectState state) {
         this.state = state;
-    }
-
-
-    public void doVerticalRebound(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues) {
-
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        newPhyValues.speed.x,
-                        -newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        newPhyValues.position.x,
-                        0.5,
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-        System.err.println("Vertical rebound " + this); //*+
     }
 
 
@@ -223,7 +223,7 @@ public class Object implements Runnable {
             }
 
             try {
-                Thread.sleep(40);
+                Thread.sleep(20);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in ball thread! (Ball) · " + ex.getMessage());
             }
@@ -236,6 +236,24 @@ public class Object implements Runnable {
         return "Ball<" + this.id
                 + "> p" + this.phyEngine.getPhysicalValues().position
                 + " s" + this.phyEngine.getPhysicalValues().speed;
+    }
+
+
+    /**
+     * PRIVATE
+     */
+
+    private DoubleVector adjustBounds(
+            DoubleVector worldDimension,
+            PhysicsValuesDTO phyValues, double delta) {
+
+        double x = Math.max(phyValues.position.x, delta);
+        x = Math.min(x, worldDimension.x - delta);
+
+        double y = Math.max(phyValues.position.y, delta);
+        y = Math.min(y, worldDimension.y - delta);
+
+        return new DoubleVector(x, y);
     }
 
 
