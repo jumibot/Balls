@@ -36,7 +36,7 @@ public class Viewer extends Canvas implements Runnable {
     public Viewer(View view, DoubleVector viewDimension, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
-        this.delayInMillis = 30;
+        this.delayInMillis = 10;
         this.view = view;
         this.viewDimension = viewDimension; //*+
         this.background = background;

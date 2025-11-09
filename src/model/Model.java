@@ -41,9 +41,9 @@ public class Model {
                 this, // .... Model
                 400, 1, // .. Mass range
                 1, // ..... Max creation delay 
-                0.0005, // ....... Max acceleration in px X millisecond^-2
-                0.5, // ..... MaxSpeed,
-                3, 1 // ..... Size range in px
+                0.00005, // ....... Max acceleration in px X millisecond^-2
+                0.3, // ..... MaxSpeed,
+                6, 1 // ..... Size range in px
         );
 
         this.ballGenerator.activate();
@@ -191,13 +191,13 @@ public class Model {
         //     In a corner only one event is considered. 
         //     The order of conditions defines the event priority.
 
-        if (phyValues.position.x< 0) {
-            return (ObjectEventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.position.x >= this.wordDimension.x) {
+        if (phyValues.position.x < 0) {
             return (ObjectEventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.position.y< 0) {
+        } else if (phyValues.position.x >= this.wordDimension.x) {
+            return (ObjectEventType.WEST_LIMIT_REACHED);
+        } else if (phyValues.position.y < 0) {
             return (ObjectEventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.position.y>= this.wordDimension.y) {
+        } else if (phyValues.position.y >= this.wordDimension.y) {
             return (ObjectEventType.SOUTH_LIMIT_REACHED);
         }
 
@@ -217,13 +217,23 @@ public class Model {
                 ball.setState(ObjectState.ALIVE);
                 break;
 
-            case VERTICAL_REBOUND:
-                ball.reboundInY(newPhyValues, oldPhyValues, this.wordDimension);
+            case REBOUND_IN_EAST:
+                ball.reboundInEast(newPhyValues, oldPhyValues, this.wordDimension);
                 ball.setState(ObjectState.ALIVE);
                 break;
-
-            case HORIZONTAL_REBOUND:
-                ball.reboundInX(newPhyValues, oldPhyValues, this.wordDimension);
+                
+            case REBOUND_IN_WEST:
+                ball.reboundInWest(newPhyValues, oldPhyValues, this.wordDimension);
+                ball.setState(ObjectState.ALIVE);
+                break;
+                
+            case REBOUND_IN_NORTH:
+                ball.reboundInNorth(newPhyValues, oldPhyValues, this.wordDimension);
+                ball.setState(ObjectState.ALIVE);
+                break;
+                
+            case REBOUND_IN_SOUTH:
+                ball.reboundInSouth(newPhyValues, oldPhyValues, this.wordDimension);
                 ball.setState(ObjectState.ALIVE);
                 break;
 

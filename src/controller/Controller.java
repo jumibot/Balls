@@ -56,19 +56,19 @@ public class Controller {
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                ballAction = ObjectAction.VERTICAL_REBOUND;
+                ballAction = ObjectAction.REBOUND_IN_NORTH;
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                ballAction = ObjectAction.VERTICAL_REBOUND;
+                ballAction = ObjectAction.REBOUND_IN_SOUTH;
                 break;
 
             case EAST_LIMIT_REACHED:
-                ballAction = ObjectAction.HORIZONTAL_REBOUND;
+                ballAction = ObjectAction.REBOUND_IN_EAST;
                 break;
 
             case WEST_LIMIT_REACHED:
-                ballAction = ObjectAction.HORIZONTAL_REBOUND;
+                ballAction = ObjectAction.REBOUND_IN_WEST;
                 break;
 
             default:

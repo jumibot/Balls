@@ -24,7 +24,7 @@ public class MainBalls {
     public static void main(String[] args) {
         DoubleVector worldDimension = new DoubleVector(1000,600);
         View view = new View(worldDimension);
-        Model model = new Model(8000, worldDimension);
+        Model model = new Model(50, worldDimension);
         MainBalls.controller = new Controller(view, model);
     }
 }
