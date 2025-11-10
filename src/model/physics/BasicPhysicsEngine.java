@@ -28,6 +28,7 @@ public class BasicPhysicsEngine implements PhysicsEngine {
 
     /**
      * PUBLICS
+     * @return 
      */
     @Override
     public PhysicsValuesDTO calcNewPhysicsValues() {
@@ -57,16 +58,19 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     }
 
 
+    @Override
     public void doMovement(PhysicsValuesDTO phyValues) {
         this.setPhysicalValues(phyValues);
     }
 
 
+    @Override
     public PhysicsValuesDTO getPhysicalValues() {
         return this.phyValues;
     }
 
 
+    @Override
     public void reboundInEast(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
@@ -97,6 +101,7 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     }
 
 
+    @Override
     public void reboundInWest(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
@@ -127,9 +132,11 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     }
 
 
+    @Override
     public void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
+            PhysicsValuesDTO oldPhyValues, 
+            DoubleVector worldDimension) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -155,10 +162,12 @@ public class BasicPhysicsEngine implements PhysicsEngine {
         this.setPhysicalValues(reboundPhyValues);
     }
 
-
+    
+    @Override
     public void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
+            PhysicsValuesDTO oldPhyValues, 
+            DoubleVector worldDimension) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
