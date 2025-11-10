@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package balls;
+package Objects;
 
 
 import controller.Controller;
@@ -16,7 +16,7 @@ import _helpers.DoubleVector;
  *
  * @author juanm
  */
-public class MainBalls {
+public class MainObjects {
 
     private static Controller controller;
 
@@ -25,6 +25,6 @@ public class MainBalls {
         DoubleVector worldDimension = new DoubleVector(1000,600);
         View view = new View(worldDimension);
         Model model = new Model(50, worldDimension);
-        MainBalls.controller = new Controller(view, model);
+        MainObjects.controller = new Controller(view, model);
     }
 }

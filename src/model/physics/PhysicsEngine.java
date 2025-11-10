@@ -6,12 +6,45 @@
 package model.physics;
 
 
+import _helpers.DoubleVector;
+
+
 /**
  *
  * @author juanm
  */
 public interface PhysicsEngine {
 
-    public PhysicsValuesDTO calcNewPhysicsValues();
+    public abstract PhysicsValuesDTO calcNewPhysicsValues();
+
+
+    public abstract void doMovement(PhysicsValuesDTO phyValues);
+
+
+    public abstract PhysicsValuesDTO getPhysicalValues();
+
+
+    public abstract void reboundInEast(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension);
+
+
+    public abstract void reboundInWest(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension);
+
+
+    public abstract void reboundInNorth(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension);
+
+
+    public abstract void reboundInSouth(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension);
 
 }
