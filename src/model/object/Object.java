@@ -65,17 +65,12 @@ public class Object implements Runnable {
     public void doMovement(PhysicsValuesDTO phyValues) {
 
 //        System.out.println("Do movement · Ball <" + this.id + "> " + phyValues.position);
-        this.phyEngine.setPhysicalValues(phyValues);
+        this.phyEngine.doMovement(phyValues);
     }
 
 
     public int getId() {
         return this.id;
-    }
-
-
-    public void setPhysicalChanges(PhysicsValuesDTO newPhyValues) {
-        this.phyEngine.setPhysicalValues(newPhyValues);
     }
 
 
@@ -140,30 +135,7 @@ public class Object implements Runnable {
             DoubleVector worldDimension) {
 
         this.color = Color.pink;
-
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        -newPhyValues.speed.x,
-                        newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        0.5,
-                        newPhyValues.position.y,
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Horizontal rebound " + this); //*+
+        this.phyEngine.reboundInEast(newPhyValues, oldPhyValues, worldDimension);
     }
 
 
@@ -173,30 +145,7 @@ public class Object implements Runnable {
             DoubleVector worldDimension) {
 
         this.color = Color.yellow;
-
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        -newPhyValues.speed.x,
-                        newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        worldDimension.x - 0.5,
-                        newPhyValues.position.y,
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Horizontal rebound " + this); //*+
+        this.phyEngine.reboundInWest(newPhyValues, oldPhyValues, worldDimension);
     }
 
 
@@ -205,62 +154,15 @@ public class Object implements Runnable {
             PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
 
         this.color = Color.red;
-
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        newPhyValues.speed.x,
-                        -newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        newPhyValues.position.x,
-                        0.5,
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Vertical rebound " + this); //*+
+        this.phyEngine.reboundInNorth(newPhyValues, oldPhyValues, worldDimension);
     }
-
 
     public void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
 
         this.color = Color.cyan;
-
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        newPhyValues.speed.x,
-                        -newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        newPhyValues.position.x,
-                        worldDimension.y - 0.5,
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Vertical rebound " + this); //*+
+        this.phyEngine.reboundInSouth(newPhyValues, oldPhyValues, worldDimension);
     }
 
 
