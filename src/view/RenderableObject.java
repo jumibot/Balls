@@ -22,8 +22,9 @@ public class RenderableObject {
     public final int id;
     public final int imageId;
     public final int maxSize;
+    public final Color color;
+    
     public final PhysicsValuesDTO phyValues;
-    // Color
     // ...
 
 
@@ -31,17 +32,19 @@ public class RenderableObject {
             int id,
             int imageId,
             int maxSize,
+            Color color,
             PhysicsValuesDTO phyValues) {
 
         this.id = id;
         this.imageId = imageId;
         this.maxSize = maxSize;
+        this.color = color;
         this.phyValues = phyValues;
     }
 
 
     synchronized public void paint(Graphics2D gr, DoubleVector pos) {
-        gr.setColor(Color.BLUE);
+        gr.setColor(this.color);
         gr.fillOval(
                 (int) pos.x - this.maxSize,
                 (int) pos.y - this.maxSize,

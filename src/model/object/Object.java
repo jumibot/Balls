@@ -11,6 +11,7 @@ import model.physics.PhysicsValuesDTO;
 import view.RenderableObject;
 import _helpers.DoubleVector;
 import _helpers.Position;
+import java.awt.Color;
 import model.Model;
 import model.ModelState;
 
@@ -33,6 +34,7 @@ public class Object implements Runnable {
     private final int id;
     public final int imageId;
     public final int radius;
+    private Color color;
 
     private final BasicPhysicsEngine phyEngine; // Convert to Atomic Reference
 
@@ -50,6 +52,7 @@ public class Object implements Runnable {
         this.id = Object.incCreatedQuantity();
         this.imageId = imageId;
         this.radius = radius;
+        this.color = Color.BLUE;
 
         this.phyEngine = phyEngine;
         this.state = ObjectState.STARTING;
@@ -62,17 +65,12 @@ public class Object implements Runnable {
     public void doMovement(PhysicsValuesDTO phyValues) {
 
 //        System.out.println("Do movement · Ball <" + this.id + "> " + phyValues.position);
-        this.phyEngine.setPhysicalValues(phyValues);
+        this.phyEngine.doMovement(phyValues);
     }
 
 
     public int getId() {
         return this.id;
-    }
-
-
-    public void setPhysicalChanges(PhysicsValuesDTO newPhyValues) {
-        this.phyEngine.setPhysicalValues(newPhyValues);
     }
 
 
@@ -120,6 +118,7 @@ public class Object implements Runnable {
                 this.id,
                 this.imageId,
                 this.radius,
+                this.color,
                 this.phyEngine.getPhysicalValues()
         );
     }
@@ -130,63 +129,40 @@ public class Object implements Runnable {
     }
 
 
-    public void reboundInX(
+    public void reboundInEast(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension) {
 
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        -newPhyValues.speed.x,
-                        newPhyValues.speed.y);
-
-        Position newPosition
-                = new Position(
-                        Math.max(0.5, newPhyValues.position.x),
-                        Math.min(worldDimension.y - 0.5, newPhyValues.position.y),
-                        newPhyValues.position.timeStampInMillis);
-
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Horizontal rebound " + this); //*+
+        this.color = Color.pink;
+        this.phyEngine.reboundInEast(newPhyValues, oldPhyValues, worldDimension);
     }
 
 
-    public void reboundInY(
+    public void reboundInWest(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension) {
+
+        this.color = Color.yellow;
+        this.phyEngine.reboundInWest(newPhyValues, oldPhyValues, worldDimension);
+    }
+
+
+    public void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
 
-        DoubleVector newSpeed
-                = new DoubleVector(
-                        newPhyValues.speed.x,
-                        -newPhyValues.speed.y);
+        this.color = Color.red;
+        this.phyEngine.reboundInNorth(newPhyValues, oldPhyValues, worldDimension);
+    }
 
-        Position newPosition
-                = new Position(
-                        this.adjustBounds(worldDimension, newPhyValues, 0.5),
-                        newPhyValues.position.timeStampInMillis);
+    public void reboundInSouth(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
 
-        PhysicsValuesDTO reboundPhyValues
-                = new PhysicsValuesDTO(
-                        newPhyValues.mass,
-                        newPhyValues.maxModuleAcceleration,
-                        newPhyValues.maxModuleSpeed,
-                        newPosition,
-                        newSpeed,
-                        newPhyValues.acceleration
-                );
-
-        this.setPhysicalChanges(reboundPhyValues);
-//        System.err.println("Vertical rebound " + this); //*+
+        this.color = Color.cyan;
+        this.phyEngine.reboundInSouth(newPhyValues, oldPhyValues, worldDimension);
     }
 
 
@@ -223,7 +199,7 @@ public class Object implements Runnable {
             }
 
             try {
-                Thread.sleep(20);
+                Thread.sleep(5);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in ball thread! (Ball) · " + ex.getMessage());
             }
@@ -242,7 +218,6 @@ public class Object implements Runnable {
     /**
      * PRIVATE
      */
-
     private DoubleVector adjustBounds(
             DoubleVector worldDimension,
             PhysicsValuesDTO phyValues, double delta) {

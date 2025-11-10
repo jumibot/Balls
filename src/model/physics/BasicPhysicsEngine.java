@@ -15,8 +15,6 @@ import static java.lang.System.currentTimeMillis;
  */
 public class BasicPhysicsEngine implements PhysicsEngine {
 
-    private static boolean debugMode = false;
-
     private PhysicsValuesDTO phyValues; // Convertir en referencia atómica
 
 
@@ -59,8 +57,8 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     }
 
 
-    public DoubleVector getCoordinates() {
-        return new DoubleVector(this.phyValues.position);
+    public void doMovement(PhysicsValuesDTO phyValues) {
+        this.setPhysicalValues(phyValues);
     }
 
 
@@ -69,7 +67,129 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     }
 
 
-    public void setPhysicalValues(PhysicsValuesDTO newPhyValues) {
+    public void reboundInEast(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension) {
+
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        -newPhyValues.speed.x,
+                        newPhyValues.speed.y);
+
+        Position newPosition
+                = new Position(
+                        0.5,
+                        newPhyValues.position.y,
+                        newPhyValues.position.timeStampInMillis);
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
+                        newSpeed,
+                        newPhyValues.acceleration
+                );
+
+        this.setPhysicalValues(reboundPhyValues);
+    }
+
+
+    public void reboundInWest(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues,
+            DoubleVector worldDimension) {
+
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        -newPhyValues.speed.x,
+                        newPhyValues.speed.y);
+
+        Position newPosition
+                = new Position(
+                        worldDimension.x - 0.5,
+                        newPhyValues.position.y,
+                        newPhyValues.position.timeStampInMillis);
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
+                        newSpeed,
+                        newPhyValues.acceleration
+                );
+
+        this.setPhysicalValues(reboundPhyValues);
+    }
+
+
+    public void reboundInNorth(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
+
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        newPhyValues.speed.x,
+                        -newPhyValues.speed.y);
+
+        Position newPosition
+                = new Position(
+                        newPhyValues.position.x,
+                        0.5,
+                        newPhyValues.position.timeStampInMillis);
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
+                        newSpeed,
+                        newPhyValues.acceleration
+                );
+
+        this.setPhysicalValues(reboundPhyValues);
+    }
+
+
+    public void reboundInSouth(
+            PhysicsValuesDTO newPhyValues,
+            PhysicsValuesDTO oldPhyValues, DoubleVector worldDimension) {
+
+        DoubleVector newSpeed
+                = new DoubleVector(
+                        newPhyValues.speed.x,
+                        -newPhyValues.speed.y);
+
+        Position newPosition
+                = new Position(
+                        newPhyValues.position.x,
+                        worldDimension.y - 0.5,
+                        newPhyValues.position.timeStampInMillis);
+
+        PhysicsValuesDTO reboundPhyValues
+                = new PhysicsValuesDTO(
+                        newPhyValues.mass,
+                        newPhyValues.maxModuleAcceleration,
+                        newPhyValues.maxModuleSpeed,
+                        newPosition,
+                        newSpeed,
+                        newPhyValues.acceleration
+                );
+
+        this.setPhysicalValues(reboundPhyValues);
+    }
+
+
+    /*
+        PRIVATE
+     */
+    private void setPhysicalValues(PhysicsValuesDTO newPhyValues) {
         this.phyValues = newPhyValues;
     }
+
 }
