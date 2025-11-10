@@ -15,34 +15,34 @@ import _helpers.DoubleVector;
  */
 public interface PhysicsEngine {
 
-    public PhysicsValuesDTO calcNewPhysicsValues();
+    public abstract PhysicsValuesDTO calcNewPhysicsValues();
 
 
-    public void doMovement(PhysicsValuesDTO phyValues);
+    public abstract void doMovement(PhysicsValuesDTO phyValues);
 
 
-    public PhysicsValuesDTO getPhysicalValues();
+    public abstract PhysicsValuesDTO getPhysicalValues();
 
 
-    public void reboundInEast(
+    public abstract void reboundInEast(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension);
 
 
-    public void reboundInWest(
+    public abstract void reboundInWest(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension);
 
 
-    public void reboundInNorth(
+    public abstract void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension);
 
 
-    public void reboundInSouth(
+    public abstract void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension);

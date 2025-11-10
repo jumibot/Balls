@@ -4,6 +4,7 @@ package model.physics;
 import _helpers.DoubleVector;
 import _helpers.Position;
 import static java.lang.System.currentTimeMillis;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -13,60 +14,49 @@ import static java.lang.System.currentTimeMillis;
  * A SIMPLE PHYSICAL MODEL APPLIED TO DYNAMIC OBJECTS BY DEFAULT
  *
  */
-public class BasicPhysicsEngine implements PhysicsEngine {
+public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
-    private PhysicsValuesDTO phyValues; // Convertir en referencia atómica
+    private AtomicReference<PhysicsValuesDTO> phyValues; // *+
 
 
     /**
      * CONSTRUCTORS
      */
     public BasicPhysicsEngine(PhysicsValuesDTO phyValues) {
-        this.phyValues = phyValues;
+        super(phyValues);
     }
 
 
     /**
      * PUBLICS
-     * @return 
+     *
+     * @return
      */
     @Override
     public PhysicsValuesDTO calcNewPhysicsValues() {
         // Calculate thee time elapsed since the last displacement calculation
         long timeStamp = currentTimeMillis();
-        long elapsedMillis = timeStamp - this.phyValues.position.timeStampInMillis;
+        long elapsedMillis = timeStamp - this.phyValues.get().position.timeStampInMillis;
 
         // Calculate the displacement due to object speed -> e = v*t
-        DoubleVector offset = this.phyValues.speed.scale(elapsedMillis);
+        DoubleVector offset = this.phyValues.get().speed.scale(elapsedMillis);
 
         // Apply the offset to calculate the new position of the object
-        Position newPosition = this.phyValues.position.add(offset, timeStamp);
+        Position newPosition = this.phyValues.get().position.add(offset, timeStamp);
 
         // Calculate the velocity by appling the acceleration of the object -> v = v + a*t
         DoubleVector newSpeed
-                = this.phyValues.speed.add(
-                        this.phyValues.acceleration.scale(elapsedMillis));
+                = this.phyValues.get().speed.add(
+                        this.phyValues.get().acceleration.scale(elapsedMillis));
 
         // Creating a new DTO and return it
         return new PhysicsValuesDTO(
-                this.phyValues.mass,
-                this.phyValues.maxModuleAcceleration,
-                this.phyValues.maxModuleSpeed,
+                this.phyValues.get().mass,
+                this.phyValues.get().maxModuleAcceleration,
+                this.phyValues.get().maxModuleSpeed,
                 newPosition,
                 newSpeed,
-                this.phyValues.acceleration);
-    }
-
-
-    @Override
-    public void doMovement(PhysicsValuesDTO phyValues) {
-        this.setPhysicalValues(phyValues);
-    }
-
-
-    @Override
-    public PhysicsValuesDTO getPhysicalValues() {
-        return this.phyValues;
+                this.phyValues.get().acceleration);
     }
 
 
@@ -135,7 +125,7 @@ public class BasicPhysicsEngine implements PhysicsEngine {
     @Override
     public void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, 
+            PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension) {
 
         DoubleVector newSpeed
@@ -162,11 +152,11 @@ public class BasicPhysicsEngine implements PhysicsEngine {
         this.setPhysicalValues(reboundPhyValues);
     }
 
-    
+
     @Override
     public void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, 
+            PhysicsValuesDTO oldPhyValues,
             DoubleVector worldDimension) {
 
         DoubleVector newSpeed
@@ -192,13 +182,4 @@ public class BasicPhysicsEngine implements PhysicsEngine {
 
         this.setPhysicalValues(reboundPhyValues);
     }
-
-
-    /*
-        PRIVATE
-     */
-    private void setPhysicalValues(PhysicsValuesDTO newPhyValues) {
-        this.phyValues = newPhyValues;
-    }
-
 }
