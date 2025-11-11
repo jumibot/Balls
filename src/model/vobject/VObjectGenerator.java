@@ -201,7 +201,7 @@ public class VObjectGenerator implements Runnable {
 
 
     private int randomSize() {
-        return (int) (this.minSize + VObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize));
+        return (int) (this.minSize + (VObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize)));
     }
 
 

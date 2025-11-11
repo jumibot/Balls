@@ -43,7 +43,7 @@ public class Model {
                 2, // ..... Max creation delay 
                 0.0002, // ....... Max acceleration in px X millisecond^-2
                 0.5, // ..... MaxSpeed,
-                3, 1 // ..... Size range in px
+                4, 1 // ..... Size range in px
         );
 
         this.vObjectGenerator.activate();

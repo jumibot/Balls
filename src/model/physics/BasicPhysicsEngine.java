@@ -71,7 +71,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
 
         Position newPosition
                 = new Position(
-                        0.5,
+                        1,
                         newPhyValues.position.y,
                         newPhyValues.position.timeStampInMillis);
 
@@ -102,7 +102,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
 
         Position newPosition
                 = new Position(
-                        worldDim.width - 0.5,
+                        worldDim.width - 1,
                         newPhyValues.position.y,
                         newPhyValues.position.timeStampInMillis);
 
@@ -134,7 +134,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
         Position newPosition
                 = new Position(
                         newPhyValues.position.x,
-                        0.5,
+                        1,
                         newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
@@ -165,7 +165,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
         Position newPosition
                 = new Position(
                         newPhyValues.position.x,
-                        worldDim.height - 0.5,
+                        worldDim.height - 1,
                         newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
