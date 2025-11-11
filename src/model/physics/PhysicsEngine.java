@@ -7,6 +7,7 @@ package model.physics;
 
 
 import _helpers.DoubleVector;
+import java.awt.Dimension;
 
 
 /**
@@ -27,24 +28,24 @@ public interface PhysicsEngine {
     public abstract void reboundInEast(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension);
+            Dimension worldDimension);
 
 
     public abstract void reboundInWest(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension);
+            Dimension worldDimension);
 
 
     public abstract void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension);
+            Dimension worldDimension);
 
 
     public abstract void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension);
+            Dimension worldDimension);
 
 }

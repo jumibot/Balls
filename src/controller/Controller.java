@@ -1,12 +1,12 @@
 package controller;
 
 
-import view.RenderableObject;
+import view.RenderableVObject;
 import view.View;
 import model.Model;
-import model.object.Object;
-import model.object.ObjectAction;
-import model.ObjectEventType;
+import model.vobject.VObject;
+import model.vobject.VObjectAction;
+import model.VObjectEventType;
 import java.util.ArrayList;
 
 
@@ -36,51 +36,51 @@ public class Controller {
     /**
      * PUBLICS
      */
-    public void addBall(Object newBall) {
-        this.model.addBall(newBall);
+    public void addVObject(VObject newVObject) {
+        this.model.addVObject(newVObject);
     }
 
 
-    public void newRandomBall() {
-        this.model.newRandomBall();
+    public void newRandomVObject() {
+        this.model.newRandomVObject();
     }
 
 
-    public ArrayList<RenderableObject> getRenderableObjects() {
+    public ArrayList<RenderableVObject> getRenderableObjects() {
         return this.model.getRenderableObjects();
     }
 
 
-    public ObjectAction decideAction(ObjectEventType eventType) {
-        ObjectAction ballAction;
+    public VObjectAction decideAction(VObjectEventType eventType) {
+        VObjectAction vObjectAction;
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                ballAction = ObjectAction.REBOUND_IN_NORTH;
+                vObjectAction = VObjectAction.REBOUND_IN_NORTH;
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                ballAction = ObjectAction.REBOUND_IN_SOUTH;
+                vObjectAction = VObjectAction.REBOUND_IN_SOUTH;
                 break;
 
             case EAST_LIMIT_REACHED:
-                ballAction = ObjectAction.REBOUND_IN_EAST;
+                vObjectAction = VObjectAction.REBOUND_IN_EAST;
                 break;
 
             case WEST_LIMIT_REACHED:
-                ballAction = ObjectAction.REBOUND_IN_WEST;
+                vObjectAction = VObjectAction.REBOUND_IN_WEST;
                 break;
 
             default:
                 // To avoid zombie state
-                ballAction = ObjectAction.NONE;
+                vObjectAction = VObjectAction.NONE;
         }
 
-        return ballAction;
+        return vObjectAction;
     }
 
 
-    public ObjectAction decideAction(ObjectEventType eventType, ArrayList<Object> RelatedBalls) {
+    public VObjectAction decideAction(VObjectEventType eventType, ArrayList<VObject> RelatedVObject) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

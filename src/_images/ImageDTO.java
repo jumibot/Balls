@@ -6,7 +6,9 @@
 package _images;
 
 
+import java.awt.GraphicsConfiguration;
 import java.awt.Image;
+import java.awt.image.VolatileImage;
 
 
 /**
@@ -14,9 +16,11 @@ import java.awt.Image;
  * @author juanm
  */
 public class ImageDTO {
+
     public final String uri;
     public final Image image;
-    
+
+
     public ImageDTO(String uri, Image image) {
         this.uri = uri;
         this.image = image;

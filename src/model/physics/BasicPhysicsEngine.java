@@ -3,8 +3,8 @@ package model.physics;
 
 import _helpers.DoubleVector;
 import _helpers.Position;
+import java.awt.Dimension;
 import static java.lang.System.currentTimeMillis;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -15,9 +15,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  */
 public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
-
-    private AtomicReference<PhysicsValuesDTO> phyValues; // *+
-
 
     /**
      * CONSTRUCTORS
@@ -36,27 +33,28 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
     public PhysicsValuesDTO calcNewPhysicsValues() {
         // Calculate thee time elapsed since the last displacement calculation
         long timeStamp = currentTimeMillis();
-        long elapsedMillis = timeStamp - this.phyValues.get().position.timeStampInMillis;
+        PhysicsValuesDTO phyValues = this.getPhysicalValues();
+        long elapsedMillis = timeStamp - phyValues.position.timeStampInMillis;
 
         // Calculate the displacement due to object speed -> e = v*t
-        DoubleVector offset = this.phyValues.get().speed.scale(elapsedMillis);
+        DoubleVector offset = phyValues.speed.scale(elapsedMillis);
 
         // Apply the offset to calculate the new position of the object
-        Position newPosition = this.phyValues.get().position.add(offset, timeStamp);
+        Position newPosition = phyValues.position.add(offset, timeStamp);
 
         // Calculate the velocity by appling the acceleration of the object -> v = v + a*t
         DoubleVector newSpeed
-                = this.phyValues.get().speed.add(
-                        this.phyValues.get().acceleration.scale(elapsedMillis));
+                = phyValues.speed.add(
+                        phyValues.acceleration.scale(elapsedMillis));
 
         // Creating a new DTO and return it
         return new PhysicsValuesDTO(
-                this.phyValues.get().mass,
-                this.phyValues.get().maxModuleAcceleration,
-                this.phyValues.get().maxModuleSpeed,
+                phyValues.mass,
+                phyValues.maxModuleAcceleration,
+                phyValues.maxModuleSpeed,
                 newPosition,
                 newSpeed,
-                this.phyValues.get().acceleration);
+                phyValues.acceleration);
     }
 
 
@@ -64,7 +62,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
     public void reboundInEast(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension) {
+            Dimension worldDimension) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -95,7 +93,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
     public void reboundInWest(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension) {
+            Dimension worldDim) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -104,7 +102,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
 
         Position newPosition
                 = new Position(
-                        worldDimension.x - 0.5,
+                        worldDim.width - 0.5,
                         newPhyValues.position.y,
                         newPhyValues.position.timeStampInMillis);
 
@@ -126,7 +124,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
     public void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension) {
+            Dimension worldDimension) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -157,7 +155,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
     public void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
             PhysicsValuesDTO oldPhyValues,
-            DoubleVector worldDimension) {
+            Dimension worldDim) {
 
         DoubleVector newSpeed
                 = new DoubleVector(
@@ -167,7 +165,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
         Position newPosition
                 = new Position(
                         newPhyValues.position.x,
-                        worldDimension.y - 0.5,
+                        worldDim.height - 0.5,
                         newPhyValues.position.timeStampInMillis);
 
         PhysicsValuesDTO reboundPhyValues
@@ -182,4 +180,5 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
 
         this.setPhysicalValues(reboundPhyValues);
     }
+
 }

@@ -1,4 +1,4 @@
-package model.object;
+package model.vobject;
 
 
 import model.physics.BasicPhysicsEngine;
@@ -15,7 +15,7 @@ import model.ModelState;
  * VISUAL DYNAMIC OBJECTS GENERATOR
  *
  */
-public class ObjectGenerator implements Runnable {
+public class VObjectGenerator implements Runnable {
 
     private final Model model;
     private Thread thread;
@@ -36,7 +36,7 @@ public class ObjectGenerator implements Runnable {
      *
      * @param theGame
      */
-    public ObjectGenerator(
+    public VObjectGenerator(
             Model model,
             double maxMass,
             double minMass,
@@ -62,18 +62,18 @@ public class ObjectGenerator implements Runnable {
      */
     public void activate() {
         if (this.model.getState() == ModelState.ALIVE) {
-            System.out.println("Model is already ALIVE · BallGenerator");
+            System.out.println("Model is already ALIVE · VObjectGenerator");
             return;
         }
         if (this.model.getState() == ModelState.PAUSED) {
-            System.out.println("Model is already PAUSED · BallGenerator");
+            System.out.println("Model is already PAUSED · VObjectGenerator");
             return;
         }
 
         this.thread = new Thread(this);
-        this.thread.setName("Ball Generator Thread · BallGenerator");
+        this.thread.setName("VObject Generator Thread · VObjectGenerator");
         this.thread.start();
-        System.out.println("Ball Generator activated! · BallGenerator");
+        System.out.println("VObject Generator activated! · VObjectGenerator");
     }
 
 
@@ -153,7 +153,7 @@ public class ObjectGenerator implements Runnable {
     /**
      * PRIVATE
      */
-    private Object newRandomBall() {
+    private VObject newRandomVObject() {
         PhysicsValuesDTO phyValues = new PhysicsValuesDTO(
                 this.randomMass(),
                 this.maxAcceleration,
@@ -165,25 +165,25 @@ public class ObjectGenerator implements Runnable {
 
         BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
 
-        // Signature => Ball(int imageId, int radius, BasicPhysicsEngine phyEngine)
-        Object newBall = new Object(1, this.randomSize(), phyEngine);
+        // Signature => VObject(int imageId, int radius, BasicPhysicsEngine phyEngine)
+        VObject newVObject = new VObject(1, this.randomSize(), phyEngine);
 
-        return newBall;
+        return newVObject;
     }
 
 
     private DoubleVector randomAcceleration() {
         DoubleVector newAcceleration = new DoubleVector(
-                ObjectGenerator.rnd.nextGaussian(),
-                ObjectGenerator.rnd.nextGaussian(),
-                ObjectGenerator.rnd.nextFloat() * this.maxAcceleration);
+                VObjectGenerator.rnd.nextGaussian(),
+                VObjectGenerator.rnd.nextGaussian(),
+                VObjectGenerator.rnd.nextFloat() * this.maxAcceleration);
 
         return newAcceleration;
     }
 
 
     private double randomMass() {
-        return this.minMass + ObjectGenerator.rnd.nextFloat() * (this.maxMass - this.minMass);
+        return this.minMass + VObjectGenerator.rnd.nextFloat() * (this.maxMass - this.minMass);
     }
 
 
@@ -191,8 +191,8 @@ public class ObjectGenerator implements Runnable {
         double x, y;
 
         // Recuperar tamaño del mundo establecido en el modelo
-        x = ObjectGenerator.rnd.nextFloat() * this.model.getWorldDimension().x;
-        y = ObjectGenerator.rnd.nextFloat() * this.model.getWorldDimension().y;
+        x = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().width;
+        y = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().height;
 
         Position position = new Position(x, y);
 
@@ -201,15 +201,15 @@ public class ObjectGenerator implements Runnable {
 
 
     private int randomSize() {
-        return (int) (this.minSize + ObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize));
+        return (int) (this.minSize + VObjectGenerator.rnd.nextFloat() * (this.maxSize - this.minSize));
     }
 
 
     private DoubleVector randomSpeed() {
         DoubleVector newAcceleration = new DoubleVector(
-                ObjectGenerator.rnd.nextGaussian(),
-                ObjectGenerator.rnd.nextGaussian(),
-                ObjectGenerator.rnd.nextFloat() * this.maxSpeed);
+                VObjectGenerator.rnd.nextGaussian(),
+                VObjectGenerator.rnd.nextGaussian(),
+                VObjectGenerator.rnd.nextFloat() * this.maxSpeed);
 
         return newAcceleration;
     }
@@ -224,13 +224,13 @@ public class ObjectGenerator implements Runnable {
         while (this.model.getState() != ModelState.STOPPED) { // TO-DO End condition
 
             if (this.model.getState() == ModelState.ALIVE) { // TO-DO Pause condition
-                if (!this.model.addBall(this.newRandomBall())) {
-                    // Max number of live balls reached!
+                if (!this.model.addVObject(this.newRandomVObject())) {
+                    // Max number of live vObject reached!
                 }
             }
 
             try {
-                Thread.sleep(ObjectGenerator.rnd.nextInt(this.maxCreationDelay));
+                Thread.sleep(VObjectGenerator.rnd.nextInt(this.maxCreationDelay));
             } catch (InterruptedException ex) {
             }
         }

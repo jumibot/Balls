@@ -6,6 +6,7 @@ import controller.Controller;
 import _images.ImageDTO;
 import _images.Images;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -31,13 +32,13 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private Images objectImages;
     private Images backgroundImages;
     private ImageDTO background;
-    private final DoubleVector worldDimension;
+    private final Dimension worldDimension;
 
 
     /**
      * CONSTRUCTOR
      */
-    public View(DoubleVector worldDimension) {
+    public View(Dimension worldDimension) {
         this.objectImages = this.loadObjectImages();
         this.backgroundImages = this.loadBackgroundImages();
         this.background = this.backgroundImages.getRamdomImage();
@@ -66,7 +67,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderableObject> getRenderableObjects() {
+    protected ArrayList<RenderableVObject> getRenderableObjects() {
         if (this.controller == null) {
             System.err.println("Controller is null. Can not get renderable objects · View ");
             return null;

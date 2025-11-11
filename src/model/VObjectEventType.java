@@ -3,21 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.object;
+package model;
+
+
+import java.io.Serializable;
 
 
 /**
  *
  * @author juanm
  */
-public enum ObjectAction {
-    REBOUND_IN_EAST,
-    REBOUND_IN_WEST,
-    REBOUND_IN_NORTH,
-    REBOUND_IN_SOUTH,
-    DIE,
-    TRY_TO_GO_INSIDE,
-    EXPLODE_IN_FRAGMENTS,
-    MOVE,
+public enum VObjectEventType implements Serializable {
+    COLLIDED,
+    NORTH_LIMIT_REACHED,
+    SOUTH_LIMIT_REACHED,
+    EAST_LIMIT_REACHED,
+    WEST_LIMIT_REACHED,
     NONE
 }

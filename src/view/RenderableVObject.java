@@ -17,7 +17,7 @@ import java.awt.Graphics2D;
  *
  * @author juanm
  */
-public class RenderableObject {
+public class RenderableVObject {
 
     public final int id;
     public final int imageId;
@@ -28,7 +28,7 @@ public class RenderableObject {
     // ...
 
 
-    public RenderableObject(
+    public RenderableVObject(
             int id,
             int imageId,
             int maxSize,

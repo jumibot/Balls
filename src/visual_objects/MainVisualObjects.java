@@ -3,28 +3,28 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Objects;
+package visual_objects;
 
 
 import controller.Controller;
 import model.Model;
 import view.View;
-import _helpers.DoubleVector;
+import java.awt.Dimension;
 
 
 /**
  *
  * @author juanm
  */
-public class MainObjects {
+public class MainVisualObjects {
 
     private static Controller controller;
 
 
     public static void main(String[] args) {
-        DoubleVector worldDimension = new DoubleVector(1000,600);
-        View view = new View(worldDimension);
-        Model model = new Model(50, worldDimension);
-        MainObjects.controller = new Controller(view, model);
+        Dimension worlDim = new Dimension(1000, 600);
+        View view = new View(worlDim);
+        Model model = new Model(100, worlDim);
+        MainVisualObjects.controller = new Controller(view, model);
     }
 }
