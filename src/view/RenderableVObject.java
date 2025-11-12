@@ -43,11 +43,11 @@ public class RenderableVObject {
     }
 
 
-    synchronized public void paint(Graphics2D gr, DoubleVector pos) {
+    public void paint(Graphics2D gr, DoubleVector pos) {
         gr.setColor(this.color);
         gr.fillOval(
-                (int) pos.x - this.maxSize,
-                (int) pos.y - this.maxSize,
+                (int) Math.round(pos.x - this.maxSize),
+                (int) Math.round(pos.y - this.maxSize),
                 2 * this.maxSize,
                 2 * this.maxSize);
     }

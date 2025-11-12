@@ -5,7 +5,7 @@ import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValuesDTO;
 import java.util.Random;
 import _helpers.DoubleVector;
-import _helpers.Position;
+import static java.lang.System.currentTimeMillis;
 import model.Model;
 import model.ModelState;
 
@@ -72,6 +72,7 @@ public class VObjectGenerator implements Runnable {
 
         this.thread = new Thread(this);
         this.thread.setName("VObject Generator Thread · VObjectGenerator");
+        this.thread.setPriority(Thread.NORM_PRIORITY - 2);
         this.thread.start();
         System.out.println("VObject Generator activated! · VObjectGenerator");
     }
@@ -158,9 +159,10 @@ public class VObjectGenerator implements Runnable {
                 this.randomMass(),
                 this.maxAcceleration,
                 this.maxSpeed,
+                currentTimeMillis(),
                 this.randomPosition(),
-                this.randomSpeed(),
-                this.randomAcceleration()
+                new DoubleVector(0, 0.0005), //this.randomSpeed(),
+                new DoubleVector(0, 0.0001) //this.randomAcceleration()
         );
 
         BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
@@ -187,14 +189,14 @@ public class VObjectGenerator implements Runnable {
     }
 
 
-    private Position randomPosition() {
+    private DoubleVector randomPosition() {
         double x, y;
 
         // Recuperar tamaño del mundo establecido en el modelo
         x = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().width;
         y = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().height;
 
-        Position position = new Position(x, y);
+        DoubleVector position = new DoubleVector(x, y);
 
         return position;
     }

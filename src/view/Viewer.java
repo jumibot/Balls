@@ -1,7 +1,7 @@
 package view;
 
 
-import _helpers.Position;
+import _helpers.DoubleVector;
 import _images.ImageDTO;
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
@@ -57,6 +57,7 @@ public class Viewer extends Canvas implements Runnable {
     public void activate() {
         this.thread = new Thread(this);
         this.thread.setName("VIEWER Thread · Create and display frames");
+        this.thread.setPriority(Thread.NORM_PRIORITY + 2);
         this.thread.start();
     }
 
@@ -72,7 +73,7 @@ public class Viewer extends Canvas implements Runnable {
             gg.setComposite(AlphaComposite.Src);
             gg.drawImage(this.getVIBackground(), 0, 0, null);
 
-            this.paintRenderables(gg);
+            this.drawRenderables(gg);
         } finally {
             gg.dispose();
         }
@@ -99,7 +100,6 @@ public class Viewer extends Canvas implements Runnable {
             gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
                     .getDefaultScreenDevice().getDefaultConfiguration();
         }
-
         if (gc == null) {
             return null; // ====== Sin acceso a hardware de aceleracion ======> 
         }
@@ -110,28 +110,24 @@ public class Viewer extends Canvas implements Runnable {
         }
 
         int val;
+        Graphics2D g;
         do {
             val = vi.validate(gc);
 
             if (val != VolatileImage.IMAGE_OK) {
-                repaintBackground(vi, src, dim);
+                g = vi.createGraphics();
+                g.drawImage(src, 0, 0, dim.width, dim.height, null);
+                g.dispose();
             }
         } while (vi.contentsLost());
 
         return vi;
     }
 
-    // Pinta el background en la VI (sin crearla)
 
-    private static void repaintBackground(VolatileImage vi, Image src, Dimension dim) {
-        Graphics2D g = vi.createGraphics();
-        g.drawImage(src, 0, 0, dim.width, dim.height, null);
-        g.dispose();
-    }
-
-
-    private void paintRenderables(Graphics2D g) {
-        Position position;
+    private void drawRenderables(Graphics2D g) {
+        DoubleVector position;
+        
         ArrayList<RenderableVObject> renderableObjects = this.view.getRenderableObjects();
 
         if (renderableObjects == null) {

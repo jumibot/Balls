@@ -6,7 +6,6 @@
 package model.physics;
 
 
-import _helpers.DoubleVector;
 import java.awt.Dimension;
 
 
@@ -17,9 +16,6 @@ import java.awt.Dimension;
 public interface PhysicsEngine {
 
     public abstract PhysicsValuesDTO calcNewPhysicsValues();
-
-
-    public abstract void doMovement(PhysicsValuesDTO phyValues);
 
 
     public abstract PhysicsValuesDTO getPhysicalValues();

@@ -42,10 +42,8 @@ public class VObject implements Runnable {
     /**
      * CONSTRUCTORS
      */
-    public VObject(
-            int imageId,
-            int radius,
-            BasicPhysicsEngine phyEngine) {
+    public VObject(int imageId, int radius, BasicPhysicsEngine phyEngine) {
+
         this.model = null;
         this.thread = null;
 
@@ -64,8 +62,7 @@ public class VObject implements Runnable {
      */
     public void doMovement(PhysicsValuesDTO phyValues) {
 
-//        System.out.println("Do movement · VObject <" + this.id + "> " + phyValues.position);
-        this.phyEngine.doMovement(phyValues);
+        this.phyEngine.setPhysicsValues(phyValues);
     }
 
 
@@ -109,17 +106,13 @@ public class VObject implements Runnable {
     }
 
 
-    public synchronized RenderableVObject getRenderableObject() {
+    public RenderableVObject buildRenderableObject() {
         if (this.state == VObjectState.DEAD || this.state == VObjectState.STARTING) {
             return null;
         }
 
         return new RenderableVObject(
-                this.id,
-                this.imageId,
-                this.radius,
-                this.color,
-                this.phyEngine.getPhysicalValues()
+                this.id, this.imageId, this.radius, this.color, this.phyEngine.getPhysicalValues()
         );
     }
 
@@ -151,16 +144,17 @@ public class VObject implements Runnable {
 
     public void reboundInNorth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, 
+            PhysicsValuesDTO oldPhyValues,
             Dimension worldDim) {
 
         this.color = Color.red;
         this.phyEngine.reboundInNorth(newPhyValues, oldPhyValues, worldDim);
     }
 
+
     public void reboundInSouth(
             PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues, 
+            PhysicsValuesDTO oldPhyValues,
             Dimension worldDim) {
 
         this.color = Color.cyan;
@@ -221,8 +215,7 @@ public class VObject implements Runnable {
      * PRIVATE
      */
     private DoubleVector adjustBounds(
-            DoubleVector worldDimension,
-            PhysicsValuesDTO phyValues, double delta) {
+            DoubleVector worldDimension, PhysicsValuesDTO phyValues, double delta) {
 
         double x = Math.max(phyValues.position.x, delta);
         x = Math.min(x, worldDimension.x - delta);

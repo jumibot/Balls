@@ -17,38 +17,41 @@ public class DoubleVector implements Serializable {
     public DoubleVector(double x, double y) {
         this.x = x;
         this.y = y;
-        this.module = this.calcModule();
+        this.module = Math.hypot(x, y);
     }
 
 
     public DoubleVector(double x, double y, double fixedModule) {
-        double module;
-
-        // Adjust the vector module       
-        module = Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2);
-        module = Math.pow(module, 0.5);
-
-        this.x = x / module * fixedModule;
-        this.y = y / module * fixedModule;
-
-        this.module = this.calcModule();
+        double mag = Math.hypot(x, y);
+        if (mag == 0 || fixedModule == 0) {
+            this.x = 0;
+            this.y = 0;
+            this.module = 0;
+        } else {
+            double s = fixedModule / mag;
+            this.x = x * s;
+            this.y = y * s;
+            this.module = fixedModule;
+        }
     }
 
 
-    public DoubleVector(DoubleVector dVector) {
-        this.x = dVector.x;
-        this.y = dVector.y;
-        this.module = this.calcModule();
+    public DoubleVector(DoubleVector v) {
+        this(v.x, v.y); // reutiliza cálculo
     }
 
 
     /**
      * PUBLICS
      */
-    public DoubleVector add(DoubleVector dVector) {
-        return new DoubleVector(
-                this.x + dVector.x,
-                this.y + dVector.y);
+    public DoubleVector add(DoubleVector v) {
+        return new DoubleVector(this.x + v.x, this.y + v.y);
+    }
+
+
+    public DoubleVector addScaled(DoubleVector v, double s) {
+        // Return this + v*scaleFactor
+        return new DoubleVector(this.x + v.x * s, this.y + v.y * s);
     }
 
 
@@ -66,23 +69,8 @@ public class DoubleVector implements Serializable {
     }
 
 
-    public DoubleVector scale(double scaleFactor) {
-        return new DoubleVector(
-                this.x * scaleFactor,
-                this.y * scaleFactor);
-    }
-
-
-    /**
-     * PRIVATES
-     */
-    private double calcModule() {
-        double module;
-
-        module = Math.pow(Math.abs(this.x), 2) + Math.pow(Math.abs(this.y), 2);
-        module = Math.pow(module, 0.5);
-
-        return module;
+    public DoubleVector scale(double s) {
+        return new DoubleVector(this.x * s, this.y * s);
     }
 
 

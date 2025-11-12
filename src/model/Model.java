@@ -26,8 +26,8 @@ public class Model {
 
     private Controller controller = null;
     private VObjectGenerator vObjectGenerator = null;
-    private ModelState state = ModelState.STARTING;
-    private Map<Integer, VObject> vObject = new ConcurrentHashMap<>(4096);
+    private volatile ModelState state = ModelState.STARTING;
+    private final Map<Integer, VObject> vObject = new ConcurrentHashMap<>(4096);
 
 
     /**
@@ -41,9 +41,9 @@ public class Model {
                 this, // .... Model
                 400, 1, // .. Mass range
                 2, // ..... Max creation delay 
-                0.0002, // ....... Max acceleration in px X millisecond^-2
-                0.5, // ..... MaxSpeed,
-                4, 1 // ..... Size range in px
+                0, // 0.00005, // ....... Max acceleration in px X millisecond^-2
+                0.02, // ..... MaxSpeed,
+                7, 1 // ..... Size range in px
         );
 
         this.vObjectGenerator.activate();
@@ -82,8 +82,8 @@ public class Model {
                 = new ArrayList(VObject.getAliveQuantity() * 2);
 
         this.vObject.forEach((id, vObject) -> {
-            if (vObject.getRenderableObject() != null) {
-                renderableObjects.add(vObject.getRenderableObject());
+            if (vObject.buildRenderableObject() != null) {
+                renderableObjects.add(vObject.buildRenderableObject());
             }
         });
 
@@ -221,17 +221,17 @@ public class Model {
                 vObject.reboundInEast(newPhyValues, oldPhyValues, this.wordDim);
                 vObject.setState(VObjectState.ALIVE);
                 break;
-                
+
             case REBOUND_IN_WEST:
                 vObject.reboundInWest(newPhyValues, oldPhyValues, this.wordDim);
                 vObject.setState(VObjectState.ALIVE);
                 break;
-                
+
             case REBOUND_IN_NORTH:
                 vObject.reboundInNorth(newPhyValues, oldPhyValues, this.wordDim);
                 vObject.setState(VObjectState.ALIVE);
                 break;
-                
+
             case REBOUND_IN_SOUTH:
                 vObject.reboundInSouth(newPhyValues, oldPhyValues, this.wordDim);
                 vObject.setState(VObjectState.ALIVE);
