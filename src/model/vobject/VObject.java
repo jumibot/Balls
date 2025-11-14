@@ -60,7 +60,7 @@ public class VObject implements Runnable {
     /**
      * PUBLICS
      */
-    public void doMovement(PhysicsValuesDTO phyValues) {
+    synchronized public void doMovement(PhysicsValuesDTO phyValues) {
 
         this.phyEngine.setPhysicsValues(phyValues);
     }
@@ -106,7 +106,7 @@ public class VObject implements Runnable {
     }
 
 
-    public RenderableVObject buildRenderableObject() {
+    public synchronized RenderableVObject buildRenderableObject() {
         if (this.state == VObjectState.DEAD || this.state == VObjectState.STARTING) {
             return null;
         }
