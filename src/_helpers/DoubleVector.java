@@ -36,8 +36,29 @@ public class DoubleVector implements Serializable {
     }
 
 
+    public DoubleVector(DoubleVector v, double fixedModule) {
+        double x, y;
+
+        x = v.x;
+        y = v.y;
+
+        if (v.module <= 0 || fixedModule <= 0) {
+            this.x = 0;
+            this.y = 0;
+            this.module = 0;
+        } else {
+            double s = fixedModule / v.module;
+            this.x = x * s;
+            this.y = y * s;
+            this.module = fixedModule;
+        }
+    }
+
+
     public DoubleVector(DoubleVector v) {
-        this(v.x, v.y); // reutiliza cálculo
+        this.x = v.x;
+        this.y = v.y;
+        this.module = v.module;
     }
 
 
@@ -80,5 +101,10 @@ public class DoubleVector implements Serializable {
         return "("
                 + String.format("%.3f", this.x) + " : "
                 + String.format("%.3f", this.y) + ")";
+    }
+
+
+    public DoubleVector withModule(double fixedModule) {
+        return new DoubleVector(this, fixedModule);
     }
 }

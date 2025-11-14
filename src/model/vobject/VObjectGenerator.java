@@ -1,11 +1,11 @@
 package model.vobject;
 
 
-import model.physics.BasicPhysicsEngine;
+import model.physics.PhysicsEngine;
 import model.physics.PhysicsValuesDTO;
 import java.util.Random;
 import _helpers.DoubleVector;
-import static java.lang.System.currentTimeMillis;
+import static java.lang.System.nanoTime;
 import model.Model;
 import model.ModelState;
 
@@ -20,15 +20,13 @@ public class VObjectGenerator implements Runnable {
     private final Model model;
     private Thread thread;
 
-    private double maxMass;
-    private double minMass;
     private int maxCreationDelay;       // In millis
-    private double maxAcceleration;     // px X milliseconds^-2
-    private double maxSpeed;
+    private double acceleration;     // px X milliseconds^-2
+    private double speed;
     private int maxSize;
     private int minSize;
 
-    private static Random rnd = new Random();
+    private static final Random rnd = new Random();
 
 
     /**
@@ -41,17 +39,15 @@ public class VObjectGenerator implements Runnable {
             double maxMass,
             double minMass,
             int maxCreationDelay,
-            double maxAcceleration,
-            double maxSpeed,
+            double acceleration,
+            double speed,
             int maxSize,
             int minSize) {
 
         this.model = model;
-        this.maxMass = maxMass;
-        this.minMass = minMass;
         this.maxCreationDelay = maxCreationDelay;
-        this.maxAcceleration = maxAcceleration;
-        this.maxSpeed = maxSpeed;
+        this.acceleration = acceleration;
+        this.speed = speed;
         this.maxSize = maxSize;
         this.minSize = minSize;
     }
@@ -81,28 +77,18 @@ public class VObjectGenerator implements Runnable {
     /**
      * PROTECTED
      */
-    protected double getMmaxMass() {
-        return this.maxMass;
-    }
-
-
-    protected double getMinMass() {
-        return this.minMass;
-    }
-
-
     protected int getMaxCreationDelay() {
         return this.maxCreationDelay;
     }
 
 
-    protected double getMaxAcceleration() {
-        return this.maxAcceleration;
+    protected double getAcceleration() {
+        return this.acceleration;
     }
 
 
-    protected double getMaxSpeed() {
-        return this.maxSpeed;
+    protected double getSpeed() {
+        return this.speed;
     }
 
 
@@ -116,28 +102,18 @@ public class VObjectGenerator implements Runnable {
     }
 
 
-    protected void setMmaxMass(double maxMass) {
-        this.maxMass = maxMass;
-    }
-
-
-    protected void setMinMass(double minMass) {
-        this.minMass = minMass;
-    }
-
-
     protected void setMaxCreationDelay(int maxCreationDelay) {
         this.maxCreationDelay = maxCreationDelay;
     }
 
 
-    protected void setMaxAcceleration(double maxAcceleration) {
-        this.maxAcceleration = maxAcceleration;
+    protected void setAcceleration(double acceleration) {
+        this.acceleration = acceleration;
     }
 
 
-    protected void setMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
+    protected void setSpeed(double speed) {
+        this.speed = speed;
     }
 
 
@@ -156,16 +132,15 @@ public class VObjectGenerator implements Runnable {
      */
     private VObject newRandomVObject() {
         PhysicsValuesDTO phyValues = new PhysicsValuesDTO(
-                this.randomMass(),
-                this.maxAcceleration,
-                this.maxSpeed,
-                currentTimeMillis(),
+                nanoTime(),
                 this.randomPosition(),
-                new DoubleVector(0, 0.0005), //this.randomSpeed(),
-                new DoubleVector(0, 0.0001) //this.randomAcceleration()
+                //                new DoubleVector(0, 0), 
+                this.randomSpeed(),
+                //                new DoubleVector(1, 75)
+                this.randomAcceleration()
         );
 
-        BasicPhysicsEngine phyEngine = new BasicPhysicsEngine(phyValues);
+        PhysicsEngine phyEngine = new PhysicsEngine(phyValues);
 
         // Signature => VObject(int imageId, int radius, BasicPhysicsEngine phyEngine)
         VObject newVObject = new VObject(1, this.randomSize(), phyEngine);
@@ -178,14 +153,9 @@ public class VObjectGenerator implements Runnable {
         DoubleVector newAcceleration = new DoubleVector(
                 VObjectGenerator.rnd.nextGaussian(),
                 VObjectGenerator.rnd.nextGaussian(),
-                VObjectGenerator.rnd.nextFloat() * this.maxAcceleration);
+                VObjectGenerator.rnd.nextFloat() * this.acceleration);
 
         return newAcceleration;
-    }
-
-
-    private double randomMass() {
-        return this.minMass + VObjectGenerator.rnd.nextFloat() * (this.maxMass - this.minMass);
     }
 
 
@@ -211,7 +181,7 @@ public class VObjectGenerator implements Runnable {
         DoubleVector newAcceleration = new DoubleVector(
                 VObjectGenerator.rnd.nextGaussian(),
                 VObjectGenerator.rnd.nextGaussian(),
-                VObjectGenerator.rnd.nextFloat() * this.maxSpeed);
+                VObjectGenerator.rnd.nextFloat() * this.speed);
 
         return newAcceleration;
     }

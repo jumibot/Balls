@@ -40,10 +40,10 @@ public class Model {
         this.vObjectGenerator = new VObjectGenerator(
                 this, // .... Model
                 400, 1, // .. Mass range
-                2, // ..... Max creation delay 
-                0, // 0.00005, // ....... Max acceleration in px X millisecond^-2
-                0.02, // ..... MaxSpeed,
-                7, 1 // ..... Size range in px
+                2, // ....... Max creation delay 
+                100, // .. Max acceleration 
+                0, // .. MaxSpeed,
+                8, 1 // ..... Size range in px
         );
 
         this.vObjectGenerator.activate();

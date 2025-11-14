@@ -13,8 +13,6 @@ import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
-import static java.lang.Long.max;
-import static java.lang.System.currentTimeMillis;
 import java.util.ArrayList;
 
 
@@ -101,7 +99,7 @@ public class Viewer extends Canvas implements Runnable {
                     .getDefaultScreenDevice().getDefaultConfiguration();
         }
         if (gc == null) {
-            return null; // ====== Sin acceso a hardware de aceleracion ======> 
+            return null; // ======= No access to hardware acceleration =======> 
         }
 
         if (vi == null || vi.getWidth() != dim.width || vi.getHeight() != dim.height
@@ -127,7 +125,7 @@ public class Viewer extends Canvas implements Runnable {
 
     private void drawRenderables(Graphics2D g) {
         DoubleVector position;
-        
+
         ArrayList<RenderableVObject> renderableObjects = this.view.getRenderableObjects();
 
         if (renderableObjects == null) {
@@ -144,11 +142,6 @@ public class Viewer extends Canvas implements Runnable {
 
     @Override
     public void run() {
-        long lastPaintMillisTime;
-        long lastPaintMillis;
-        long delayMillis = 20;
-        long millisPerFrame;
-        int framesCounter;
         final BufferStrategy bs;
 
         this.setIgnoreRepaint(true);
@@ -165,19 +158,13 @@ public class Viewer extends Canvas implements Runnable {
             return; // ========================================================>
         }
 
-        framesCounter = 0;
-        millisPerFrame = 1000 / this.maxFramesPerSecond;
         while (true) { // TO-DO End condition
-            lastPaintMillisTime = currentTimeMillis();
             if (true) { // TO-DO Pause condition
                 this.drawScene(bs);
             }
 
-            lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
-            delayMillis = max(0, millisPerFrame - lastPaintMillis);
-
             try {
-                Thread.sleep(delayMillis);
+                Thread.sleep(this.delayInMillis);
             } catch (InterruptedException ex) {
             }
         }

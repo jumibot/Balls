@@ -6,7 +6,7 @@
 package model.vobject;
 
 
-import model.physics.BasicPhysicsEngine;
+import model.physics.PhysicsEngine;
 import model.physics.PhysicsValuesDTO;
 import view.RenderableVObject;
 import _helpers.DoubleVector;
@@ -36,13 +36,13 @@ public class VObject implements Runnable {
     public final int radius;
     private Color color;
 
-    private final BasicPhysicsEngine phyEngine; // Convert to Atomic Reference
+    private final PhysicsEngine phyEngine; // Convert to Atomic Reference
 
 
     /**
      * CONSTRUCTORS
      */
-    public VObject(int imageId, int radius, BasicPhysicsEngine phyEngine) {
+    public VObject(int imageId, int radius, PhysicsEngine phyEngine) {
 
         this.model = null;
         this.thread = null;
@@ -162,24 +162,6 @@ public class VObject implements Runnable {
     }
 
 
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
-
-    public synchronized void setState(VObjectState state) {
-        this.state = state;
-    }
-
-
-    /**
-     * PROTECTED
-     */
-    protected PhysicsValuesDTO getPhysicsValues() {
-        return this.phyEngine.getPhysicalValues();
-    }
-
-
     @Override
     public void run() {
         PhysicsValuesDTO newPhyValues;
@@ -195,11 +177,29 @@ public class VObject implements Runnable {
             }
 
             try {
-                Thread.sleep(20);
+                Thread.sleep(50);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in vObject thread! (VObject) · " + ex.getMessage());
             }
         }
+    }
+
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
+
+    public void setState(VObjectState state) {
+        this.state = state;
+    }
+
+
+    /**
+     * PROTECTED
+     */
+    protected PhysicsValuesDTO getPhysicsValues() {
+        return this.phyEngine.getPhysicalValues();
     }
 
 
