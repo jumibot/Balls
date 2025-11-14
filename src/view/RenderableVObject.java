@@ -17,7 +17,7 @@ import java.awt.Graphics2D;
  *
  * @author juanm
  */
-public class RenderableObject {
+public class RenderableVObject {
 
     public final int id;
     public final int imageId;
@@ -28,7 +28,7 @@ public class RenderableObject {
     // ...
 
 
-    public RenderableObject(
+    public RenderableVObject(
             int id,
             int imageId,
             int maxSize,
@@ -43,11 +43,11 @@ public class RenderableObject {
     }
 
 
-    synchronized public void paint(Graphics2D gr, DoubleVector pos) {
+    public void paint(Graphics2D gr, DoubleVector pos) {
         gr.setColor(this.color);
         gr.fillOval(
-                (int) pos.x - this.maxSize,
-                (int) pos.y - this.maxSize,
+                (int) Math.round(pos.x - this.maxSize),
+                (int) Math.round(pos.y - this.maxSize),
                 2 * this.maxSize,
                 2 * this.maxSize);
     }

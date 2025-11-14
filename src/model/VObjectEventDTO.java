@@ -6,18 +6,15 @@
 package model;
 
 
-import java.io.Serializable;
+import model.vobject.VObject;
 
 
 /**
  *
  * @author juanm
  */
-public enum ObjectEventType implements Serializable {
-    COLLIDED,
-    NORTH_LIMIT_REACHED,
-    SOUTH_LIMIT_REACHED,
-    EAST_LIMIT_REACHED,
-    WEST_LIMIT_REACHED,
-    NONE
+public class VObjectEventDTO {
+
+    public VObject vObject;
+    public VObjectEventType eventType;
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class AbstractPhysicsEngine {
 
-    private AtomicReference<PhysicsValuesDTO> phyValues; // *+
+    private final AtomicReference<PhysicsValuesDTO> phyValues; // *+
 
 
     /**
@@ -34,15 +34,7 @@ public abstract class AbstractPhysicsEngine {
     }
 
 
-    public void doMovement(PhysicsValuesDTO phyValues) {
-        this.setPhysicalValues(phyValues);
-    }
-
-
-    /*
-        PROTECTED
-     */
-    protected void setPhysicalValues(PhysicsValuesDTO newPhyValues) {
-        this.phyValues = new AtomicReference(newPhyValues);
+    public void setPhysicsValues(PhysicsValuesDTO phyValues) {
+        this.phyValues.set(phyValues);
     }
 }

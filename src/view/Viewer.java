@@ -2,15 +2,17 @@ package view;
 
 
 import _helpers.DoubleVector;
-import _helpers.Position;
 import _images.ImageDTO;
+import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
-import static java.lang.Long.max;
-import static java.lang.System.currentTimeMillis;
+import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
 
@@ -26,23 +28,24 @@ public class Viewer extends Canvas implements Runnable {
     private int delayInMillis;
     private int framesPerSecond;
     private int maxFramesPerSecond;
-    private final DoubleVector viewDimension;
+    private final Dimension viewDim;
     private ImageDTO background;
+    private VolatileImage viBackground;
 
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, DoubleVector viewDimension, ImageDTO background) {
+    public Viewer(View view, Dimension viewDim, ImageDTO background) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
-        this.delayInMillis = 10;
+        this.delayInMillis = 25;
         this.view = view;
-        this.viewDimension = viewDimension; //*+
+        this.viewDim = viewDim; //*+
         this.background = background;
+        this.viBackground = null;
 
-        Dimension d = new Dimension((int) this.viewDimension.x, (int) this.viewDimension.y);
-        this.setPreferredSize(d);
+        this.setPreferredSize(this.viewDim);
     }
 
 
@@ -52,6 +55,7 @@ public class Viewer extends Canvas implements Runnable {
     public void activate() {
         this.thread = new Thread(this);
         this.thread.setName("VIEWER Thread · Create and display frames");
+        this.thread.setPriority(Thread.NORM_PRIORITY + 2);
         this.thread.start();
     }
 
@@ -59,84 +63,108 @@ public class Viewer extends Canvas implements Runnable {
     /**
      * PRIVATES
      */
-    private void paint() {
-        BufferStrategy bs;
+    private void drawScene(BufferStrategy bs) {
+        Graphics2D gg;
 
-        bs = this.getBufferStrategy();
-        if (bs == null) {
-            System.out.println("kgd");
-            return; // =======================================================>>
+        gg = (Graphics2D) bs.getDrawGraphics();
+        try {
+            gg.setComposite(AlphaComposite.Src);
+            gg.drawImage(this.getVIBackground(), 0, 0, null);
+
+            this.drawRenderables(gg);
+        } finally {
+            gg.dispose();
         }
 
-        // Paint background
-        Graphics2D gg = (Graphics2D) bs.getDrawGraphics();
-        gg.drawImage(this.background.image, 0, 0, (int) this.viewDimension.x, (int) this.viewDimension.y, null);
-
-        // Paint visual objects
-        this.paintRenderables(gg);
-
         bs.show();
-        gg.dispose();
     }
 
 
-    private void paintRenderables(Graphics2D g) {
-        Position position;
-        ArrayList<RenderableObject> renderableObjects = this.view.getRenderableObjects();
+    private VolatileImage getVIBackground() {
+
+        this.viBackground = this.getValidVolatileImage(
+                this.viBackground, this.background.image, this.viewDim);
+
+        return this.viBackground;
+
+    }
+
+
+    private VolatileImage getValidVolatileImage(
+            VolatileImage vi, Image src, Dimension dim) {
+
+        GraphicsConfiguration gc = getGraphicsConfiguration();
+        if (gc == null) {
+            gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                    .getDefaultScreenDevice().getDefaultConfiguration();
+        }
+        if (gc == null) {
+            return null; // ======= No access to hardware acceleration =======> 
+        }
+
+        if (vi == null || vi.getWidth() != dim.width || vi.getHeight() != dim.height
+                || vi.validate(gc) == VolatileImage.IMAGE_INCOMPATIBLE) {
+            vi = gc.createCompatibleVolatileImage(dim.width, dim.height, Transparency.OPAQUE);
+        }
+
+        int val;
+        Graphics2D g;
+        do {
+            val = vi.validate(gc);
+
+            if (val != VolatileImage.IMAGE_OK) {
+                g = vi.createGraphics();
+                g.drawImage(src, 0, 0, dim.width, dim.height, null);
+                g.dispose();
+            }
+        } while (vi.contentsLost());
+
+        return vi;
+    }
+
+
+    private void drawRenderables(Graphics2D g) {
+        DoubleVector position;
+
+        ArrayList<RenderableVObject> renderableObjects = this.view.getRenderableObjects();
 
         if (renderableObjects == null) {
             System.out.println("RenderableObjects ArrayList is null · Viewer");
             return; // =======================================================>>
         }
-        if (renderableObjects.isEmpty()) {
-            System.out.println("No objects to render · Viewer");
-            return; // =======================================================>>
-        }
 
-        for (RenderableObject renderableObject : renderableObjects) {
+        for (RenderableVObject renderableObject : renderableObjects) {
             position = renderableObject.phyValues.position;
-
-            // Prevent to paint objects out of view => clipping
-            if (position.x <= this.viewDimension.x && position.y <= this.viewDimension.y
-                    && position.x >= 0 && position.y >= 0) {
-
-                renderableObject.paint(g, position);
-
-            } else {
-//                System.out.println("NO Paint" + renderableObject);
-            }
+            renderableObject.paint(g, position);
         }
     }
 
 
     @Override
     public void run() {
-        long lastPaintMillisTime;
-        long lastPaintMillis;
-        long delayMillis = 10;
-        long millisPerFrame;
-        int framesCounter;
+        final BufferStrategy bs;
 
-        this.createBufferStrategy(2);
+        this.setIgnoreRepaint(true);
+        this.createBufferStrategy(3);
+        bs = getBufferStrategy();
+        if (bs == null) {
+            System.out.println("kgd");
+            return; // =======================================================>>
+        }
 
-        if ((this.viewDimension.x <= 0) || (this.viewDimension.y <= 0)) {
-            System.out.println(
-                    "Canvas size error: (" + this.viewDimension.x + "," + this.viewDimension.y + ")");
+        if ((this.viewDim.width <= 0) || (this.viewDim.height <= 0)) {
+            System.out.println("Canvas size error: ("
+                    + this.viewDim.width + "," + this.viewDim.height + ")");
             return; // ========================================================>
         }
-//         Show frames
-        framesCounter = 0;
-        millisPerFrame = 1000 / this.maxFramesPerSecond;
+
         while (true) { // TO-DO End condition
-            lastPaintMillisTime = currentTimeMillis();
             if (true) { // TO-DO Pause condition
-                this.paint();
+                this.drawScene(bs);
             }
 
-            lastPaintMillis = currentTimeMillis() - lastPaintMillisTime;
-            delayMillis = max(0, millisPerFrame - lastPaintMillis);
             try {
-                Thread.sleep(delayMillis);
+                Thread.sleep(this.delayInMillis);
             } catch (InterruptedException ex) {
             }
         }
