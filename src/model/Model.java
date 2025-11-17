@@ -41,9 +41,9 @@ public class Model {
                 this, // .... Model
                 400, 1, // .. Mass range
                 2, // ....... Max creation delay 
-                100, // .. Max acceleration 
-                0, // .. MaxSpeed,
-                8, 1 // ..... Size range in px
+                100, // ..... Acceleration seam
+                0, // ....... Speed seam,
+                4, 1 // ..... Size range in px
         );
 
         this.vObjectGenerator.activate();
@@ -65,7 +65,6 @@ public class Model {
             return false;
 
         }
-//        System.out.println("VObject <" + newVObject.getId() + "> Activated · Model");
         this.vObject.put(newVObject.getId(), newVObject);
 
         return true;

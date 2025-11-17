@@ -3,6 +3,8 @@ package view;
 
 import _helpers.DoubleVector;
 import _images.ImageDTO;
+import _images.Images;
+import _images.SpriteCache;
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -29,20 +31,34 @@ public class Viewer extends Canvas implements Runnable {
     private int framesPerSecond;
     private int maxFramesPerSecond;
     private final Dimension viewDim;
+
+    private final Images objectImages;
+    private final Images backgroundImages;
+    private final SpriteCache spriteCache;
     private ImageDTO background;
     private VolatileImage viBackground;
+
+    static public double snapShotTime = 0;
+    static public double renderTime = 0;
+    static public double mediumSnapShotTime;
+    static public double mediumRenderTime;
+    static public long counter = 1;
 
 
     /**
      * CONSTRUCTORS
      */
-    public Viewer(View view, Dimension viewDim, ImageDTO background) {
+    public Viewer(View view, Dimension viewDim) {
         this.maxFramesPerSecond = 24;
         this.framesPerSecond = 0;
-        this.delayInMillis = 25;
+        this.delayInMillis = 3;
         this.view = view;
         this.viewDim = viewDim; //*+
-        this.background = background;
+
+        this.objectImages = this.loadVObjectImages();
+        this.backgroundImages = this.loadBackgrounds();
+        this.spriteCache = new SpriteCache(getGraphicsConfiguration());
+        this.background = this.backgroundImages.getRamdomImage();
         this.viBackground = null;
 
         this.setPreferredSize(this.viewDim);
@@ -124,9 +140,11 @@ public class Viewer extends Canvas implements Runnable {
 
 
     private void drawRenderables(Graphics2D g) {
-        DoubleVector position;
+        long t0, t1, t2;
 
+        t0 = System.nanoTime();
         ArrayList<RenderableVObject> renderableObjects = this.view.getRenderableObjects();
+        t1 = System.nanoTime();
 
         if (renderableObjects == null) {
             System.out.println("RenderableObjects ArrayList is null · Viewer");
@@ -134,9 +152,42 @@ public class Viewer extends Canvas implements Runnable {
         }
 
         for (RenderableVObject renderableObject : renderableObjects) {
-            position = renderableObject.phyValues.position;
-            renderableObject.paint(g, position);
+            renderableObject.paint(g);
         }
+
+        t2 = System.nanoTime();
+        Viewer.snapShotTime += (t1 - t0) / 1_000_000.0;
+        Viewer.renderTime += (t2 - t1) / 1_000_000.0;
+        Viewer.counter++;
+        Viewer.mediumSnapShotTime = (Viewer.snapShotTime / counter);
+        Viewer.mediumRenderTime = (Viewer.renderTime / counter);
+
+        return;
+    }
+
+
+    private Images loadBackgrounds() {
+        Images images = new Images("src/_images/assets/");
+
+        images.addImageToManifest("background-1.png");
+        images.addImageToManifest("background-2.jpeg");
+        images.addImageToManifest("background-3.jpeg");
+        images.addImageToManifest("background-4.jpeg");
+        images.addImageToManifest("background-5.jpg");
+
+        return images;
+    }
+
+
+    private Images loadVObjectImages() {
+        Images images = new Images("src/_images/assets/");
+
+        images.addImageToManifest("asteroid-1-mini.png");
+        images.addImageToManifest("asteroid-2-mini.png");
+        images.addImageToManifest("spaceship-1.png");
+        images.addImageToManifest("spaceship-2.png");
+
+        return images;
     }
 
 

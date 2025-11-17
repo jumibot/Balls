@@ -6,11 +6,10 @@
 package view;
 
 
-import _helpers.DoubleVector;
 import java.awt.Color;
 import model.physics.PhysicsValuesDTO;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -19,12 +18,13 @@ import java.awt.Graphics2D;
  */
 public class RenderableVObject {
 
-    public final int id;
-    public final int imageId;
-    public final int maxSize;
-    public final Color color;
-    
-    public final PhysicsValuesDTO phyValues;
+    private final int id;
+    private final int imageId;
+    private final Color color;
+
+    private int maxSize;
+    private BufferedImage image;
+    private PhysicsValuesDTO phyValues;
     // ...
 
 
@@ -43,11 +43,11 @@ public class RenderableVObject {
     }
 
 
-    public void paint(Graphics2D gr, DoubleVector pos) {
+    public void paint(Graphics2D gr) {
         gr.setColor(this.color);
         gr.fillOval(
-                (int) Math.round(pos.x - this.maxSize),
-                (int) Math.round(pos.y - this.maxSize),
+                (int) (this.phyValues.position.x - this.maxSize),
+                (int) (this.phyValues.position.y - this.maxSize),
                 2 * this.maxSize,
                 2 * this.maxSize);
     }

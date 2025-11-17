@@ -68,7 +68,7 @@ public class VObjectGenerator implements Runnable {
 
         this.thread = new Thread(this);
         this.thread.setName("VObject Generator Thread · VObjectGenerator");
-        this.thread.setPriority(Thread.NORM_PRIORITY - 2);
+        this.thread.setPriority(Thread.NORM_PRIORITY - 3);
         this.thread.start();
         System.out.println("VObject Generator activated! · VObjectGenerator");
     }

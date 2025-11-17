@@ -1,12 +1,13 @@
 package view;
 
 
-import _helpers.DoubleVector;
 import controller.Controller;
 import _images.ImageDTO;
 import _images.Images;
+import _images.SpriteCache;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -26,12 +27,10 @@ import javax.swing.JFrame;
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
     private Controller controller = null;
-    private ControlPanel controlPanel;
-    private Viewer viewer;
+    private final ControlPanel controlPanel;
+    private final Viewer viewer;
 
-    private Images objectImages;
-    private Images backgroundImages;
-    private ImageDTO background;
+
     private final Dimension worldDimension;
 
 
@@ -39,14 +38,12 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
      * CONSTRUCTOR
      */
     public View(Dimension worldDimension) {
-        this.objectImages = this.loadObjectImages();
-        this.backgroundImages = this.loadBackgroundImages();
-        this.background = this.backgroundImages.getRamdomImage();
         this.worldDimension = worldDimension;
+
 
         this.controlPanel = new ControlPanel(this);
 
-        this.viewer = new Viewer(this, this.worldDimension, this.background);
+        this.viewer = new Viewer(this, this.worldDimension);
         this.createFrame();
     }
 
@@ -54,13 +51,13 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PUBLIC
      */
-    public void setController(Controller controller) {
-        this.controller = controller;
+    public void activate() {
+        this.viewer.activate();
     }
 
 
-    public void activate() {
-        this.viewer.activate();
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
 
@@ -114,30 +111,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.addComponentListener(this);
     }
 
-
-    private Images loadBackgroundImages() {
-        Images images = new Images("src/_images/assets/");
-
-        images.addImageToManifest("background-1.png");
-        images.addImageToManifest("background-2.jpeg");
-        images.addImageToManifest("background-3.jpeg");
-        images.addImageToManifest("background-4.jpeg");
-        images.addImageToManifest("background-5.jpg");
-
-        return images;
-    }
-
-
-    private Images loadObjectImages() {
-        Images images = new Images("src/_images/assets/");
-
-        images.addImageToManifest("asteroid-1-mini.png");
-        images.addImageToManifest("asteroid-2-mini.png");
-        images.addImageToManifest("spaceship-1.png");
-        images.addImageToManifest("spaceship-2.png");
-
-        return images;
-    }
 
 
     /**

@@ -60,7 +60,7 @@ public class VObject implements Runnable {
     /**
      * PUBLICS
      */
-    synchronized public void doMovement(PhysicsValuesDTO phyValues) {
+    public void doMovement(PhysicsValuesDTO phyValues) {
 
         this.phyEngine.setPhysicsValues(phyValues);
     }
@@ -90,7 +90,7 @@ public class VObject implements Runnable {
         VObject.incAliveQuantity();
         this.thread = new Thread(this);
         this.thread.setName("VObject Thread · " + this.id);
-
+        this.thread.setPriority(Thread.NORM_PRIORITY-1);
         this.setState(VObjectState.ALIVE);
         this.thread.start();
         return true;
@@ -106,7 +106,7 @@ public class VObject implements Runnable {
     }
 
 
-    public synchronized RenderableVObject buildRenderableObject() {
+    public  RenderableVObject buildRenderableObject() {
         if (this.state == VObjectState.DEAD || this.state == VObjectState.STARTING) {
             return null;
         }

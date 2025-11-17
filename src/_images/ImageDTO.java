@@ -6,9 +6,8 @@
 package _images;
 
 
-import java.awt.GraphicsConfiguration;
 import java.awt.Image;
-import java.awt.image.VolatileImage;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -17,12 +16,14 @@ import java.awt.image.VolatileImage;
  */
 public class ImageDTO {
 
+    public final int imageId;
     public final String uri;
-    public final Image image;
+    public final BufferedImage image;
 
 
-    public ImageDTO(String uri, Image image) {
+    public ImageDTO(String uri, BufferedImage image) {
         this.uri = uri;
         this.image = image;
+        this.imageId = this.uri.hashCode();
     }
 }

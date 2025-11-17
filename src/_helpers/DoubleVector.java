@@ -71,7 +71,7 @@ public class DoubleVector implements Serializable {
 
 
     public DoubleVector addScaled(DoubleVector v, double s) {
-        // Return this + v*scaleFactor
+        // Return: this + v*scaleFactor
         return new DoubleVector(this.x + v.x * s, this.y + v.y * s);
     }
 
