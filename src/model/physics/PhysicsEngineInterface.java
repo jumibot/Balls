@@ -15,33 +15,33 @@ import java.awt.Dimension;
  */
 public interface PhysicsEngineInterface {
 
-    public abstract PhysicsValuesDTO calcNewPhysicsValues();
+    public abstract PhysicsValues calcNewPhysicsValues();
 
 
-    public abstract PhysicsValuesDTO getPhysicalValues();
+    public abstract PhysicsValues getPhysicsValues();
 
 
     public abstract void reboundInEast(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDimension);
 
 
     public abstract void reboundInWest(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDimension);
 
 
     public abstract void reboundInNorth(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDimension);
 
 
     public abstract void reboundInSouth(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDimension);
 
 }

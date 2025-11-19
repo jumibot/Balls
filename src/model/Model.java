@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
-import model.physics.PhysicsValuesDTO;
-import view.RenderableVObject;
+import model.physics.PhysicsValues;
+import view.RenderInfoDTO;
 import java.awt.Dimension;
+import static java.lang.System.nanoTime;
 
 
 /**
@@ -76,15 +77,26 @@ public class Model {
     }
 
 
-    synchronized public ArrayList<RenderableVObject> getRenderableObjects() {
-        ArrayList<RenderableVObject> renderableObjects
+    synchronized public ArrayList<RenderInfoDTO> getRenderableObjects() {
+        long t0, t1, t2, create_array, full_get;
+
+        t0 = nanoTime();
+
+        ArrayList<RenderInfoDTO> renderableObjects
                 = new ArrayList(VObject.getAliveQuantity() * 2);
 
+        t1 = nanoTime();
+
         this.vObject.forEach((id, vObject) -> {
-            if (vObject.buildRenderableObject() != null) {
-                renderableObjects.add(vObject.buildRenderableObject());
+            RenderInfoDTO rInfo = vObject.buildRenderInfo();
+            if (rInfo != null) {
+                renderableObjects.add(rInfo);
             }
         });
+
+        t2 = nanoTime();
+        create_array = (t1 - t0) / 1_000_000;
+        full_get = (t2 - t0) / 1_000_000;
 
         return renderableObjects;
     }
@@ -130,8 +142,8 @@ public class Model {
      */
     public void processVObjectEvents(
             VObject vObjectToCheck,
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues) {
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues) {
 
         if (vObjectToCheck.getState() != VObjectState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
@@ -185,18 +197,18 @@ public class Model {
     }
 
 
-    private VObjectEventType checkLimitEvent(PhysicsValuesDTO phyValues) {
+    private VObjectEventType checkLimitEvent(PhysicsValues phyValues) {
         // Check if movement is out of world limits
         //     In a corner only one event is considered. 
         //     The order of conditions defines the event priority.
 
-        if (phyValues.position.x < 0) {
+        if (phyValues.posX < 0) {
             return (VObjectEventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.position.x >= this.wordDim.width) {
+        } else if (phyValues.posX >= this.wordDim.width) {
             return (VObjectEventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.position.y < 0) {
+        } else if (phyValues.posY < 0) {
             return (VObjectEventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.position.y >= this.wordDim.height) {
+        } else if (phyValues.posY >= this.wordDim.height) {
             return (VObjectEventType.SOUTH_LIMIT_REACHED);
         }
 
@@ -207,8 +219,8 @@ public class Model {
     private void doVObjectAction(
             VObjectAction vObjectAction,
             VObject vObject,
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues) {
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues) {
 
         switch (vObjectAction) {
             case MOVE:

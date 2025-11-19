@@ -2,12 +2,8 @@ package view;
 
 
 import controller.Controller;
-import _images.ImageDTO;
-import _images.Images;
-import _images.SpriteCache;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -20,16 +16,11 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 
-/**
- *
- * @author juanm
- */
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
     private Controller controller = null;
     private final ControlPanel controlPanel;
-    private final Viewer viewer;
-
+    private final Renderer renderer;
 
     private final Dimension worldDimension;
 
@@ -37,13 +28,12 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * CONSTRUCTOR
      */
-    public View(Dimension worldDimension) {
-        this.worldDimension = worldDimension;
-
+    public View(Dimension worldDim) {
+        this.worldDimension = worldDim;
 
         this.controlPanel = new ControlPanel(this);
 
-        this.viewer = new Viewer(this, this.worldDimension);
+        this.renderer = new Renderer(this, this.worldDimension);
         this.createFrame();
     }
 
@@ -52,7 +42,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
      * PUBLIC
      */
     public void activate() {
-        this.viewer.activate();
+        this.renderer.activate();
     }
 
 
@@ -64,7 +54,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderableVObject> getRenderableObjects() {
+    protected ArrayList<RenderInfoDTO> getRenderInfo() {
         if (this.controller == null) {
             System.err.println("Controller is null. Can not get renderable objects · View ");
             return null;
@@ -88,7 +78,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         c.weighty = 0;
         c.gridheight = 10;
         c.gridwidth = 8;
-        container.add(this.viewer, c);
+        container.add(this.renderer, c);
     }
 
 
@@ -110,7 +100,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
         this.addComponentListener(this);
     }
-
 
 
     /**

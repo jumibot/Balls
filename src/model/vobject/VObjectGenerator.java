@@ -2,7 +2,7 @@ package model.vobject;
 
 
 import model.physics.PhysicsEngine;
-import model.physics.PhysicsValuesDTO;
+import model.physics.PhysicsValues;
 import java.util.Random;
 import _helpers.DoubleVector;
 import static java.lang.System.nanoTime;
@@ -131,16 +131,15 @@ public class VObjectGenerator implements Runnable {
      * PRIVATE
      */
     private VObject newRandomVObject() {
-        PhysicsValuesDTO phyValues = new PhysicsValuesDTO(
+        PhysicsValues phyVals = new PhysicsValues(
                 nanoTime(),
-                this.randomPosition(),
-                //                new DoubleVector(0, 0), 
-                this.randomSpeed(),
-                //                new DoubleVector(1, 75)
-                this.randomAcceleration()
+                this.randomPosition().x, this.randomPosition().y,
+                this.randomSpeed().x, this.randomSpeed().y,
+                this.randomAcceleration().x, this.randomAcceleration().y,
+                0 // angle
         );
 
-        PhysicsEngine phyEngine = new PhysicsEngine(phyValues);
+        PhysicsEngine phyEngine = new PhysicsEngine(phyVals);
 
         // Signature => VObject(int imageId, int radius, BasicPhysicsEngine phyEngine)
         VObject newVObject = new VObject(1, this.randomSize(), phyEngine);
@@ -166,9 +165,9 @@ public class VObjectGenerator implements Runnable {
         x = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().width;
         y = VObjectGenerator.rnd.nextFloat() * this.model.getWorldDim().height;
 
-        DoubleVector position = new DoubleVector(x, y);
+        DoubleVector pos = new DoubleVector(x, y);
 
-        return position;
+        return pos;
     }
 
 
@@ -178,12 +177,12 @@ public class VObjectGenerator implements Runnable {
 
 
     private DoubleVector randomSpeed() {
-        DoubleVector newAcceleration = new DoubleVector(
+        DoubleVector newAcc = new DoubleVector(
                 VObjectGenerator.rnd.nextGaussian(),
                 VObjectGenerator.rnd.nextGaussian(),
                 VObjectGenerator.rnd.nextFloat() * this.speed);
 
-        return newAcceleration;
+        return newAcc;
     }
 
 

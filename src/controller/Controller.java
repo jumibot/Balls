@@ -1,7 +1,7 @@
 package controller;
 
 
-import view.RenderableVObject;
+import view.RenderInfoDTO;
 import view.View;
 import model.Model;
 import model.vobject.VObject;
@@ -46,7 +46,7 @@ public class Controller {
     }
 
 
-    public ArrayList<RenderableVObject> getRenderableObjects() {
+    public ArrayList<RenderInfoDTO> getRenderableObjects() {
         return this.model.getRenderableObjects();
     }
 
