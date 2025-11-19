@@ -19,7 +19,7 @@ public class MainVisualObjects {
     public static void main(String[] args) {
         Dimension worldDim = new Dimension(1000, 600);
         View view = new View(worldDim);
-        Model model = new Model(9000, worldDim);
+        Model model = new Model(15000, worldDim);
         MainVisualObjects.controller = new Controller(view, model);
     }
 }
