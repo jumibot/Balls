@@ -1,4 +1,3 @@
-
 package _images;
 
 
@@ -10,12 +9,13 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * SpriteCache
- * 
- * Caches render-ready sprites (wich are BufferedImage) indexed by a composite 
- * key containing angle, color, imageId and size. This avoids regenerating 
- * sprites on every frame and ensures that the Renderer can blit pre-built 
+ *
+ * Caches render-ready sprites (wich are BufferedImage) indexed by a composite
+ * key containing angle, color, imageId and size. This avoids regenerating
+ * sprites on every frame and ensures that the Renderer can blit pre-built
  * GPU-compatible images at maximum performance.
  *
  * Each unique visual configuration is created once (createSprite) using the
@@ -29,11 +29,13 @@ import java.util.Map;
 public class SpriteCache {
 
     private GraphicsConfiguration gc;
+    private Images baseImages;
     private final Map<SpriteKeyDTO, BufferedImage> cache = new HashMap<>(2048);
 
 
-    public SpriteCache(GraphicsConfiguration gc) {
+    public SpriteCache(GraphicsConfiguration gc, Images baseImages) {
         this.gc = gc;
+        this.baseImages = baseImages;
     }
 
 
@@ -62,7 +64,7 @@ public class SpriteCache {
      */
     private BufferedImage createSprite(double angle, Color color, int imageId, int size) {
         // To-do: Create sprite using imageId and angle.
-        
+
         if (this.gc == null) {
             System.out.println("Error creating sprite. Graphics configuration is null · SpriteCache");
             return null;  // =================================================>
@@ -71,9 +73,17 @@ public class SpriteCache {
         BufferedImage sprite = gc.createCompatibleImage(size, size, Transparency.BITMASK);
         Graphics2D g2 = sprite.createGraphics();
 
+        // Poner aquí la imagen que toca
+        ImageDTO imageDto = this.baseImages.getImage(imageId);
+
         try {
             g2.setColor(color);
-            g2.fillOval(0, 0, size, size); // se dibuja UNA vez
+
+            if (imageDto != null) {
+                g2.drawImage(imageDto.image, 0, 0, size, size, null);
+            } else {
+                g2.fillOval(0, 0, size, size); // se dibuja UNA vez
+            }
         } finally {
             g2.dispose();
         }

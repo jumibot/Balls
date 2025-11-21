@@ -75,7 +75,8 @@ public class RenderableSprite {
                 || this.renderInfo.idImage != newRInfo.idImage
                 || this.renderInfo.size != newRInfo.size
                 || this.renderInfo.angle != newRInfo.angle
-                || (this.renderInfo.color != null && !this.renderInfo.color.equals(newRInfo.color));
+                || (this.renderInfo.color == null 
+                || !this.renderInfo.color.equals(newRInfo.color));
 
         if (spriteNeedsUpdate) {
             this.sprite = cache.getSprite(

@@ -23,30 +23,26 @@ public class PhysicsValues implements Serializable {
     public final double speedY;
     public final double accX;
     public final double accY;
-    public final double speedModule;
-    public final double accModule;
     public final double angle;
 
 
     public PhysicsValues(
             long timeStamp,
-            double posX, double posY,
-            double speedX, double speedY, 
-            double accX, double accY, 
+            double pos_x, double pos_y,
+            double speed_x, double speed_y, 
+            double acc_x, double acc_y,
             double angle
     ) {
         this.timeStamp = timeStamp;
 
-        this.posX = posX;
-        this.posY = posY;
+        this.posX = pos_x;
+        this.posY = pos_y;
 
-        this.speedX = speedX;
-        this.speedY = speedY;
-        this.speedModule = Math.hypot(speedX, speedY);
+        this.speedX = speed_x;
+        this.speedY = speed_y;
 
-        this.accX = accX;
-        this.accY = accY;
-        this.accModule = Math.hypot(accY, accY);
+        this.accX = acc_x;
+        this.accY = acc_y;
 
         this.angle = angle;
     }

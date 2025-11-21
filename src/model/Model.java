@@ -1,7 +1,7 @@
 package model;
 
 
-import model.vobject.VObjectGenerator;
+import controller.LifeGenerator;
 import model.vobject.VObjectAction;
 import model.vobject.VObjectState;
 import model.vobject.VObject;
@@ -14,6 +14,7 @@ import model.physics.PhysicsValues;
 import view.RenderInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
+import model.physics.PhysicsEngine;
 
 
 /**
@@ -22,62 +23,80 @@ import static java.lang.System.nanoTime;
  */
 public class Model {
 
-    private final int maxVObject;
-    private final Dimension wordDim;
+    private int maxVisualObjects;
+    private Dimension worldDimensions;
 
     private Controller controller = null;
-    private VObjectGenerator vObjectGenerator = null;
     private volatile ModelState state = ModelState.STARTING;
-    private final Map<Integer, VObject> vObject = new ConcurrentHashMap<>(4096);
+    private final Map<Integer, VObject> vObjects = new ConcurrentHashMap<>(15000);
 
 
     /**
      * CONSTRUCTORS
      */
-    public Model(int maxVObjectQuantity, Dimension wordDimension) {
-        this.maxVObject = maxVObjectQuantity;
-        this.wordDim = wordDimension;
+    public Model() {
 
-        this.vObjectGenerator = new VObjectGenerator(
-                this, // .... Model
-                400, 1, // .. Mass range
-                2, // ....... Max creation delay 
-                100, // ..... Acceleration seam
-                0, // ....... Speed seam,
-                4, 1 // ..... Size range in px
-        );
-
-        this.vObjectGenerator.activate();
     }
 
 
     /**
      * PUBLIC
      */
+    public void activate() {
+        if (this.controller == null) {
+            throw new IllegalArgumentException("Controller is not setted");
+        }
+
+        if (this.worldDimensions == null) {
+            throw new IllegalArgumentException("Null world dimension");
+        }
+
+        if (this.maxVisualObjects <= 0) {
+            throw new IllegalArgumentException("Max visual objects not setted");
+        }
+        this.state = ModelState.ALIVE;
+    }
+
+
+    synchronized public boolean addVObject(
+            int imageId, int size,
+            double posX, double posY,
+            double speedX, double speedY,
+            double accX, double accY,
+            double angle) {
+
+        if (VObject.getAliveQuantity() >= this.maxVisualObjects) {
+            return false; // ========= Max vObject quantity reached ==========>>
+        }
+        
+        PhysicsValues phyVals = new PhysicsValues(
+                nanoTime(), posX, posY, speedX, speedY, accX, accY, angle);
+
+        VObject newVObject
+                = new VObject(imageId, size, new PhysicsEngine(phyVals));
+
+        return this.addVObject(newVObject);
+    }
+
+
     synchronized public boolean addVObject(VObject newVObject) {
-        if (VObject.getAliveQuantity() >= this.maxVObject) {
-            // Max vObject quantity reached
-            return false; // =================================================>
+        if (VObject.getAliveQuantity() >= this.maxVisualObjects) {
+            return false; // ========= Max vObject quantity reached ==========>>
         }
 
         newVObject.setModel(this);
-        if (!newVObject.activate()) {
-            System.out.println("Can not activate vObject <" + newVObject.getId() + "> · Model");
-            return false;
-
-        }
-        this.vObject.put(newVObject.getId(), newVObject);
-
+        newVObject.activate();
+        this.vObjects.put(newVObject.getId(), newVObject);
         return true;
     }
 
 
-    public int getMaxVObject() {
-        return this.maxVObject;
+    public int getMaxVisualObjects() {
+        return this.maxVisualObjects;
     }
 
 
-    synchronized public ArrayList<RenderInfoDTO> getRenderableObjects() {
+    public ArrayList<RenderInfoDTO> getRenderableObjects() {
         long t0, t1, t2, create_array, full_get;
 
         t0 = nanoTime();
@@ -87,7 +106,7 @@ public class Model {
 
         t1 = nanoTime();
 
-        this.vObject.forEach((id, vObject) -> {
+        this.vObjects.forEach((id, vObject) -> {
             RenderInfoDTO rInfo = vObject.buildRenderInfo();
             if (rInfo != null) {
                 renderableObjects.add(rInfo);
@@ -107,8 +126,8 @@ public class Model {
     }
 
 
-    public Dimension getWorldDim() {
-        return this.wordDim;
+    public Dimension getWorldDimension() {
+        return this.worldDimensions;
     }
 
 
@@ -123,6 +142,19 @@ public class Model {
         Change vObject state to finalize de thread execution
         Remove vObject from model
          */
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    private void killVObject(VObject vObject) {
+        /* 
+        TO-DO:
+        Change vObject state to finalize de thread execution
+        Remove vObject from model
+         */
+
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
 
@@ -133,13 +165,19 @@ public class Model {
 
     public void setController(Controller controller) {
         this.controller = controller;
-        this.state = ModelState.ALIVE;
     }
 
 
-    /**
-     * PROTECTED
-     */
+    public void setDimension(Dimension worldDim) {
+        this.worldDimensions = worldDim;
+    }
+
+
+    public void setMaxVisualObjects(int maxVisualObjects) {
+        this.maxVisualObjects = maxVisualObjects;
+    }
+
+
     public void processVObjectEvents(
             VObject vObjectToCheck,
             PhysicsValues newPhyValues,
@@ -190,7 +228,7 @@ public class Model {
      * PRIVATE
      */
     synchronized private void removeVObject(VObject vObject) {
-        if (this.vObject.remove(vObject.getId()) == null) {
+        if (this.vObjects.remove(vObject.getId()) == null) {
             return; // ======= Elmento no esta en la lista ========>
         }
         vObject.die();
@@ -204,11 +242,11 @@ public class Model {
 
         if (phyValues.posX < 0) {
             return (VObjectEventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.posX >= this.wordDim.width) {
+        } else if (phyValues.posX >= this.worldDimensions.width) {
             return (VObjectEventType.WEST_LIMIT_REACHED);
         } else if (phyValues.posY < 0) {
             return (VObjectEventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.posY >= this.wordDim.height) {
+        } else if (phyValues.posY >= this.worldDimensions.height) {
             return (VObjectEventType.SOUTH_LIMIT_REACHED);
         }
 
@@ -229,22 +267,22 @@ public class Model {
                 break;
 
             case REBOUND_IN_EAST:
-                vObject.reboundInEast(newPhyValues, oldPhyValues, this.wordDim);
+                vObject.reboundInEast(newPhyValues, oldPhyValues, this.worldDimensions);
                 vObject.setState(VObjectState.ALIVE);
                 break;
 
             case REBOUND_IN_WEST:
-                vObject.reboundInWest(newPhyValues, oldPhyValues, this.wordDim);
+                vObject.reboundInWest(newPhyValues, oldPhyValues, this.worldDimensions);
                 vObject.setState(VObjectState.ALIVE);
                 break;
 
             case REBOUND_IN_NORTH:
-                vObject.reboundInNorth(newPhyValues, oldPhyValues, this.wordDim);
+                vObject.reboundInNorth(newPhyValues, oldPhyValues, this.worldDimensions);
                 vObject.setState(VObjectState.ALIVE);
                 break;
 
             case REBOUND_IN_SOUTH:
-                vObject.reboundInSouth(newPhyValues, oldPhyValues, this.wordDim);
+                vObject.reboundInSouth(newPhyValues, oldPhyValues, this.worldDimensions);
                 vObject.setState(VObjectState.ALIVE);
                 break;
 
@@ -265,15 +303,6 @@ public class Model {
 
         }
 
-    }
-
-
-    private void killVObject(VObject vObject) {
-        /* 
-        TO-DO:
-        Change vObject state to finalize de thread execution
-        Remove vObject from model
-         */
     }
 
 

@@ -2,10 +2,10 @@ package _images;
 
 
 import _helpers.RandomArrayList;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.imageio.ImageIO;
@@ -36,26 +36,41 @@ public class Images {
     }
 
 
-    /**
-     * PUBLIC
-     */
-    public void addImageToManifest(String fileName) {
-        // fileName without a path
-        this.imagesManifest.add(fileName);
+    public Images(String assetsPath, ArrayList<String> imagesManifest) {
+        this.imagesManifest = new RandomArrayList(128);
+        this.assetsPath = assetsPath;
+        this.imagesQuantity = 0;
+
+        this.add(imagesManifest);
     }
 
 
-    public ImageDTO getImage(int order) {
+    /**
+     * PUBLIC
+     */
+    public void add(String fileName) {
+        // fileName without a path
+        this.imagesManifest.add(fileName);
+        this.images.put(fileName.hashCode(), this.loadImage(assetsPath + fileName));
+    }
+
+
+    public void add(ArrayList<String> manifest) {
+        // fileName without a path
+
+        for (String imageUri : manifest) {
+            this.imagesManifest.add(imageUri);
+            this.images.put(imageUri.hashCode(), this.loadImage(assetsPath + imageUri));
+        }
+    }
+
+
+    public ImageDTO getImage(int imageId) {
         if (!this.isLoaded) {
             this.loadAllImages();
         }
 
-        if (order >= 0 && order <= this.imagesQuantity) {
-            System.out.println("The order of image specified is not avalaible · IMAGES");
-            return this.images.get(order);
-        } else {
-            return this.choice();
-        }
+        return this.images.get(imageId);
     }
 
 
@@ -64,12 +79,21 @@ public class Images {
     }
 
 
-    public ImageDTO getRamdomImage() {
+    public ImageDTO getRamdomImageDTO() {
         if (!this.isLoaded) {
             this.loadAllImages();
         }
 
         return this.choice();
+    }
+
+
+    public BufferedImage getRamdomBufferedImage() {
+        if (!this.isLoaded) {
+            this.loadAllImages();
+        }
+
+        return this.choice().image;
     }
 
 

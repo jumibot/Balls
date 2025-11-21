@@ -1,7 +1,6 @@
 package model.physics;
 
 
-import _helpers.DoubleVector;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 
@@ -34,13 +33,7 @@ public class PhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngin
         long now = nanoTime();
         long elapsedNanos = now - phyVals.timeStamp;
 
-        if (elapsedNanos <= 0) {
-            return phyVals;
-        }
-
-        // Converting nanos to seconds
-        double dt = elapsedNanos / 1_000_000_000.0;
-//        return phyVals;
+        double dt = elapsedNanos / 1_000_000_000.0; // Nanos to seconds
         return integrateMRUA(phyVals, dt);
     }
 
@@ -86,7 +79,7 @@ public class PhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngin
         double speedY = newPhyVals.speedY;
 
         // New position: snapped to the east boundary (slightly inside)
-        double posX = worldDim.width - 0.1;
+        double posX = worldDim.width - 0.0001;
         double posY = newPhyVals.posY;
 
         // Acceleration is preserved
@@ -117,7 +110,7 @@ public class PhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngin
 
         // New position: snapped to the east boundary (slightly inside)
         double posX = newPhyVals.posX;
-        double posY = 0.1;
+        double posY = 0.0001;
 
         // Acceleration is preserved
         double accX = newPhyVals.accX;
@@ -147,7 +140,7 @@ public class PhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngin
 
         // New position: snapped to the east boundary (slightly inside)
         double posX = newPhyVals.posX;
-        double posY = worldDim.height - 0.1;
+        double posY = worldDim.height - 0.0001;
 
         // Acceleration is preserved
         double accX = newPhyVals.accX;

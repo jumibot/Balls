@@ -1,3 +1,4 @@
+
 package view;
 
 
@@ -6,13 +7,12 @@ import java.awt.Color;
 
 /**
  * RenderInfoDTO
- * 
- * Info related to VObject rendering.
- * Immutable DTO that packages all visual and physical data required to render a
- * VObject during a given frame. It contains a flattened snapshot of the
- * object's appearance and kinematic state (position, speed and acceleration),
- * allowing the view layer to draw the object without referencing any mutable
- * model structures.
+ *
+ * Info related to VObject rendering. Immutable DTO that packages all visual and
+ * physical data required to render a VObject during a given frame. It contains
+ * a flattened snapshot of the object's appearance and kinematic state
+ * (position, speed and acceleration), allowing the view layer to draw the
+ * object without referencing any mutable model structures.
  */
 public class RenderInfoDTO {
 
@@ -25,20 +25,16 @@ public class RenderInfoDTO {
     public final double posY;
     public final double speedX;
     public final double speedY;
-    public final double speedModule;
     public final double accX;
     public final double accY;
-    public final double accModule;
     public final double angle;
 
 
     public RenderInfoDTO(
             int id, int imageId, int size, Color color,
-            long timeStamp,
-            double posX, double posY,
-            double speedX, double speedY, double speedModule,
-            double accX, double accY, double accModule,
-            double angle) {
+            long timeStamp, double posX, double posY,
+            double speedX, double speedY,
+            double accX, double accY, double angle) {
 
         this.idVObject = id;
         this.idImage = imageId;
@@ -49,10 +45,8 @@ public class RenderInfoDTO {
         this.posY = posY;
         this.speedX = speedX;
         this.speedY = speedY;
-        this.speedModule = speedModule;
         this.accX = accX;
         this.accY = accY;
-        this.accModule = accModule;
         this.angle = angle;
     }
 

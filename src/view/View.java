@@ -1,6 +1,8 @@
 package view;
 
 
+import _images.Images;
+import _images.SpriteCache;
 import controller.Controller;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -12,6 +14,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
@@ -19,21 +22,26 @@ import javax.swing.JFrame;
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
     private Controller controller = null;
-    private final ControlPanel controlPanel;
-    private final Renderer renderer;
+    private ControlPanel controlPanel;
+    private Renderer renderer;
 
-    private final Dimension worldDimension;
+    private String assetsPath;
+    private Images backgroundImages;
+    private Images asteroidImages;
+    private Images playerImages;
+    private BufferedImage background;
+
+    private Dimension worldDimension;
 
 
     /**
      * CONSTRUCTOR
      */
-    public View(Dimension worldDim) {
-        this.worldDimension = worldDim;
-
+    public View() {
+        this.controlPanel = new ControlPanel(this);
+        this.renderer = new Renderer(this);
         this.controlPanel = new ControlPanel(this);
 
-        this.renderer = new Renderer(this, this.worldDimension);
         this.createFrame();
     }
 
@@ -42,7 +50,52 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
      * PUBLIC
      */
     public void activate() {
+        if (this.worldDimension == null) {
+            throw new IllegalArgumentException("Null world dimension");
+        }
+
+        if (this.assetsPath == null) {
+            throw new IllegalArgumentException("Null path");
+        }
+
+        if (this.asteroidImages == null || this.background == null || this.playerImages == null) {
+            throw new IllegalArgumentException("Null file list");
+        }
+
+        this.renderer.SetViewDimension(this.worldDimension);
+
+        this.renderer.setAssets(background, this.asteroidImages, this.playerImages);
         this.renderer.activate();
+        this.pack();
+    }
+
+
+    public void setAssets(
+            String assetsPath,
+            ArrayList<String> background,
+            ArrayList<String> asteroid,
+            ArrayList<String> player) {
+
+        this.setAssetsPath(assetsPath);
+        this.setBackgroundImages(background);
+        this.setAsteroidImages(asteroid);
+        this.setPlayerImages(player);
+    }
+
+
+    public void setAssetsPath(String assetsPath) {
+        this.assetsPath = assetsPath;
+    }
+
+
+    public void setAsteroidImages(ArrayList<String> asteroid) {
+        this.asteroidImages = new Images(this.assetsPath, asteroid);
+    }
+
+
+    public void setBackgroundImages(ArrayList<String> background) {
+        this.backgroundImages = new Images(this.assetsPath, background);
+        this.background = this.backgroundImages.getRamdomBufferedImage();
     }
 
 
@@ -51,13 +104,22 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
+    public void setDimension(Dimension worldDim) {
+        this.worldDimension = worldDim;
+    }
+
+
+    public void setPlayerImages(ArrayList<String> player) {
+        this.playerImages = new Images(this.assetsPath, player);
+    }
+
+
     /**
      * PROTECTED
      */
     protected ArrayList<RenderInfoDTO> getRenderInfo() {
         if (this.controller == null) {
-            System.err.println("Controller is null. Can not get renderable objects · View ");
-            return null;
+            throw new IllegalArgumentException("Controller not setted");
         }
 
         return this.controller.getRenderableObjects();
@@ -67,7 +129,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PRIVATE
      */
-    private void addViewer(Container container) {
+    private void addRenderer(Container container) {
         GridBagConstraints c = new GridBagConstraints();
 
         c.anchor = GridBagConstraints.NORTHWEST;
@@ -89,9 +151,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.setLayout(new GridBagLayout());
 
         panel = this.getContentPane();
-
-        // Add components to panel
-        this.addViewer(panel);
+        this.addRenderer(panel);
 
         panel.addMouseWheelListener(this);
 
@@ -134,4 +194,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     public void componentHidden(ComponentEvent ce) {
     }
 
+    /**
+     * PRIVATES
+     */
 }
