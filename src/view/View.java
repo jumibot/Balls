@@ -1,10 +1,9 @@
 package view;
 
 
-import _helpers.DoubleVector;
-import controller.Controller;
-import _images.ImageDTO;
 import _images.Images;
+import _images.SpriteCache;
+import controller.Controller;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -15,38 +14,34 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
 
-/**
- *
- * @author juanm
- */
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
 
     private Controller controller = null;
     private ControlPanel controlPanel;
-    private Viewer viewer;
+    private Renderer renderer;
 
-    private Images objectImages;
+    private String assetsPath;
     private Images backgroundImages;
-    private ImageDTO background;
-    private final Dimension worldDimension;
+    private Images asteroidImages;
+    private Images playerImages;
+    private BufferedImage background;
+
+    private Dimension worldDimension;
 
 
     /**
      * CONSTRUCTOR
      */
-    public View(Dimension worldDimension) {
-        this.objectImages = this.loadObjectImages();
-        this.backgroundImages = this.loadBackgroundImages();
-        this.background = this.backgroundImages.getRamdomImage();
-        this.worldDimension = worldDimension;
-
+    public View() {
+        this.controlPanel = new ControlPanel(this);
+        this.renderer = new Renderer(this);
         this.controlPanel = new ControlPanel(this);
 
-        this.viewer = new Viewer(this, this.worldDimension, this.background);
         this.createFrame();
     }
 
@@ -54,23 +49,77 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PUBLIC
      */
+    public void activate() {
+        if (this.worldDimension == null) {
+            throw new IllegalArgumentException("Null world dimension");
+        }
+
+        if (this.assetsPath == null) {
+            throw new IllegalArgumentException("Null path");
+        }
+
+        if (this.asteroidImages == null || this.background == null || this.playerImages == null) {
+            throw new IllegalArgumentException("Null file list");
+        }
+
+        this.renderer.SetViewDimension(this.worldDimension);
+
+        this.renderer.setAssets(background, this.asteroidImages, this.playerImages);
+        this.renderer.activate();
+        this.pack();
+    }
+
+
+    public void setAssets(
+            String assetsPath,
+            ArrayList<String> background,
+            ArrayList<String> asteroid,
+            ArrayList<String> player) {
+
+        this.setAssetsPath(assetsPath);
+        this.setBackgroundImages(background);
+        this.setAsteroidImages(asteroid);
+        this.setPlayerImages(player);
+    }
+
+
+    public void setAssetsPath(String assetsPath) {
+        this.assetsPath = assetsPath;
+    }
+
+
+    public void setAsteroidImages(ArrayList<String> asteroid) {
+        this.asteroidImages = new Images(this.assetsPath, asteroid);
+    }
+
+
+    public void setBackgroundImages(ArrayList<String> background) {
+        this.backgroundImages = new Images(this.assetsPath, background);
+        this.background = this.backgroundImages.getRamdomBufferedImage();
+    }
+
+
     public void setController(Controller controller) {
         this.controller = controller;
     }
 
 
-    public void activate() {
-        this.viewer.activate();
+    public void setDimension(Dimension worldDim) {
+        this.worldDimension = worldDim;
+    }
+
+
+    public void setPlayerImages(ArrayList<String> player) {
+        this.playerImages = new Images(this.assetsPath, player);
     }
 
 
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderableVObject> getRenderableObjects() {
+    protected ArrayList<RenderInfoDTO> getRenderInfo() {
         if (this.controller == null) {
-            System.err.println("Controller is null. Can not get renderable objects · View ");
-            return null;
+            throw new IllegalArgumentException("Controller not setted");
         }
 
         return this.controller.getRenderableObjects();
@@ -80,7 +129,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PRIVATE
      */
-    private void addViewer(Container container) {
+    private void addRenderer(Container container) {
         GridBagConstraints c = new GridBagConstraints();
 
         c.anchor = GridBagConstraints.NORTHWEST;
@@ -91,7 +140,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         c.weighty = 0;
         c.gridheight = 10;
         c.gridwidth = 8;
-        container.add(this.viewer, c);
+        container.add(this.renderer, c);
     }
 
 
@@ -102,9 +151,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.setLayout(new GridBagLayout());
 
         panel = this.getContentPane();
-
-        // Add components to panel
-        this.addViewer(panel);
+        this.addRenderer(panel);
 
         panel.addMouseWheelListener(this);
 
@@ -112,31 +159,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.setVisible(true);
 
         this.addComponentListener(this);
-    }
-
-
-    private Images loadBackgroundImages() {
-        Images images = new Images("src/_images/assets/");
-
-        images.addImageToManifest("background-1.png");
-        images.addImageToManifest("background-2.jpeg");
-        images.addImageToManifest("background-3.jpeg");
-        images.addImageToManifest("background-4.jpeg");
-        images.addImageToManifest("background-5.jpg");
-
-        return images;
-    }
-
-
-    private Images loadObjectImages() {
-        Images images = new Images("src/_images/assets/");
-
-        images.addImageToManifest("asteroid-1-mini.png");
-        images.addImageToManifest("asteroid-2-mini.png");
-        images.addImageToManifest("spaceship-1.png");
-        images.addImageToManifest("spaceship-2.png");
-
-        return images;
     }
 
 
@@ -172,4 +194,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     public void componentHidden(ComponentEvent ce) {
     }
 
+    /**
+     * PRIVATES
+     */
 }

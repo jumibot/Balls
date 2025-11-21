@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model.vobject;
 
 
 import model.physics.PhysicsEngine;
-import model.physics.PhysicsValuesDTO;
-import view.RenderableVObject;
+import model.physics.PhysicsValues;
+import view.RenderInfoDTO;
 import _helpers.DoubleVector;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,8 +12,31 @@ import model.ModelState;
 
 
 /**
+ * VObject
  *
- * @author juanm
+ * Represents a single entity in the simulation model. Each VObject maintains: •
+ * A unique identifier, visual attributes (imageId, radius, color) • Its own
+ * PhysicsEngine instance, which stores and updates the immutable PhysicsValues
+ * snapshot (position, speed, acceleration, angle, etc.) • A dedicated thread
+ * responsible for advancing its physics state over time
+ *
+ * VObjects interact exclusively with the Model, reporting physics updates and
+ * requesting event processing (collisions, rebounds, etc.). The view layer
+ * never reads mutable state directly; instead, VObject produces a RenderInfoDTO
+ * snapshot encapsulating all visual and physical data required for rendering.
+ *
+ * Lifecycle control (STARTING → ALIVE → DEAD) is managed internally, and static
+ * counters track global quantities of created, active and dead VObjects.
+ *
+ * The goal of this class is to isolate per-object behavior and physics
+ * evolution while keeping the simulation thread-safe through immutable
+ * snapshots and a clearly separated rendering pipeline.
+ *
+ * Static counters (createdQuantity, aliveQuantity, deadQuantity) track global
+ * VObject lifecycle metrics. Although simple, these counters enable
+ * instrumentation and debugging of the simulation, providing a quick overview
+ * of object churn. They are updated in synchronized methods, ensuring
+ * thread-safe increments even under heavy concurrency.
  */
 public class VObject implements Runnable {
 
@@ -29,7 +47,7 @@ public class VObject implements Runnable {
 
     private Model model;
     private Thread thread;
-    private VObjectState state;
+    private volatile VObjectState state;
 
     private final int id;
     public final int imageId;
@@ -47,7 +65,7 @@ public class VObject implements Runnable {
         this.model = null;
         this.thread = null;
 
-        this.id = VObject.incCreatedQuantity();
+        this.id = VObject.createdQuantity++;
         this.imageId = imageId;
         this.radius = radius;
         this.color = Color.BLUE;
@@ -60,8 +78,7 @@ public class VObject implements Runnable {
     /**
      * PUBLICS
      */
-    synchronized public void doMovement(PhysicsValuesDTO phyValues) {
-
+    public void doMovement(PhysicsValues phyValues) {
         this.phyEngine.setPhysicsValues(phyValues);
     }
 
@@ -71,29 +88,25 @@ public class VObject implements Runnable {
     }
 
 
-    public synchronized boolean activate() {
+    public synchronized void activate() {
         if (this.model == null) {
-            System.err.println("Activation error due vObject model is null! · (VObject)");
-            return false;
+            throw new IllegalArgumentException("Model not setted");
         }
 
         if (!this.model.isAlive()) {
-            System.err.println("Activation error due model is not alive! · (VObject)");
-            return false;
+            throw new IllegalArgumentException("Visual object activation error due MODEL is not alive!");
         }
 
         if (this.state != VObjectState.STARTING) {
-            System.err.println("Activation error due vObject is not starting! · (VObject)");
-            return false;
+            throw new IllegalArgumentException("Visual object activation error due is not starting!");
         }
 
-        VObject.incAliveQuantity();
+        VObject.aliveQuantity++;
         this.thread = new Thread(this);
-        this.thread.setName("VObject Thread · " + this.id);
-
+        this.thread.setName("VObject s" + this.id);
+        this.thread.setPriority(Thread.NORM_PRIORITY - 1);
         this.setState(VObjectState.ALIVE);
         this.thread.start();
-        return true;
     }
 
 
@@ -106,14 +119,20 @@ public class VObject implements Runnable {
     }
 
 
-    public synchronized RenderableVObject buildRenderableObject() {
+    public RenderInfoDTO buildRenderInfo() {
         if (this.state == VObjectState.DEAD || this.state == VObjectState.STARTING) {
             return null;
         }
 
-        return new RenderableVObject(
-                this.id, this.imageId, this.radius, this.color, this.phyEngine.getPhysicalValues()
-        );
+        PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
+
+        return new RenderInfoDTO(
+                this.id, this.imageId, this.radius, this.color,
+                phyValues.timeStamp,
+                phyValues.posX, phyValues.posY,
+                phyValues.speedX, phyValues.speedY,
+                phyValues.accX, phyValues.accY,
+                phyValues.angle);
     }
 
 
@@ -123,48 +142,44 @@ public class VObject implements Runnable {
 
 
     public void reboundInEast(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDim) {
 
-        this.color = Color.pink;
         this.phyEngine.reboundInEast(newPhyValues, oldPhyValues, worldDim);
     }
 
 
     public void reboundInWest(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDim) {
 
-        this.color = Color.yellow;
         this.phyEngine.reboundInWest(newPhyValues, oldPhyValues, worldDim);
     }
 
 
     public void reboundInNorth(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDim) {
 
-        this.color = Color.red;
         this.phyEngine.reboundInNorth(newPhyValues, oldPhyValues, worldDim);
     }
 
 
     public void reboundInSouth(
-            PhysicsValuesDTO newPhyValues,
-            PhysicsValuesDTO oldPhyValues,
+            PhysicsValues newPhyValues,
+            PhysicsValues oldPhyValues,
             Dimension worldDim) {
 
-        this.color = Color.cyan;
         this.phyEngine.reboundInSouth(newPhyValues, oldPhyValues, worldDim);
     }
 
 
     @Override
     public void run() {
-        PhysicsValuesDTO newPhyValues;
+        PhysicsValues newPhyValues;
 
         while ((this.getState() != VObjectState.DEAD)
                 && (this.model.getState() != ModelState.STOPPED)) {
@@ -173,11 +188,11 @@ public class VObject implements Runnable {
                     && (this.model.getState() == ModelState.ALIVE)) {
 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.model.processVObjectEvents(this, newPhyValues, this.phyEngine.getPhysicalValues());
+                this.model.processVObjectEvents(this, newPhyValues, this.phyEngine.getPhysicsValues());
             }
 
             try {
-                Thread.sleep(50);
+                Thread.sleep(20);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in vObject thread! (VObject) · " + ex.getMessage());
             }
@@ -198,16 +213,16 @@ public class VObject implements Runnable {
     /**
      * PROTECTED
      */
-    protected PhysicsValuesDTO getPhysicsValues() {
-        return this.phyEngine.getPhysicalValues();
+    protected PhysicsValues getPhysicsValues() {
+        return this.phyEngine.getPhysicsValues();
     }
 
 
     @Override
     public String toString() {
         return "VObject<" + this.id
-                + "> p" + this.phyEngine.getPhysicalValues().position
-                + " s" + this.phyEngine.getPhysicalValues().speed;
+                + "> p (" + this.phyEngine.getPhysicsValues().posX + "," + this.phyEngine.getPhysicsValues().posX + ") "
+                + " s (" + this.phyEngine.getPhysicsValues().speedX + "," + this.phyEngine.getPhysicsValues().speedX + ")";
     }
 
 
@@ -215,12 +230,12 @@ public class VObject implements Runnable {
      * PRIVATE
      */
     private DoubleVector adjustBounds(
-            DoubleVector worldDimension, PhysicsValuesDTO phyValues, double delta) {
+            DoubleVector worldDimension, PhysicsValues phyValues, double delta) {
 
-        double x = Math.max(phyValues.position.x, delta);
+        double x = Math.max(phyValues.posX, delta);
         x = Math.min(x, worldDimension.x - delta);
 
-        double y = Math.max(phyValues.position.y, delta);
+        double y = Math.max(phyValues.posY, delta);
         y = Math.min(y, worldDimension.y - delta);
 
         return new DoubleVector(x, y);

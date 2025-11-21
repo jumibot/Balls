@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class AbstractPhysicsEngine {
 
-    private final AtomicReference<PhysicsValuesDTO> phyValues; // *+
+    private final AtomicReference<PhysicsValues> phyValues; // *+
 
 
     /**
      * CONSTRUCTORS
      */
-    public AbstractPhysicsEngine(PhysicsValuesDTO phyValues) {
+    public AbstractPhysicsEngine(PhysicsValues phyValues) {
         this.phyValues = new AtomicReference(phyValues);
     }
 
@@ -29,12 +29,12 @@ public abstract class AbstractPhysicsEngine {
     /**
      * PUBLIC
      */
-    public PhysicsValuesDTO getPhysicalValues() {
+    public PhysicsValues getPhysicsValues() {
         return this.phyValues.get();
     }
 
 
-    public void setPhysicsValues(PhysicsValuesDTO phyValues) {
+    public void setPhysicsValues(PhysicsValues phyValues) {
         this.phyValues.set(phyValues);
     }
 }

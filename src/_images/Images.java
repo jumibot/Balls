@@ -2,9 +2,12 @@ package _images;
 
 
 import _helpers.RandomArrayList;
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.imageio.ImageIO;
 
 
@@ -15,44 +18,59 @@ import javax.imageio.ImageIO;
 public class Images {
 
     private final String assetsPath;
-    private final RandomArrayList<ImageDTO> images;
+
+    private final Map<Integer, ImageDTO> images = new ConcurrentHashMap<>(128);
     private final RandomArrayList<String> imagesManifest;
 
     private int imagesQuantity;
-    private boolean imagesLoaded = false;
+    private boolean isLoaded = false;
 
 
     /**
      * CONSTRUCTORS
      */
     public Images(String assetsPath) {
-        this.imagesManifest = new RandomArrayList(100);
-        this.images = new RandomArrayList(100);
+        this.imagesManifest = new RandomArrayList(128);
         this.assetsPath = assetsPath;
         this.imagesQuantity = 0;
+    }
+
+
+    public Images(String assetsPath, ArrayList<String> imagesManifest) {
+        this.imagesManifest = new RandomArrayList(128);
+        this.assetsPath = assetsPath;
+        this.imagesQuantity = 0;
+
+        this.add(imagesManifest);
     }
 
 
     /**
      * PUBLIC
      */
-    public void addImageToManifest(String fileName) {
+    public void add(String fileName) {
         // fileName without a path
         this.imagesManifest.add(fileName);
+        this.images.put(fileName.hashCode(), this.loadImage(assetsPath + fileName));
     }
 
 
-    public ImageDTO getImage(int order) {
-        if (!this.imagesLoaded) {
+    public void add(ArrayList<String> manifest) {
+        // fileName without a path
+
+        for (String imageUri : manifest) {
+            this.imagesManifest.add(imageUri);
+            this.images.put(imageUri.hashCode(), this.loadImage(assetsPath + imageUri));
+        }
+    }
+
+
+    public ImageDTO getImage(int imageId) {
+        if (!this.isLoaded) {
             this.loadAllImages();
         }
 
-        if (order >= 0 && order <= this.imagesQuantity) {
-            System.out.println("The order of image specified is not avalaible · IMAGES");
-            return this.images.get(order);
-        } else {
-            return this.images.choice();
-        }
+        return this.images.get(imageId);
     }
 
 
@@ -61,37 +79,54 @@ public class Images {
     }
 
 
-    public ImageDTO getRamdomImage() {
-        if (!this.imagesLoaded) {
+    public ImageDTO getRamdomImageDTO() {
+        if (!this.isLoaded) {
             this.loadAllImages();
         }
 
-        return this.images.choice();
+        return this.choice();
+    }
+
+
+    public BufferedImage getRamdomBufferedImage() {
+        if (!this.isLoaded) {
+            this.loadAllImages();
+        }
+
+        return this.choice().image;
     }
 
 
     /**
      * PRIVATE
      */
+    private ImageDTO choice() {
+        int imageId = this.imagesManifest.choice().hashCode();
+
+        return this.images.get(imageId);
+    }
+
+
     private void loadAllImages() {
-        if (this.imagesLoaded) {
+        if (this.isLoaded) {
             return;
         }
 
         for (String imageUri : this.imagesManifest) {
-            this.images.add(this.loadImage(assetsPath + imageUri));
+            this.images.put(
+                    imageUri.hashCode(),
+                    this.loadImage(assetsPath + imageUri));
         }
 
-        this.imagesLoaded = true;
+        this.isLoaded = true;
         System.out.println("All images loaded!");
     }
 
 
     private ImageDTO loadImage(String uri) {
-        ImageDTO imageDto;
-        Image image;
+        ImageDTO imageDto = null;
+        BufferedImage image;
 
-        imageDto = null;
         try {
             image = ImageIO.read(new File(uri));
             this.imagesQuantity++;
