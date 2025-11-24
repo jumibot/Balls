@@ -2,7 +2,7 @@ package view;
 
 
 import _images.Images;
-import _images.SpriteCache;
+import _images.ImageCache;
 import controller.Controller;
 import java.awt.Container;
 import java.awt.Dimension;

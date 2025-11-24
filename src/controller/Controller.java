@@ -2,16 +2,14 @@ package controller;
 
 
 import _helpers.DoubleVector;
-import _helpers.RandomArrayList;
 import java.awt.Dimension;
 import view.RenderInfoDTO;
 import view.View;
 import model.Model;
-import model.vobject.VObject;
-import model.vobject.VObjectAction;
-import model.VObjectEventType;
+import model.entities.DynamicBody;
+import model.entities.BodyAction;
+import model.EventType;
 import java.util.ArrayList;
-import model.ModelState;
 
 
 /**
@@ -30,8 +28,8 @@ public class Controller {
     private Dimension worldDimension;
     private int maxVisualObjects;
 
-    private LifeParametersDTO lifeParameters = null;
-    private LifeGenerator lifeGenerator = null;
+    private RandomWorldDTO lifeParameters = null;
+    private RandomWorld lifeGenerator = null;
 
 
     public Controller() {
@@ -86,51 +84,51 @@ public class Controller {
     }
 
 
-    public void addVObject(
+    public void addDynamicBody(
             int imageId, int size,
             DoubleVector pos, DoubleVector speed, DoubleVector acc,
             double angle) {
 
-        this.model.addVObject(
+        this.model.addDynamicBody(
                 imageId, size, pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, angle);
     }
 
 
-    public void addVObject(VObject newVObject) {
+    public void addDynamicBody(DynamicBody newVObject) {
         this.model.addVObject(newVObject);
     }
 
 
-    public VObjectAction decideAction(VObjectEventType eventType) {
-        VObjectAction vObjectAction;
+    public BodyAction decideAction(EventType eventType) {
+        BodyAction vObjectAction;
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                vObjectAction = VObjectAction.REBOUND_IN_NORTH;
+                vObjectAction = BodyAction.REBOUND_IN_NORTH;
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                vObjectAction = VObjectAction.REBOUND_IN_SOUTH;
+                vObjectAction = BodyAction.REBOUND_IN_SOUTH;
                 break;
 
             case EAST_LIMIT_REACHED:
-                vObjectAction = VObjectAction.REBOUND_IN_EAST;
+                vObjectAction = BodyAction.REBOUND_IN_EAST;
                 break;
 
             case WEST_LIMIT_REACHED:
-                vObjectAction = VObjectAction.REBOUND_IN_WEST;
+                vObjectAction = BodyAction.REBOUND_IN_WEST;
                 break;
 
             default:
                 // To avoid zombie state
-                vObjectAction = VObjectAction.NONE;
+                vObjectAction = BodyAction.NONE;
         }
 
         return vObjectAction;
     }
 
 
-    public VObjectAction decideAction(VObjectEventType eventType, ArrayList<VObject> RelatedVObject) {
+    public BodyAction decideAction(EventType eventType, ArrayList<DynamicBody> RelatedVObject) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -141,27 +139,42 @@ public class Controller {
             double acc_x, double acc_y,
             int maxSize, int minSize) {
 
-        this.lifeParameters = new LifeParametersDTO(
-                maxCreationDelay, maxMass, minMass,
-                new DoubleVector(speed_x, speed_y),
-                new DoubleVector(acc_x, acc_y),
-                maxSize, minSize);
+        RandomDBodyDTO dBodyParams = new RandomDBodyDTO(
+                maxSize, minSize,
+                maxMass, minMass,
+                speed_x, speed_y,
+                acc_x, acc_y);
 
-        this.lifeGenerator = new LifeGenerator(this, this.lifeParameters, this.asteroidFiles);
+        RandomSBodyDTO sBodyParams = new RandomSBodyDTO(
+                maxSize, minSize,
+                maxMass, minMass);
+
+        this.lifeParameters = new RandomWorldDTO(
+                maxCreationDelay, dBodyParams, sBodyParams);
+
+        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.asteroidFiles);
         this.lifeGenerator.activate();
     }
 
 
     public void generateRandomLife(int maxCreationDelay,
             double maxMass, double minMass,
-            double acc_max_module, double speed_max_module,
+            double speedMaxModule, double accMaxModule,
             int maxSize, int minSize) {
 
-        this.lifeParameters = new LifeParametersDTO(
-                maxCreationDelay, maxMass, minMass,
-                speed_max_module, acc_max_module, maxSize, minSize);
+        RandomDBodyDTO dBodyParams = new RandomDBodyDTO(
+                maxSize, minSize,
+                maxMass, minMass,
+                speedMaxModule, accMaxModule);
 
-        this.lifeGenerator = new LifeGenerator(this, this.lifeParameters, this.asteroidFiles);
+        RandomSBodyDTO sBodyParams = new RandomSBodyDTO(
+                maxSize, minSize,
+                maxMass, minMass);
+
+        this.lifeParameters = new RandomWorldDTO(
+                maxCreationDelay, dBodyParams, sBodyParams);
+
+        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.asteroidFiles);
         this.lifeGenerator.activate();
     }
 
@@ -178,11 +191,6 @@ public class Controller {
 
     public Dimension getWorldDimension() {
         return this.worldDimension;
-    }
-
-
-    public void newRandomVObject() {
-        this.model.newRandomVObject();
     }
 
 

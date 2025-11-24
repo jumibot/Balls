@@ -1,4 +1,3 @@
-
 package view;
 
 
@@ -16,7 +15,7 @@ import java.awt.Color;
  */
 public class RenderInfoDTO {
 
-    public final int idVObject;
+    public final int entityId;
     public final int idImage;
     public final Color color;
     public final int size;
@@ -31,12 +30,12 @@ public class RenderInfoDTO {
 
 
     public RenderInfoDTO(
-            int id, int imageId, int size, Color color,
+            int entityId, int imageId, int size, Color color,
             long timeStamp, double posX, double posY,
             double speedX, double speedY,
             double accX, double accY, double angle) {
 
-        this.idVObject = id;
+        this.entityId = entityId;
         this.idImage = imageId;
         this.size = size;
         this.color = color;
@@ -51,9 +50,29 @@ public class RenderInfoDTO {
     }
 
 
+    public RenderInfoDTO(
+            int entityId, int imageId, int size,
+            double posX, double posY, double angle) {
+
+        this.entityId = entityId;
+        this.idImage = imageId;
+        this.size = size;
+        this.angle = angle;
+        this.color = null;
+        
+        this.timeStamp = 0;
+        this.posX = 0;
+        this.posY = 0;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.accX = 0;
+        this.accY = 0;
+    }
+
+
     @Override
     public String toString() {
-        return "RenderInfo<" + this.idVObject
+        return "RenderInfo<" + this.entityId
                 + "> p(" + this.posX + "," + this.posY + ")"
                 + " s(" + this.speedX + "," + this.speedY + ")";
     }

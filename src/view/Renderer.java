@@ -7,7 +7,7 @@ package view;
 
 
 import _images.Images;
-import _images.SpriteCache;
+import _images.ImageCache;
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -34,12 +34,12 @@ public class Renderer extends Canvas implements Runnable {
 
     private Images asteroidImages;
     private Images playerImages;
-    private SpriteCache asteroidCache;
-    private SpriteCache playerCache;
+    private ImageCache asteroidCache;
+    private ImageCache playerCache;
     private BufferedImage background;
     private VolatileImage viBackground;
 
-    private final Map<Integer, RenderableSprite> renderables = new HashMap<>();
+    private final Map<Integer, Renderable> renderables = new HashMap<>();
 
 
     /**
@@ -86,9 +86,9 @@ public class Renderer extends Canvas implements Runnable {
         this.viBackground = null;
 
         this.asteroidImages = asteroidImages;
-        this.asteroidCache = new SpriteCache(this.getGraphicsConfSafe(), this.asteroidImages);
+        this.asteroidCache = new ImageCache(this.getGraphicsConfSafe(), this.asteroidImages);
         this.playerImages = playerImages;
-        this.playerCache = new SpriteCache(this.getGraphicsConfSafe(), this.playerImages);
+        this.playerCache = new ImageCache(this.getGraphicsConfSafe(), this.playerImages);
     }
 
 
@@ -139,7 +139,7 @@ public class Renderer extends Canvas implements Runnable {
         this.updateRenderables(renderInfoList);
 
 //        t2 = System.nanoTime(); // Profiling
-        for (RenderableSprite renderable : this.renderables.values()) {
+        for (Renderable renderable : this.renderables.values()) {
             renderable.paint(g);
         }
 
@@ -243,12 +243,12 @@ public class Renderer extends Canvas implements Runnable {
 
         // Update or create the RenderableSprite associated with each RenderInfoDTO
         for (RenderInfoDTO newRInfo : renderInfoList) {
-            int id = newRInfo.idVObject;
+            int id = newRInfo.entityId;
 
-            RenderableSprite renderable = this.renderables.get(id);
+            Renderable renderable = this.renderables.get(id);
             if (renderable == null) {
                 // First time this VObject appears → create a cached renderable
-                renderable = new RenderableSprite(newRInfo, this.asteroidCache, this.currentFrame);
+                renderable = new Renderable(newRInfo, this.asteroidCache, this.currentFrame);
                 this.renderables.put(id, renderable);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed

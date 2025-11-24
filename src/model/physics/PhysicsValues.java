@@ -1,7 +1,6 @@
 package model.physics;
 
 
-import _helpers.DoubleVector;
 import java.io.Serializable;
 
 
@@ -17,34 +16,32 @@ import java.io.Serializable;
 public class PhysicsValues implements Serializable {
 
     public final long timeStamp;
-    public final double posX;
-    public final double posY;
-    public final double speedX;
-    public final double speedY;
-    public final double accX;
-    public final double accY;
+    public final double pos_x;
+    public final double pos_y;
+    public final double speed_x;
+    public final double speed_y;
+    public final double acc_x;
+    public final double acc_y;
     public final double angle;
 
 
-    public PhysicsValues(
-            long timeStamp,
+    public PhysicsValues(long timeStamp,
             double pos_x, double pos_y,
-            double speed_x, double speed_y, 
+            double speed_x, double speed_y,
             double acc_x, double acc_y,
             double angle
     ) {
         this.timeStamp = timeStamp;
 
-        this.posX = pos_x;
-        this.posY = pos_y;
+        this.pos_x = pos_x;
+        this.pos_y = pos_y;
 
-        this.speedX = speed_x;
-        this.speedY = speed_y;
+        this.speed_x = speed_x;
+        this.speed_y = speed_y;
 
-        this.accX = acc_x;
-        this.accY = acc_y;
+        this.acc_x = acc_x;
+        this.acc_y = acc_y;
 
         this.angle = angle;
     }
-
 }

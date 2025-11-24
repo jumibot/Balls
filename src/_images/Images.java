@@ -11,10 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.imageio.ImageIO;
 
 
-/**
- *
- * @author juanm
- */
 public class Images {
 
     private final String assetsPath;
@@ -133,7 +129,7 @@ public class Images {
             imageDto = new ImageDTO(uri, image);
 
         } catch (IOException e) {
-            System.err.println("Load image error · <Images> · [" + uri + "] · " + e.getMessage());
+            System.err.println("> LOAD IMAGE ERROR· <Images> · [" + uri + "] · " + e.getMessage());
             imageDto = null;
         }
 
