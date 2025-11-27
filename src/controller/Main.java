@@ -1,10 +1,26 @@
 package controller;
 
-
+/**
+ * TO-DO:
+ * 
+ * 1) Render static elements in world including dercoration
+ * 2) Render spaceship
+ * 3) Asteroids not rebound in limit of world
+ * 4) Make spaceship controlable
+ * 5) Colision detection
+ * 6) Shotting
+ * 7) Game rules
+ * 8) 
+ * 
+ * 
+ */
+import assets.Assets;
 import controller.Controller;
 import model.Model;
 import view.View;
-import java.util.ArrayList;
+import worlds.WorldDefinition;
+import worlds.WorldDefinitionProvider;
+import worlds.providers.RandomWorldDefinitionProvider;
 
 
 /**
@@ -14,47 +30,34 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        String assetsPath = "";
-        ArrayList<String> backsFiles = new ArrayList<>();
-        ArrayList<String> asteroidsFiles = new ArrayList<>();
-        ArrayList<String> playersFiles = new ArrayList<>();
 
-        backsFiles.add("src/resources/images/backgrounds/space-high-intensity-1.png");
-        backsFiles.add("src/resources/images/backgrounds/space-low-intensity-1.jpeg");
-        backsFiles.add("src/resources/images/backgrounds/space-low-intensity-2.jpg");
-        backsFiles.add("src/resources/images/backgrounds/space-medium-intensity-1.jpeg");
-        backsFiles.add("src/resources/images/backgrounds/space-medium-intensity-2.jpeg");
+        Assets assets = new Assets();
+
+        WorldDefinitionProvider world = 
+                new RandomWorldDefinitionProvider(1000, 600, assets);
+        WorldDefinition worldDef = world.provide();
         
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-1-mini.png");
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-2-mini.png");
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-3-mini.png");
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-4-mini.png");
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-5-mini.png");
-        asteroidsFiles.add("src/resources/images/solid_bodies/asteroid-6-mini.png");
-
-        playersFiles.add("src/resources/images/spaceship/spaceship-1.png");
-        playersFiles.add("src/resources/images/spaceship/spaceship-2.png");
-
         Controller controller = new Controller();
-        controller.setAssets(assetsPath, backsFiles, asteroidsFiles, playersFiles);
+        controller.setAssets(assets);
+        controller.setWorld(worldDef);
         controller.setWorldDimension(1000, 600);
-        controller.setMaxVisualObjects(5);
+        controller.setMaxVisualObjects(10);
 
         controller.setModel(new Model());
         controller.setView(new View());
         controller.activate();
 
-        controller.generateRandomLife(
-                3, // max creation delay
-                1000, 10, // mass
-                0, 0, // fixed speed
-                0, 100, // fixed acc
-                35, 2); // size
-        
 //        controller.generateRandomLife(
 //                3, // max creation delay
 //                1000, 10, // mass
-//                100, 0, // acc max module, speed max module
-//                30, 10); // size
+//                300, -20, // fixed speed
+//                10, 50, // fixed acc
+//                15, 5); // size
+
+        controller.generateRandomLife(
+                3, // max creation delay
+                1000, 10, // mass
+                200, 0, // acc max module, speed max module
+                20, 2); // size
     }
 }

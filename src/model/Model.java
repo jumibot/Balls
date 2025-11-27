@@ -59,7 +59,7 @@ public class Model {
 
 
     synchronized public boolean addDynamicBody(
-            int imageId, int size,
+            String assetId, int size,
             double posX, double posY,
             double speedX, double speedY,
             double accX, double accY,
@@ -73,13 +73,13 @@ public class Model {
                 nanoTime(), posX, posY, speedX, speedY, accX, accY, angle);
 
         DynamicBody newVObject
-                = new DynamicBody(imageId, size, new BasicPhysicsEngine(phyVals));
+                = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
 
-        return this.addVObject(newVObject);
+        return this.addDynamicBody(newVObject);
     }
 
 
-    synchronized public boolean addVObject(DynamicBody newVObject) {
+    synchronized public boolean addDynamicBody(DynamicBody newVObject) {
         if (AbstractEntity.getAliveQuantity() >= this.maxVisualObjects) {
             return false; // ========= Max vObject quantity reached ==========>>
         }
@@ -96,7 +96,7 @@ public class Model {
     }
 
 
-    public ArrayList<RenderInfoDTO> getRenderableObjects() {
+    public ArrayList<RenderInfoDTO> getRenderableEntities() {
         ArrayList<RenderInfoDTO> renderableObjects
                 = new ArrayList(DynamicBody.getAliveQuantity() * 2);
 

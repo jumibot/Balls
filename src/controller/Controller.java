@@ -2,6 +2,7 @@ package controller;
 
 
 import _helpers.DoubleVector;
+import assets.Assets;
 import java.awt.Dimension;
 import view.RenderInfoDTO;
 import view.View;
@@ -10,6 +11,7 @@ import model.entities.DynamicBody;
 import model.entities.BodyAction;
 import model.EventType;
 import java.util.ArrayList;
+import worlds.WorldDefinition;
 
 
 /**
@@ -20,14 +22,11 @@ public class Controller {
 
     private Model model;
     private View view;
+    private Assets assets;
+    private WorldDefinition world;
     private volatile ControllerState controllerState = ControllerState.STARTING;
-    private String assetsPath;
-    private ArrayList<String> backgroundFiles;
-    private ArrayList<String> asteroidFiles;
-    private ArrayList<String> playerFiles;
     private Dimension worldDimension;
     private int maxVisualObjects;
-
     private RandomWorldDTO lifeParameters = null;
     private RandomWorld lifeGenerator = null;
 
@@ -36,11 +35,11 @@ public class Controller {
     }
 
 
-    public Controller(View view, Model model) {
+    public Controller(View view, Model model, Assets assets) {
+        this.assets = assets;
 
         this.setModel(model);
         this.setView(view);
-
     }
 
 
@@ -52,12 +51,16 @@ public class Controller {
             throw new IllegalArgumentException("Null world dimension");
         }
 
-        if (this.assetsPath == null) {
-            throw new IllegalArgumentException("Null path");
+        if (this.assets == null) {
+            throw new IllegalArgumentException("Assets are not setted");
         }
 
-        if (this.asteroidFiles == null || this.backgroundFiles == null || this.playerFiles == null) {
-            throw new IllegalArgumentException("Null file list");
+        if (this.assets == null) {
+            throw new IllegalArgumentException("Assets are not setted");
+        }
+
+        if (this.world == null) {
+            throw new IllegalArgumentException("World definition not setted");
         }
 
         if (this.maxVisualObjects <= 0) {
@@ -72,7 +75,7 @@ public class Controller {
             throw new IllegalArgumentException("No model injected");
         }
 
-        this.view.setAssets(this.assetsPath, this.backgroundFiles, this.asteroidFiles, this.playerFiles);
+        this.view.loadAssets(this.assets, this.world);
         this.view.setDimension(this.worldDimension);
         this.view.activate();
 
@@ -85,17 +88,17 @@ public class Controller {
 
 
     public void addDynamicBody(
-            int imageId, int size,
+            String assetId, int size,
             DoubleVector pos, DoubleVector speed, DoubleVector acc,
             double angle) {
 
         this.model.addDynamicBody(
-                imageId, size, pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, angle);
+                assetId, size, pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, angle);
     }
 
 
-    public void addDynamicBody(DynamicBody newVObject) {
-        this.model.addVObject(newVObject);
+    public void addDynamicBody(DynamicBody newDBody) {
+        this.model.addDynamicBody(newDBody);
     }
 
 
@@ -128,7 +131,7 @@ public class Controller {
     }
 
 
-    public BodyAction decideAction(EventType eventType, ArrayList<DynamicBody> RelatedVObject) {
+    public BodyAction decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -152,7 +155,7 @@ public class Controller {
         this.lifeParameters = new RandomWorldDTO(
                 maxCreationDelay, dBodyParams, sBodyParams);
 
-        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.asteroidFiles);
+        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.world.asteroids);
         this.lifeGenerator.activate();
     }
 
@@ -174,7 +177,7 @@ public class Controller {
         this.lifeParameters = new RandomWorldDTO(
                 maxCreationDelay, dBodyParams, sBodyParams);
 
-        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.asteroidFiles);
+        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.world.asteroids);
         this.lifeGenerator.activate();
     }
 
@@ -185,7 +188,7 @@ public class Controller {
 
 
     public ArrayList<RenderInfoDTO> getRenderableObjects() {
-        return this.model.getRenderableObjects();
+        return this.model.getRenderableEntities();
     }
 
 
@@ -194,13 +197,8 @@ public class Controller {
     }
 
 
-    public void setAssets(String assetsPath, ArrayList<String> background,
-            ArrayList<String> asteroid, ArrayList<String> player) {
-
-        this.assetsPath = assetsPath;
-        this.backgroundFiles = background;
-        this.asteroidFiles = asteroid;
-        this.playerFiles = player;
+    public void setAssets(Assets assets) {
+        this.assets = assets;
     }
 
 
@@ -213,6 +211,11 @@ public class Controller {
     public void setView(View view) {
         this.view = view;
         this.view.setController(this);
+    }
+
+
+    public void setWorld(WorldDefinition world) {
+        this.world = world;
     }
 
 

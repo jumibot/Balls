@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 
 /**
- * RenderableSprite
+ * RenderableImage
  *
  * Represents a render-ready view object whose visual state persists across
  * frames. Each instance corresponds to a single VObject and holds:
@@ -26,17 +26,19 @@ import java.awt.image.BufferedImage;
  */
 public class Renderable {
 
-    private final int idVObject;
+    private final int entityId;
     private int lastFrameSeen;
-    private RenderInfoDTO renderInfo;
-    private BufferedImage image;
+    private final ImageCache cache;
+    private RenderInfoDTO renderInfo = null;
+    private BufferedImage image = null;
 
 
-    public Renderable(RenderInfoDTO rInfo, ImageCache cache, int currentFrame) {
-        this.idVObject = rInfo.entityId;
+    public Renderable(RenderInfoDTO renderInfo, ImageCache cache, int currentFrame) {
+        this.entityId = renderInfo.entityId;
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = rInfo;
-        this.updateImage(rInfo, cache);
+        this.renderInfo = renderInfo;
+        this.cache = cache;
+        this.updateImage(renderInfo);
     }
 
 
@@ -48,10 +50,10 @@ public class Renderable {
     }
 
 
-    public void update(RenderInfoDTO newRInfo, ImageCache cache, int currentFrame) {
-        this.updateImage(newRInfo, cache);
+    public void update(RenderInfoDTO newRenderInfo, int currentFrame) {
+        this.updateImage(newRenderInfo);
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = newRInfo;
+        this.renderInfo = newRenderInfo;
     }
 
 
@@ -68,19 +70,18 @@ public class Renderable {
     /**
      * PRIVATE
      */
-    private void updateImage(RenderInfoDTO newRInfo, ImageCache cache) {
-        boolean spriteNeedsUpdate
+    private void updateImage(RenderInfoDTO newRenderInfo) {
+        boolean imageNeedsUpdate
                 = this.image == null
                 || this.renderInfo == null
-                || this.renderInfo.idImage != newRInfo.idImage
-                || this.renderInfo.size != newRInfo.size
-                || this.renderInfo.angle != newRInfo.angle
+                || !this.renderInfo.assetId.equals(newRenderInfo.assetId)  
+                || this.renderInfo.size != newRenderInfo.size
+                || this.renderInfo.angle != newRenderInfo.angle
                 || (this.renderInfo.color == null 
-                || !this.renderInfo.color.equals(newRInfo.color));
+                || !this.renderInfo.color.equals(newRenderInfo.color));
 
-        if (spriteNeedsUpdate) {
-            this.image = cache.getImage(
-                    newRInfo.angle, newRInfo.color, newRInfo.idImage, newRInfo.size);
+        if (imageNeedsUpdate) {
+            this.image = this.cache.getImage(newRenderInfo.angle, newRenderInfo.color, newRenderInfo.assetId, newRenderInfo.size);
         }
     }
 }

@@ -17,14 +17,14 @@ public class CachedImageKeyDTO {
 
     public double angle;
     public Color color;
-    public int imageId;
+    public String assetId;
     public int size;
     
     
-    public CachedImageKeyDTO( double angle, Color color, int imageId, int size){
+    public CachedImageKeyDTO( double angle, Color color, String assetId, int size){
         this.angle = angle;
         this.color = color;
-        this.imageId = imageId;
+        this.assetId = assetId;
         this.size = size;
     }
 }

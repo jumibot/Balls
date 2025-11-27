@@ -1,18 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package _images;
 
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 
 /**
- *
- * @author juanm
+ * Data holder that represents a loaded image resource. Stores the
+ * image URI, the BufferedImage instance, and a stable identifier derived from
+ * the URI's hash code. Used by the Images manager to reference and retrieve
+ * image assets efficiently.
  */
 public class ImageDTO {
 

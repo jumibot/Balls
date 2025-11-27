@@ -49,8 +49,8 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     /**
      * CONSTRUCTORS
      */
-    public DynamicBody(int imageId, int size, BasicPhysicsEngine phyEngine) {
-        super(imageId, size);
+    public DynamicBody(String assetId, int size, BasicPhysicsEngine phyEngine) {
+        super(assetId, size);
 
         this.phyEngine = phyEngine;
     }
@@ -80,7 +80,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new RenderInfoDTO(
-                this.getId(), this.imageId, this.size, this.getColor(),
+                this.getId(), this.assetId, this.size, this.getColor(),
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
                 phyValues.speed_x, phyValues.speed_y,

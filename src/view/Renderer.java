@@ -18,7 +18,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
-import static java.lang.System.nanoTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,15 +27,18 @@ public class Renderer extends Canvas implements Runnable {
 
     private Dimension viewDimension;
     private View view;
-    private int delayInMillis = 1;
+    private int delayInMillis = 10;
     private int currentFrame = 0;
     private Thread thread;
 
-    private Images asteroidImages;
-    private Images playerImages;
-    private ImageCache asteroidCache;
-    private ImageCache playerCache;
     private BufferedImage background;
+    private Images dBodyImage;
+    private Images sBodyImage;
+    private Images spaceDecoratorImage;
+
+    private ImageCache dBodyCache;
+    private ImageCache sBodyCache;
+    private ImageCache spaceDecoratorCache;
     private VolatileImage viBackground;
 
     private final Map<Integer, Renderable> renderables = new HashMap<>();
@@ -56,20 +58,6 @@ public class Renderer extends Canvas implements Runnable {
      * PUBLICS
      */
     public boolean activate() {
-        if (this.viewDimension == null) {
-            throw new IllegalArgumentException("Null view dimension");
-        }
-
-        if (this.background == null) {
-            System.out.println("Warning: No background image · Renderer");
-        }
-        if (this.asteroidImages == null) {
-            System.out.println("Warning: No asteroids images · Renderer");
-        }
-        if (this.playerImages == null) {
-            System.out.println("Warning: No players image · Renderer");
-        }
-
         this.setPreferredSize(this.viewDimension);
 
         this.thread = new Thread(this);
@@ -81,14 +69,21 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
-    public void setAssets(BufferedImage background, Images asteroidImages, Images playerImages) {
+    public void setImages(
+            BufferedImage background, Images dBody,
+            Images sBody, Images sDecorator) {
+
         this.background = background;
         this.viBackground = null;
 
-        this.asteroidImages = asteroidImages;
-        this.asteroidCache = new ImageCache(this.getGraphicsConfSafe(), this.asteroidImages);
-        this.playerImages = playerImages;
-        this.playerCache = new ImageCache(this.getGraphicsConfSafe(), this.playerImages);
+        this.dBodyImage = dBody;
+        this.dBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
+
+        this.sBodyImage = sBody;
+        this.sBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.sBodyImage);
+
+        this.spaceDecoratorImage = sDecorator;
+        this.spaceDecoratorCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
     }
 
 
@@ -131,36 +126,17 @@ public class Renderer extends Canvas implements Runnable {
      * PRIVATES
      */
     private void drawRenderables(Graphics2D g) {
-//        t0 = System.nanoTime(); // Profiling
-
         ArrayList<RenderInfoDTO> renderInfoList = this.view.getRenderInfo();
 
-//        t1 = System.nanoTime(); // Profiling
         this.updateRenderables(renderInfoList);
 
-//        t2 = System.nanoTime(); // Profiling
         for (Renderable renderable : this.renderables.values()) {
             renderable.paint(g);
         }
-
-        // Used to profile performance only
-//        t3 = System.nanoTime();
-//
-//        getInfo = (t1 - t0) / 1_000_000;
-//        updateInfo = (t2 - t1) / 1_000_000;
-//        full_snapshot = (t2 - t0) / 1_000_000;
-//        draw = (t3 - t2) / 1_000_000;
-//        full_draw = (t3 - t0) / 1_000_000;
-//
-//        return;
     }
 
 
     private void drawScene(BufferStrategy bs) {
-//        long t0, t1, t2, full_scene, background, renderables;
-//
-//        t0 = nanoTime();
-
         Graphics2D gg;
 
         gg = (Graphics2D) bs.getDrawGraphics();
@@ -169,7 +145,6 @@ public class Renderer extends Canvas implements Runnable {
             gg.setComposite(AlphaComposite.Src); // Opaque
             gg.drawImage(this.getVIBackground(), 0, 0, null);
 
-//            t1 = nanoTime();
             // Show VObjects
             gg.setComposite(AlphaComposite.SrcOver); // With transparency
             this.drawRenderables(gg);
@@ -179,12 +154,6 @@ public class Renderer extends Canvas implements Runnable {
         }
 
         bs.show();
-//        t2 = nanoTime();
-//        background = (t1 - t0) / 1_000_000;
-//        renderables = (t2 - t1) / 1_000_000;
-//        full_scene = (t2 - t0) / 1_000_000;
-//
-//        t0 = nanoTime();
     }
 
 
@@ -248,11 +217,11 @@ public class Renderer extends Canvas implements Runnable {
             Renderable renderable = this.renderables.get(id);
             if (renderable == null) {
                 // First time this VObject appears → create a cached renderable
-                renderable = new Renderable(newRInfo, this.asteroidCache, this.currentFrame);
+                renderable = new Renderable(newRInfo, this.dBodyCache, this.currentFrame);
                 this.renderables.put(id, renderable);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed
-                renderable.update(newRInfo, this.asteroidCache, this.currentFrame);
+                renderable.update(newRInfo, this.currentFrame);
             }
         }
 

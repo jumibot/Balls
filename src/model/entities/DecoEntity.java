@@ -18,8 +18,8 @@ public class DecoEntity extends AbstractEntity {
     /**
      * CONSTRUCTORS
      */
-    public DecoEntity(int imageId, int size, double x, double y, double angle) {
-        super(imageId, size);
+    public DecoEntity(String assetId, int size, double x, double y, double angle) {
+        super(assetId, size);
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -46,7 +46,7 @@ public class DecoEntity extends AbstractEntity {
 
         return new RenderInfoDTO(
                 this.getId(),
-                this.imageId,
+                this.assetId,
                 this.size,
                 this.getColor(),
                 0, // timeStamp

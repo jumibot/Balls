@@ -11,14 +11,14 @@ import java.util.Map;
 
 
 /**
- * SpriteCache
+ * ImageCache
  *
- * Caches render-ready sprites (wich are BufferedImage) indexed by a composite
+ * Caches render-ready images (wich are BufferedImage) indexed by a composite
  * key containing angle, color, imageId and size. This avoids regenerating
- * sprites on every frame and ensures that the Renderer can blit pre-built
+ * images on every frame and ensures that the Renderer can blit pre-built
  * GPU-compatible images at maximum performance.
  *
- * Each unique visual configuration is created once (createSprite) using the
+ * Each unique visual configuration is created once (putInCache()) using the
  * current GraphicsConfiguration, producing a hardware-accelerated, compatible
  * BufferedImage. Subsequent requests for the same parameters return the same
  * cached image, minimizing CPU work and memory churn during rendering.
@@ -42,12 +42,12 @@ public class ImageCache {
     /**
      * PUBLICS
      */
-    public BufferedImage getImage(double angle, Color color, int imageId, int size) {
-        CachedImageKeyDTO key = new CachedImageKeyDTO(angle, color, imageId, size);
+    public BufferedImage getImage(double angle, Color color, String assetId, int size) {
+        CachedImageKeyDTO key = new CachedImageKeyDTO(angle, color, assetId, size);
         BufferedImage image = this.cache.get(key);
 
         if (image == null) {
-            image = this.cacheImage(angle, color, imageId, size);
+            image = this.putInCache(angle, color, assetId, size);
             this.cache.put(key, image);
         }
         return image;
@@ -62,7 +62,7 @@ public class ImageCache {
     /**
      * PRIVATES
      */
-    private BufferedImage cacheImage(double angle, Color color, int imageId, int size) {
+    private BufferedImage putInCache(double angle, Color color, String assetId, int size) {
         if (this.gc == null) {
             System.err.println("Graphics configuration is null · SpriteCache");
             return null;  // =================================================>
@@ -72,7 +72,7 @@ public class ImageCache {
         Graphics2D g2 = image.createGraphics();
 
         // Poner aquí la imagen que toca
-        ImageDTO imageDto = this.baseImages.getImage(imageId);
+        ImageDTO imageDto = this.baseImages.getImage(assetId);
 
         try {
             g2.setColor(color);

@@ -5,90 +5,73 @@ import _helpers.RandomArrayList;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.imageio.ImageIO;
 
 
+/**
+ * Handles registration, loading, and retrieval of image resources located under
+ * a given assets directory. Each image is identified by the hash of its URI and
+ * stored as an ImageDTO instance. The class supports lazy loading, batched
+ * manifest loading, random image selection, and access to both the DTO wrapper
+ * and the underlying BufferedImage. All images are kept in memory for fast
+ * lookup through a concurrent map.
+ */
 public class Images {
 
     private final String assetsPath;
-
-    private final Map<Integer, ImageDTO> images = new ConcurrentHashMap<>(128);
-    private final RandomArrayList<String> imagesManifest;
-
-    private int imagesQuantity;
-    private boolean isLoaded = false;
+    private final Map<String, ImageDTO> images = new ConcurrentHashMap<>(128);
+    private final Random rnd = new Random();
 
 
     /**
      * CONSTRUCTORS
      */
     public Images(String assetsPath) {
-        this.imagesManifest = new RandomArrayList(128);
         this.assetsPath = assetsPath;
-        this.imagesQuantity = 0;
-    }
-
-
-    public Images(String assetsPath, ArrayList<String> imagesManifest) {
-        this.imagesManifest = new RandomArrayList(128);
-        this.assetsPath = assetsPath;
-        this.imagesQuantity = 0;
-
-        this.add(imagesManifest);
     }
 
 
     /**
      * PUBLIC
      */
-    public void add(String fileName) {
+    public void add(String assetId, String fileName) {
         // fileName without a path
-        this.imagesManifest.add(fileName);
-        this.images.put(fileName.hashCode(), this.loadImage(assetsPath + fileName));
-    }
-
-
-    public void add(ArrayList<String> manifest) {
-        // fileName without a path
-
-        for (String imageUri : manifest) {
-            this.imagesManifest.add(imageUri);
-            this.images.put(imageUri.hashCode(), this.loadImage(assetsPath + imageUri));
-        }
-    }
-
-
-    public ImageDTO getImage(int imageId) {
-        if (!this.isLoaded) {
-            this.loadAllImages();
+        if (fileName == null || fileName == "" || assetId == null || assetId == "") {
+            System.out.println("Image id or file name is not setted · Images");
+            return;
         }
 
-        return this.images.get(imageId);
+        this.images.put(assetId, this.loadImage(assetsPath + fileName));
     }
 
 
-    public int getImageQuantity() {
-        return this.imagesQuantity;
+    public ArrayList<String> getAssetIds() {
+        return new ArrayList(this.images.keySet());
+    }
+
+
+    public ImageDTO getImage(String assetId) {
+        return this.images.get(assetId);
+    }
+
+
+    public int getSize() {
+        return this.images.size();
     }
 
 
     public ImageDTO getRamdomImageDTO() {
-        if (!this.isLoaded) {
-            this.loadAllImages();
-        }
-
         return this.choice();
     }
 
 
     public BufferedImage getRamdomBufferedImage() {
-        if (!this.isLoaded) {
-            this.loadAllImages();
-        }
-
         return this.choice().image;
     }
 
@@ -97,25 +80,9 @@ public class Images {
      * PRIVATE
      */
     private ImageDTO choice() {
-        int imageId = this.imagesManifest.choice().hashCode();
+        String assetId = this.randomAssetId();
 
-        return this.images.get(imageId);
-    }
-
-
-    private void loadAllImages() {
-        if (this.isLoaded) {
-            return;
-        }
-
-        for (String imageUri : this.imagesManifest) {
-            this.images.put(
-                    imageUri.hashCode(),
-                    this.loadImage(assetsPath + imageUri));
-        }
-
-        this.isLoaded = true;
-        System.out.println("All images loaded!");
+        return this.images.get(assetId);
     }
 
 
@@ -125,7 +92,9 @@ public class Images {
 
         try {
             image = ImageIO.read(new File(uri));
-            this.imagesQuantity++;
+            if (image == null) {
+                throw new IOException("Unsupported or empty image [" + uri + "] · <Images>");
+            }
             imageDto = new ImageDTO(uri, image);
 
         } catch (IOException e) {
@@ -134,5 +103,38 @@ public class Images {
         }
 
         return imageDto;
+    }
+
+
+    public static BufferedImage loadBufferedImage(String path, String fileName) {
+        File uri = Paths.get(path, fileName).toFile();
+//        String uri = path +fileName;
+
+        try {
+//            BufferedImage image = ImageIO.read(new File(uri));
+            BufferedImage image = ImageIO.read(uri);
+
+            if (image == null) {
+                System.err.println("> LOAD IMAGE ERROR · Unsupported/empty image · [" + uri + "]");
+                return null;
+            }
+
+            return image;
+
+        } catch (IOException e) {
+            System.err.println("> LOAD IMAGE ERROR · [" + uri + "] · " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    public String randomAssetId() {
+        List<String> keys = new ArrayList<>(this.images.keySet());
+
+        if (keys.isEmpty()) {
+            throw new IllegalStateException("No images loaded · Images");
+        }
+        int index = this.rnd.nextInt(keys.size());
+        return keys.get(index);
     }
 }

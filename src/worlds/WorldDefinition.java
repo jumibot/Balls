@@ -1,6 +1,7 @@
 package worlds;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -10,36 +11,36 @@ public class WorldDefinition {
     public final int worldHeight;
 
     public final BackgroundDef background;
-    public final List<DecoratorDef> spaceDecorators;
-    public final List<StaticBodyDef> gravityBodies;
-    public final List<StaticBodyDef> solidBodies;
-    public final DynamicBodyDef misil;
-    public final StaticBodyDef bomb;
-    public final DynamicBodyDef spaceship;
-    public final DecoratorDef lab;
+    public final ArrayList<DecoratorDef> spaceDecorators;
+    public final ArrayList<StaticBodyDef> gravityBodies;
+    public final ArrayList<DynamicBodyDef> asteroids;
+    public final ArrayList<DynamicBodyDef> misils;
+    public ArrayList<StaticBodyDef> bombs;
+    public ArrayList<DynamicBodyDef> spaceships;
+    public ArrayList<DecoratorDef> labs;
 
 
     public WorldDefinition(
             int worldWidth,
             int worldHeight,
             BackgroundDef background,
-            List<DecoratorDef> spaceDecorators,
-            List<StaticBodyDef> gravityBodies, 
-            List<StaticBodyDef> solidBodies,
-            DynamicBodyDef misil,
-            StaticBodyDef bomb,
-            DynamicBodyDef spaceship,
-            DecoratorDef lab) {
+            ArrayList<DecoratorDef> spaceDecorators,
+            ArrayList<StaticBodyDef> gravityBodies,
+            ArrayList<DynamicBodyDef> asteroids,
+            ArrayList<DynamicBodyDef> misils,
+            ArrayList<StaticBodyDef> bombs,
+            ArrayList<DynamicBodyDef> spaceships,
+            ArrayList<DecoratorDef> labs) {
 
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.background = background;
         this.spaceDecorators = spaceDecorators;
         this.gravityBodies = gravityBodies;
-        this.solidBodies = solidBodies;
-        this.misil = misil;
-        this.bomb = bomb;
-        this.spaceship = spaceship;
-        this.lab = lab;
+        this.asteroids = asteroids;
+        this.misils = misils;
+        this.bombs = bombs;
+        this.spaceships = spaceships;
+        this.labs = labs;
     }
 }

@@ -1,6 +1,9 @@
 package worlds.providers;
 
 
+import assets.AssetCatalog;
+import assets.AssetType;
+import assets.Assets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,169 +22,134 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     private final Random rnd = new Random();
     private final int width;
     private final int height;
+    private final Assets assets;
 
 
-    public RandomWorldDefinitionProvider(int worldWidth, int worldHeight) {
+    public RandomWorldDefinitionProvider(int worldWidth, int worldHeight, Assets assets) {
         this.width = worldWidth;
         this.height = worldHeight;
+        this.assets = assets;
     }
 
 
     @Override
-    public WorldDefinition provide(int worldWidth, int worldHeight) {
+    public WorldDefinition provide() {
 
-        BackgroundDef background = getRandomBackground();
+        BackgroundDef background = randomBackground();
+        ArrayList<DecoratorDef> spaceDecorators = this.randomDecorators(
+                3, assets.spaceDecors, null);
 
-        List<DecoratorDef> spaceDecorators = this.getRandomSpaceDecorators();
+        ArrayList<DecoratorDef> labs = this.randomDecorators(
+                1, assets.solidBodies, AssetType.LAB);
 
-        List<StaticBodyDef> gravityBodies = this.getRandomGravityBodies();
+        ArrayList<StaticBodyDef> gravityBodies = this.randomStaticBodies(
+                2, assets.gravityBodies, null);
 
-        List<StaticBodyDef> solidBodies = this.getRandomSolidBodies();
+        ArrayList<StaticBodyDef> bombs = this.randomStaticBodies(
+                1, assets.weapons, AssetType.BOMB);
 
-        DynamicBodyDef misil = this.getRandomMisil();
+        ArrayList<DynamicBodyDef> asteroids = this.randomDynamicBodies(
+                5, assets.solidBodies, AssetType.ASTEROID);
 
-        StaticBodyDef bomb = this.getRandomBomb();
+        ArrayList<DynamicBodyDef> misils = this.randomDynamicBodies(
+                1, assets.weapons, AssetType.MISIL);
 
-        DynamicBodyDef spaceship = this.getRandomSpaceship();
-
-        DecoratorDef lab = this.getRandomLab();
+        ArrayList<DynamicBodyDef> spaceships = this.randomDynamicBodies(
+                1, assets.spaceship, AssetType.SPACESHIP);
 
         // WorldDefinition
         return new WorldDefinition(
                 this.width, this.height,
-                background, spaceDecorators, gravityBodies, solidBodies,
-                misil, bomb, spaceship, lab);
+                background, spaceDecorators, gravityBodies,
+                asteroids, misils, bombs, spaceships, labs);
     }
 
 
-    public BackgroundDef getRandomBackground() {
-        return new BackgroundDef("bg_space_01", 0.0d, 0.0d);
-    }
+    public ArrayList<DecoratorDef> randomDecorators(
+            int num, AssetCatalog catalog, AssetType type) {
 
-
-    public StaticBodyDef getRandomBomb() {
-        StaticBodyDef staticBody;
-        double x, y, size, rotationDeg;
-
-        x = 100;
-        y = 100;
-        size = 100;
-        rotationDeg = 180;
-
-        staticBody = new StaticBodyDef("floor", StaticShapeType.RECTANGLE,
-                                       x, y, size, rotationDeg);
-
-        return staticBody;
-    }
-
-
-    public List<StaticBodyDef> getRandomGravityBodies() {
-        List<StaticBodyDef> statics = new ArrayList<>();
-        double x, y, size, rotationDeg;
-
-        x = 100;
-        y = 100;
-        size = 100;
-        rotationDeg = 180;
-
-        statics.add(new StaticBodyDef(
-                "floor", StaticShapeType.RECTANGLE,
-                x, y, size, rotationDeg));
-
-        return statics;
-    }
-
-
-    public DecoratorDef getRandomLab() {
-        DecoratorDef decorator = null;
         double x, y, size, rotationDeg;
         int layer;
+        String randomId;
+        ArrayList<DecoratorDef> decos = new ArrayList<>(num);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < num; i++) {
             x = rnd.nextDouble() * width;
             y = rnd.nextDouble() * height;
-            layer = 1;
             size = 100;
             rotationDeg = 180;
-
-            decorator = new DecoratorDef(
-                    "dec_rock_01", StaticShapeType.RECTANGLE, layer,
-                    x, y, size, rotationDeg);
-        }
-
-        return decorator;
-    }
-
-
-    public DynamicBodyDef getRandomMisil() {
-        DynamicBodyDef dynamic;
-        double x, y, size, rotationDeg;
-
-        x = 100;
-        y = 100;
-        size = 100;
-        rotationDeg = 180;
-
-        dynamic = new DynamicBodyDef(
-                "floor", StaticShapeType.RECTANGLE,
-                x, y, size, rotationDeg);
-
-        return dynamic;
-    }
-
-
-    public List<StaticBodyDef> getRandomSolidBodies() {
-        List<StaticBodyDef> statics = new ArrayList<>();
-        double x, y, size, rotationDeg;
-
-        x = 100;
-        y = 100;
-        size = 100;
-        rotationDeg = 180;
-
-        statics.add(new StaticBodyDef(
-                "floor", StaticShapeType.RECTANGLE,
-                x, y, size, rotationDeg));
-
-        return statics;
-    }
-
-
-    public List<DecoratorDef> getRandomSpaceDecorators() {
-        List<DecoratorDef> decorators = new ArrayList<>();
-        double x, y, size, rotationDeg;
-        int layer;
-
-        for (int i = 0; i < 10; i++) {
-            x = rnd.nextDouble() * width;
-            y = rnd.nextDouble() * height;
             layer = 1;
-            size = 100;
-            rotationDeg = 180;
 
-            decorators.add(new DecoratorDef(
-                    "dec_rock_01", StaticShapeType.RECTANGLE, layer,
+            if (type == null) {
+                randomId = catalog.randomId();
+            } else {
+                randomId = catalog.randomId(type);
+            }
+
+            decos.add(new DecoratorDef(
+                    randomId, StaticShapeType.RECTANGLE, layer,
                     x, y, size, rotationDeg));
         }
 
-        return decorators;
+        return decos;
     }
 
 
-    public DynamicBodyDef getRandomSpaceship() {
-        DynamicBodyDef dynamic;
+    public ArrayList<DynamicBodyDef> randomDynamicBodies(
+            int num, AssetCatalog catalog, AssetType type) {
+
+        double size;
+        String randomId;
+        ArrayList<DynamicBodyDef> dBodies = new ArrayList<>();
+
+        for (int i = 0; i < num; i++) {
+            size = 100;
+
+            if (type == null) {
+                randomId = catalog.randomId();
+            } else {
+                randomId = catalog.randomId(type);
+            }
+
+            dBodies.add(
+                    new DynamicBodyDef(randomId, StaticShapeType.RECTANGLE, size));
+        }
+
+        return dBodies;
+    }
+
+
+    public ArrayList<StaticBodyDef> randomStaticBodies(
+            int num, AssetCatalog catalog, AssetType type) {
+
         double x, y, size, rotationDeg;
+        String randomId;
+        ArrayList<StaticBodyDef> sBodies = new ArrayList<>();
 
-        x = 100;
-        y = 100;
-        size = 100;
-        rotationDeg = 180;
+        for (int i = 0; i < num; i++) {
+            x = rnd.nextDouble() * width;
+            y = rnd.nextDouble() * height;
+            size = 100;
+            rotationDeg = 180;
 
-        dynamic = new DynamicBodyDef(
-                "floor", StaticShapeType.RECTANGLE,
-                x, y, size, rotationDeg);
+            if (type == null) {
+                randomId = catalog.randomId();
+            } else {
+                randomId = catalog.randomId(type);
+            }
 
-        return dynamic;
+            sBodies.add(new StaticBodyDef(
+                    randomId, StaticShapeType.RECTANGLE,
+                    x, y, size, rotationDeg));
+        }
+
+        return sBodies;
     }
 
+
+    public BackgroundDef randomBackground() {
+        String randomId = this.assets.backgrounds.randomId();
+
+        return new BackgroundDef(randomId, 0.0d, 0.0d);
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Random;
 import _helpers.DoubleVector;
 import static java.lang.System.nanoTime;
 import java.util.ArrayList;
+import worlds.DynamicBodyDef;
 
 
 /**
@@ -17,14 +18,14 @@ public class RandomWorld implements Runnable {
     private final Controller controller;
     private Thread thread;
     private RandomWorldDTO wParams;
-    private ArrayList<String> asteroid;
+    private ArrayList<DynamicBodyDef> asteroid;
     private final Random rnd = new Random();
 
 
     /**
      * CONSTRUCTORS
      */
-    public RandomWorld(Controller controller, RandomWorldDTO wParams, ArrayList<String> asteroid) {
+    public RandomWorld(Controller controller, RandomWorldDTO wParams, ArrayList<DynamicBodyDef> asteroid) {
         this.controller = controller;
         this.wParams = wParams;
         this.asteroid = asteroid;
@@ -40,16 +41,17 @@ public class RandomWorld implements Runnable {
         }
 
         this.thread = new Thread(this);
-        this.thread.setName("VObject GENERATOR");
+        this.thread.setName("Life generator");
         this.thread.setPriority(Thread.NORM_PRIORITY - 3);
         this.thread.start();
-        System.out.println("VObject Generator activated! · VObjectGenerator");
+        System.out.println("Life generator activated! · RandomWorld");
     }
 
 
     /**
      * PRIVATE
      */
+    //++
     private void newRandomDynamicBody() {
         DoubleVector acc, speed;
         RandomDBodyDTO params = this.wParams.dBodyParams;
@@ -82,10 +84,10 @@ public class RandomWorld implements Runnable {
         return newAcceleration;
     }
 
-
-    private int randomImage() {
+    //*+
+    private String randomImage() {
         int index = this.rnd.nextInt(this.asteroid.size());
-        return this.asteroid.get(index).hashCode();
+        return this.asteroid.get(index).assetId;
     }
 
 

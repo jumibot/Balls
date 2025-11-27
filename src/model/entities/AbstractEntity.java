@@ -22,14 +22,14 @@ public abstract class AbstractEntity {
     private volatile EntityState state;
 
     private final int id;
-    public final int imageId;
+    public final String assetId;
     public final int size;
     private Color color;
 
 
-    public AbstractEntity(int imageId, int size) {
+    public AbstractEntity(String assetId, int size) {
         this.id = AbstractEntity.createdQuantity++;
-        this.imageId = imageId;
+        this.assetId = assetId;
         this.size = size;
         this.color = Color.BLUE;
 

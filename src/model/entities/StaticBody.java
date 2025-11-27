@@ -42,8 +42,8 @@ public class StaticBody extends AbstractEntity {
     /**
      * CONSTRUCTORS
      */
-    public StaticBody(int imageId, int size, double x, double y, double angle) {
-        super(imageId, size);
+    public StaticBody(String assetId, int size, double x, double y, double angle) {
+        super(assetId, size);
 
         PhysicsValues phyVals = new PhysicsValues(0, x, y, 0, 0, 0, 0, angle);
         this.phyEngine = new NullPhysicsEngine(phyVals);
@@ -70,7 +70,7 @@ public class StaticBody extends AbstractEntity {
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new RenderInfoDTO(
-                this.getId(), this.imageId, this.size, this.getColor(),
+                this.getId(), this.assetId, this.size, this.getColor(),
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
                 phyValues.speed_x, phyValues.speed_y,
