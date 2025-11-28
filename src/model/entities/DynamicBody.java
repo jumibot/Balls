@@ -3,11 +3,7 @@ package model.entities;
 
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValues;
-import view.DBodyRenderInfoDTO;
-import _helpers.DoubleVector;
-import java.awt.Color;
-import java.awt.Dimension;
-import model.Model;
+import view.renderables.DBodyRenderInfoDTO;
 import model.ModelState;
 import model.physics.PhysicsEngine;
 
@@ -80,7 +76,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new DBodyRenderInfoDTO(
-                this.getId(), this.assetId, this.size, this.getColor(),
+                this.getId(), this.assetId, this.size, 
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
                 phyValues.speed_x, phyValues.speed_y,

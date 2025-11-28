@@ -42,12 +42,12 @@ public class ImageCache {
     /**
      * PUBLICS
      */
-    public BufferedImage getImage(double angle, Color color, String assetId, int size) {
-        CachedImageKeyDTO key = new CachedImageKeyDTO(angle, color, assetId, size);
+    public BufferedImage getImage(double angle, String assetId, int size) {
+        CachedImageKeyDTO key = new CachedImageKeyDTO(angle, assetId, size);
         BufferedImage image = this.cache.get(key);
 
         if (image == null) {
-            image = this.putInCache(angle, color, assetId, size);
+            image = this.putInCache(angle, assetId, size);
             this.cache.put(key, image);
         }
         return image;
@@ -62,7 +62,7 @@ public class ImageCache {
     /**
      * PRIVATES
      */
-    private BufferedImage putInCache(double angle, Color color, String assetId, int size) {
+    private BufferedImage putInCache(double angle, String assetId, int size) {
         if (this.gc == null) {
             System.err.println("Graphics configuration is null · SpriteCache");
             return null;  // =================================================>
@@ -75,11 +75,10 @@ public class ImageCache {
         ImageDTO imageDto = this.baseImages.getImage(assetId);
 
         try {
-            g2.setColor(color);
-
             if (imageDto != null) {
                 g2.drawImage(imageDto.image, 0, 0, size, size, null);
             } else {
+                g2.setColor(Color.RED);
                 g2.fillOval(0, 0, size, size); // se dibuja UNA vez
             }
         } finally {

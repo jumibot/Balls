@@ -4,7 +4,7 @@ package controller;
 import _helpers.DoubleVector;
 import assets.Assets;
 import java.awt.Dimension;
-import view.DBodyRenderInfoDTO;
+import view.renderables.DBodyRenderInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;

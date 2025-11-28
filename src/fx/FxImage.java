@@ -1,4 +1,4 @@
-package view.fx;
+package fx;
 
 
 import java.awt.Color;

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
 import model.physics.PhysicsValues;
-import view.DBodyRenderInfoDTO;
+import view.renderables.DBodyRenderInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import model.entities.AbstractEntity;

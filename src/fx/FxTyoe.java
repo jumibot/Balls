@@ -1,5 +1,5 @@
 
-package view.fx;
+package fx;
 
 
 

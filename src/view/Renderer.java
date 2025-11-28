@@ -6,6 +6,9 @@
 package view;
 
 
+import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.SBodyRenderable;
+import view.renderables.DBodyRenderable;
 import _images.Images;
 import _images.ImageCache;
 import java.awt.AlphaComposite;
@@ -42,6 +45,7 @@ public class Renderer extends Canvas implements Runnable {
     private VolatileImage viBackground;
 
     private final Map<Integer, DBodyRenderable> dBodyRenderables = new HashMap<>();
+    private final Map<Integer, SBodyRenderable> sBodyRenderables = new HashMap<>();
 
 
     /**

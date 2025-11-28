@@ -1,7 +1,7 @@
-package view.fx;
+package fx;
 
 
-import view.DBodyRenderable;
+import view.renderables.DBodyRenderable;
 
 
 

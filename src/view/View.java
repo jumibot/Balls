@@ -1,6 +1,7 @@
 package view;
 
 
+import view.renderables.DBodyRenderInfoDTO;
 import _images.Images;
 import assets.AssetCatalog;
 import assets.AssetInfo;

@@ -1,4 +1,4 @@
-package view;
+package view.renderables;
 
 
 import _images.ImageCache;
@@ -38,7 +38,7 @@ public class DBodyRenderable {
         this.lastFrameSeen = currentFrame;
         this.renderInfo = renderInfo;
         this.cache = cache;
-        this.updateImage(renderInfo);
+        this.updateImageFromCache(renderInfo);
     }
 
 
@@ -51,7 +51,7 @@ public class DBodyRenderable {
 
 
     public void update(DBodyRenderInfoDTO newRenderInfo, int currentFrame) {
-        this.updateImage(newRenderInfo);
+        this.updateImageFromCache(newRenderInfo);
         this.lastFrameSeen = currentFrame;
         this.renderInfo = newRenderInfo;
     }
@@ -70,18 +70,16 @@ public class DBodyRenderable {
     /**
      * PRIVATE
      */
-    private void updateImage(DBodyRenderInfoDTO newRenderInfo) {
+    private void updateImageFromCache(DBodyRenderInfoDTO renderInfo) {
         boolean imageNeedsUpdate
                 = this.image == null
                 || this.renderInfo == null
-                || !this.renderInfo.assetId.equals(newRenderInfo.assetId)  
-                || this.renderInfo.size != newRenderInfo.size
-                || this.renderInfo.angle != newRenderInfo.angle
-                || (this.renderInfo.color == null 
-                || !this.renderInfo.color.equals(newRenderInfo.color));
+                || !this.renderInfo.assetId.equals(renderInfo.assetId)
+                || this.renderInfo.size != renderInfo.size
+                || this.renderInfo.angle != renderInfo.angle;
 
         if (imageNeedsUpdate) {
-            this.image = this.cache.getImage(newRenderInfo.angle, newRenderInfo.color, newRenderInfo.assetId, newRenderInfo.size);
+            this.image = this.cache.getImage(renderInfo.angle, renderInfo.assetId, renderInfo.size);
         }
     }
 }

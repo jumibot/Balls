@@ -1,23 +1,13 @@
-package view;
+package view.renderables;
 
 
 import java.awt.Color;
 
 
-/**
- * RenderInfoDTO
- *
- * Info related to rendering. Immutable DTO that packages all visual and
- * physical data required to render a VObject during a given frame. It contains
- * a flattened snapshot of the object's appearance and kinematic state
- * (position, speed and acceleration), allowing the view layer to draw the
- * object without referencing any mutable model structures.
- */
 public class DBodyRenderInfoDTO {
 
     public final int entityId;
     public final String assetId;
-    public final Color color;
     public final int size;
     public final long timeStamp;
     public final double posX;
@@ -30,7 +20,7 @@ public class DBodyRenderInfoDTO {
 
 
     public DBodyRenderInfoDTO(
-            int entityId, String assetId, int size, Color color,
+            int entityId, String assetId, int size, 
             long timeStamp, double posX, double posY,
             double speedX, double speedY,
             double accX, double accY, double angle) {
@@ -38,7 +28,6 @@ public class DBodyRenderInfoDTO {
         this.entityId = entityId;
         this.assetId = assetId;
         this.size = size;
-        this.color = color;
         this.timeStamp = timeStamp;
         this.posX = posX;
         this.posY = posY;
@@ -58,8 +47,7 @@ public class DBodyRenderInfoDTO {
         this.assetId = assetId;
         this.size = size;
         this.angle = angle;
-        this.color = null;
-        
+
         this.timeStamp = 0;
         this.posX = 0;
         this.posY = 0;
@@ -72,7 +60,7 @@ public class DBodyRenderInfoDTO {
 
     @Override
     public String toString() {
-        return "RenderInfo<" + this.entityId
+        return "DBody RenderInfo<" + this.entityId
                 + "> p(" + this.posX + "," + this.posY + ")"
                 + " s(" + this.speedX + "," + this.speedY + ")";
     }

@@ -4,7 +4,7 @@ package model.entities;
 import java.awt.Color;
 import model.Model;
 import model.physics.PhysicsValues;
-import view.DBodyRenderInfoDTO;
+import view.renderables.DBodyRenderInfoDTO;
 
 
 /**

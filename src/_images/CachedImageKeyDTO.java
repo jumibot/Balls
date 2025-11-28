@@ -16,14 +16,12 @@ import java.awt.Color;
 public class CachedImageKeyDTO {
 
     public double angle;
-    public Color color;
     public String assetId;
     public int size;
     
     
-    public CachedImageKeyDTO( double angle, Color color, String assetId, int size){
+    public CachedImageKeyDTO( double angle, String assetId, int size){
         this.angle = angle;
-        this.color = color;
         this.assetId = assetId;
         this.size = size;
     }

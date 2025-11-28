@@ -1,7 +1,7 @@
 package model.entities;
 
 
-import view.DBodyRenderInfoDTO;
+import view.renderables.DBodyRenderInfoDTO;
 
 
 /**
@@ -48,7 +48,6 @@ public class DecoEntity extends AbstractEntity {
                 this.getId(),
                 this.assetId,
                 this.size,
-                this.getColor(),
                 0, // timeStamp
                 this.x,
                 this.y,
