@@ -6,8 +6,11 @@
 package view;
 
 
+import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.SBodyRenderable;
+import view.renderables.DBodyRenderable;
 import _images.Images;
-import _images.SpriteCache;
+import _images.ImageCache;
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -18,7 +21,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
-import static java.lang.System.nanoTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,18 +30,22 @@ public class Renderer extends Canvas implements Runnable {
 
     private Dimension viewDimension;
     private View view;
-    private int delayInMillis = 1;
+    private int delayInMillis = 20;
     private int currentFrame = 0;
     private Thread thread;
 
-    private Images asteroidImages;
-    private Images playerImages;
-    private SpriteCache asteroidCache;
-    private SpriteCache playerCache;
     private BufferedImage background;
+    private Images dBodyImage;
+    private Images sBodyImage;
+    private Images spaceDecoratorImage;
+
+    private ImageCache dBodyCache;
+    private ImageCache sBodyCache;
+    private ImageCache spaceDecoratorCache;
     private VolatileImage viBackground;
 
-    private final Map<Integer, RenderableSprite> renderables = new HashMap<>();
+    private final Map<Integer, DBodyRenderable> dBodyRenderables = new HashMap<>();
+    private final Map<Integer, SBodyRenderable> sBodyRenderables = new HashMap<>();
 
 
     /**
@@ -56,20 +62,6 @@ public class Renderer extends Canvas implements Runnable {
      * PUBLICS
      */
     public boolean activate() {
-        if (this.viewDimension == null) {
-            throw new IllegalArgumentException("Null view dimension");
-        }
-
-        if (this.background == null) {
-            System.out.println("Warning: No background image · Renderer");
-        }
-        if (this.asteroidImages == null) {
-            System.out.println("Warning: No asteroids images · Renderer");
-        }
-        if (this.playerImages == null) {
-            System.out.println("Warning: No players image · Renderer");
-        }
-
         this.setPreferredSize(this.viewDimension);
 
         this.thread = new Thread(this);
@@ -81,14 +73,21 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
-    public void setAssets(BufferedImage background, Images asteroidImages, Images playerImages) {
+    public void setImages(
+            BufferedImage background, Images dBody,
+            Images sBody, Images sDecorator) {
+
         this.background = background;
         this.viBackground = null;
 
-        this.asteroidImages = asteroidImages;
-        this.asteroidCache = new SpriteCache(this.getGraphicsConfSafe(), this.asteroidImages);
-        this.playerImages = playerImages;
-        this.playerCache = new SpriteCache(this.getGraphicsConfSafe(), this.playerImages);
+        this.dBodyImage = dBody;
+        this.dBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
+
+        this.sBodyImage = sBody;
+        this.sBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.sBodyImage);
+
+        this.spaceDecoratorImage = sDecorator;
+        this.spaceDecoratorCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
     }
 
 
@@ -130,37 +129,18 @@ public class Renderer extends Canvas implements Runnable {
     /**
      * PRIVATES
      */
-    private void drawRenderables(Graphics2D g) {
-//        t0 = System.nanoTime(); // Profiling
+    private void drawDBodies(Graphics2D g) {
+        ArrayList<DBodyRenderInfoDTO> dBodyRenderInfo = this.view.getDBodyRenderInfo();
 
-        ArrayList<RenderInfoDTO> renderInfoList = this.view.getRenderInfo();
+        this.updateDBodyRenderables(dBodyRenderInfo);
 
-//        t1 = System.nanoTime(); // Profiling
-        this.updateRenderables(renderInfoList);
-
-//        t2 = System.nanoTime(); // Profiling
-        for (RenderableSprite renderable : this.renderables.values()) {
+        for (DBodyRenderable renderable : this.dBodyRenderables.values()) {
             renderable.paint(g);
         }
-
-        // Used to profile performance only
-//        t3 = System.nanoTime();
-//
-//        getInfo = (t1 - t0) / 1_000_000;
-//        updateInfo = (t2 - t1) / 1_000_000;
-//        full_snapshot = (t2 - t0) / 1_000_000;
-//        draw = (t3 - t2) / 1_000_000;
-//        full_draw = (t3 - t0) / 1_000_000;
-//
-//        return;
     }
 
 
     private void drawScene(BufferStrategy bs) {
-//        long t0, t1, t2, full_scene, background, renderables;
-//
-//        t0 = nanoTime();
-
         Graphics2D gg;
 
         gg = (Graphics2D) bs.getDrawGraphics();
@@ -169,22 +149,19 @@ public class Renderer extends Canvas implements Runnable {
             gg.setComposite(AlphaComposite.Src); // Opaque
             gg.drawImage(this.getVIBackground(), 0, 0, null);
 
-//            t1 = nanoTime();
-            // Show VObjects
+            // Show decorators
+            
+            // Show static bodies
+            
+            // Show ynamic bodies
             gg.setComposite(AlphaComposite.SrcOver); // With transparency
-            this.drawRenderables(gg);
+            this.drawDBodies(gg);
 
         } finally {
             gg.dispose();
         }
 
         bs.show();
-//        t2 = nanoTime();
-//        background = (t1 - t0) / 1_000_000;
-//        renderables = (t2 - t1) / 1_000_000;
-//        full_scene = (t2 - t0) / 1_000_000;
-//
-//        t0 = nanoTime();
     }
 
 
@@ -234,30 +211,30 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
-    private void updateRenderables(ArrayList<RenderInfoDTO> renderInfoList) {
+    private void updateDBodyRenderables(ArrayList<DBodyRenderInfoDTO> renderInfoList) {
         // If no objects are alive this frame, clear the cache entirely
         if (renderInfoList == null || renderInfoList.isEmpty()) {
-            renderables.clear();
+            this.dBodyRenderables.clear();
             return; // ========= Nothing to render by the moment ... =========>>
         }
 
-        // Update or create the RenderableSprite associated with each RenderInfoDTO
-        for (RenderInfoDTO newRInfo : renderInfoList) {
-            int id = newRInfo.idVObject;
+        // Update or create a renderable associated with each DBodyRenderInfoDTO
+        for (DBodyRenderInfoDTO newRInfo : renderInfoList) {
+            int id = newRInfo.entityId;
 
-            RenderableSprite renderable = this.renderables.get(id);
+            DBodyRenderable renderable = this.dBodyRenderables.get(id);
             if (renderable == null) {
                 // First time this VObject appears → create a cached renderable
-                renderable = new RenderableSprite(newRInfo, this.asteroidCache, this.currentFrame);
-                this.renderables.put(id, renderable);
+                renderable = new DBodyRenderable(newRInfo, this.dBodyCache, this.currentFrame);
+                this.dBodyRenderables.put(id, renderable);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed
-                renderable.update(newRInfo, this.asteroidCache, this.currentFrame);
+                renderable.update(newRInfo, this.currentFrame);
             }
         }
 
         // Remove renderables not updated this frame (i.e., objects no longer alive)
-        renderables.entrySet().removeIf(entry
+        this.dBodyRenderables.entrySet().removeIf(entry
                 -> entry.getValue().getLastFrameSeen() != this.currentFrame
         );
     }

@@ -1,8 +1,11 @@
 package view;
 
 
+import view.renderables.DBodyRenderInfoDTO;
 import _images.Images;
-import _images.SpriteCache;
+import assets.AssetCatalog;
+import assets.AssetInfo;
+import assets.Assets;
 import controller.Controller;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -16,7 +19,13 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFrame;
+import world.BackgroundDef;
+import world.DecoratorDef;
+import world.DynamicBodyDef;
+import world.StaticBodyDef;
+import world.WorldDefinition;
 
 
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
@@ -24,14 +33,12 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private Controller controller = null;
     private ControlPanel controlPanel;
     private Renderer renderer;
-
-    private String assetsPath;
-    private Images backgroundImages;
-    private Images asteroidImages;
-    private Images playerImages;
-    private BufferedImage background;
-
     private Dimension worldDimension;
+
+    private BufferedImage background;
+    private Images spaceDecorators = new Images("");
+    private Images sBodyImages = new Images("");
+    private Images dBodyImage = new Images("");
 
 
     /**
@@ -54,48 +61,92 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
             throw new IllegalArgumentException("Null world dimension");
         }
 
-        if (this.assetsPath == null) {
-            throw new IllegalArgumentException("Null path");
+        if (this.worldDimension == null) {
+            throw new IllegalArgumentException("View dimensions not setted");
         }
 
-        if (this.asteroidImages == null || this.background == null || this.playerImages == null) {
-            throw new IllegalArgumentException("Null file list");
+        if (this.background == null) {
+            throw new IllegalArgumentException("Background image not setted");
+        }
+        if (this.dBodyImage == null) {
+            throw new IllegalArgumentException("Dynamic body images no setted");
+        }
+        if (this.sBodyImages == null) {
+            throw new IllegalArgumentException("Static body images no setted");
+        }
+        if (this.spaceDecorators == null) {
+            throw new IllegalArgumentException("Space Decorators not setted");
         }
 
         this.renderer.SetViewDimension(this.worldDimension);
 
-        this.renderer.setAssets(background, this.asteroidImages, this.playerImages);
+        this.renderer.setImages(
+                this.background, this.dBodyImage,
+                this.sBodyImages, this.spaceDecorators);
+
         this.renderer.activate();
         this.pack();
     }
 
 
-    public void setAssets(
-            String assetsPath,
-            ArrayList<String> background,
-            ArrayList<String> asteroid,
-            ArrayList<String> player) {
+    public void loadAssets(Assets assets, WorldDefinition world) {
+        this.loadBackground(assets.backgrounds, world.background);
 
-        this.setAssetsPath(assetsPath);
-        this.setBackgroundImages(background);
-        this.setAsteroidImages(asteroid);
-        this.setPlayerImages(player);
+        this.loadDynamicImages(assets.solidBodies, world.asteroids);
+        this.loadDynamicImages(assets.weapons, world.misils);
+        this.loadDynamicImages(assets.spaceship, world.spaceships);
+
+        this.loadStaticImages(assets.gravityBodies, world.gravityBodies);
+        this.loadStaticImages(assets.weapons, world.bombs);
+
+        this.loadDecoratorImages(assets.spaceDecors, world.spaceDecorators);
+        this.loadDecoratorImages(assets.solidBodies, world.labs);
     }
 
 
-    public void setAssetsPath(String assetsPath) {
-        this.assetsPath = assetsPath;
+    public void loadBackground(AssetCatalog backs, BackgroundDef backDef) {
+
+        this.background = Images.loadBufferedImage(
+                backs.getPath(), backs.get(backDef.assetId).fileName);
     }
 
 
-    public void setAsteroidImages(ArrayList<String> asteroid) {
-        this.asteroidImages = new Images(this.assetsPath, asteroid);
+    public void loadDynamicImages(AssetCatalog catalog, List<DynamicBodyDef> bodyDef) {
+        String fileName, path, uri;
+        AssetInfo aInfo;
+
+        for (DynamicBodyDef body : bodyDef) {
+            path = catalog.getPath();
+            aInfo = catalog.get(body.assetId);
+
+            if (aInfo == null) {
+                System.out.println("Resource info <" + body.assetId + "> not found in catalog");
+            } else {
+
+                fileName = catalog.get(body.assetId).fileName;
+                this.dBodyImage.add(body.assetId, path + fileName);
+            }
+        }
     }
 
 
-    public void setBackgroundImages(ArrayList<String> background) {
-        this.backgroundImages = new Images(this.assetsPath, background);
-        this.background = this.backgroundImages.getRamdomBufferedImage();
+    public void loadStaticImages(AssetCatalog catalog, List<StaticBodyDef> bodyDef) {
+        String uri;
+
+        for (StaticBodyDef body : bodyDef) {
+            uri = catalog.getPath() + catalog.get(body.assetId).fileName;
+            this.sBodyImages.add(body.assetId, uri);
+        }
+    }
+
+
+    public void loadDecoratorImages(AssetCatalog catalog, List<DecoratorDef> bodyDef) {
+        String uri;
+
+        for (DecoratorDef body : bodyDef) {
+            uri = catalog.getPath() + catalog.get(body.assetId).fileName;
+            this.spaceDecorators.add(body.assetId, uri);
+        }
     }
 
 
@@ -109,27 +160,22 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    public void setPlayerImages(ArrayList<String> player) {
-        this.playerImages = new Images(this.assetsPath, player);
-    }
-
-
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderInfoDTO> getRenderInfo() {
+    protected ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
 
-        return this.controller.getRenderableObjects();
+        return this.controller.getDBodyRenderInfo();
     }
 
 
     /**
      * PRIVATE
      */
-    private void addRenderer(Container container) {
+    private void addRendererCanva(Container container) {
         GridBagConstraints c = new GridBagConstraints();
 
         c.anchor = GridBagConstraints.NORTHWEST;
@@ -151,7 +197,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.setLayout(new GridBagLayout());
 
         panel = this.getContentPane();
-        this.addRenderer(panel);
+        this.addRendererCanva(panel);
 
         panel.addMouseWheelListener(this);
 
