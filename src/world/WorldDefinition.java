@@ -1,4 +1,4 @@
-package worlds;
+package world;
 
 
 import java.util.ArrayList;

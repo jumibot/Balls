@@ -21,11 +21,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
-import worlds.BackgroundDef;
-import worlds.DecoratorDef;
-import worlds.DynamicBodyDef;
-import worlds.StaticBodyDef;
-import worlds.WorldDefinition;
+import world.BackgroundDef;
+import world.DecoratorDef;
+import world.DynamicBodyDef;
+import world.StaticBodyDef;
+import world.WorldDefinition;
 
 
 public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {

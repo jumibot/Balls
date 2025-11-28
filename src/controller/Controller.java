@@ -11,24 +11,18 @@ import model.entities.DynamicBody;
 import model.entities.BodyAction;
 import model.EventType;
 import java.util.ArrayList;
-import worlds.WorldDefinition;
+import world.WorldDefinition;
 
 
-/**
- *
- * @author juanm
- */
 public class Controller {
 
+    private Assets assets;
+    private volatile ControllerState controllerState = ControllerState.STARTING;
+    private int maxVisualObjects;
     private Model model;
     private View view;
-    private Assets assets;
     private WorldDefinition world;
-    private volatile ControllerState controllerState = ControllerState.STARTING;
     private Dimension worldDimension;
-    private int maxVisualObjects;
-    private RandomWorldDTO lifeParameters = null;
-    private RandomWorld lifeGenerator = null;
 
 
     public Controller() {
@@ -97,11 +91,6 @@ public class Controller {
     }
 
 
-    public void addDynamicBody(DynamicBody newDBody) {
-        this.model.addDBody(newDBody);
-    }
-
-
     public BodyAction decideAction(EventType eventType) {
         BodyAction vObjectAction;
 
@@ -133,52 +122,6 @@ public class Controller {
 
     public BodyAction decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
-    public void generateRandomLife(int maxCreationDelay,
-            double maxMass, double minMass,
-            double speed_x, double speed_y,
-            double acc_x, double acc_y,
-            int maxSize, int minSize) {
-
-        RandomDBodyDTO dBodyParams = new RandomDBodyDTO(
-                maxSize, minSize,
-                maxMass, minMass,
-                speed_x, speed_y,
-                acc_x, acc_y);
-
-        RandomSBodyDTO sBodyParams = new RandomSBodyDTO(
-                maxSize, minSize,
-                maxMass, minMass);
-
-        this.lifeParameters = new RandomWorldDTO(
-                maxCreationDelay, dBodyParams, sBodyParams);
-
-        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.world.asteroids);
-        this.lifeGenerator.activate();
-    }
-
-
-    public void generateRandomLife(int maxCreationDelay,
-            double maxMass, double minMass,
-            double speedMaxModule, double accMaxModule,
-            int maxSize, int minSize) {
-
-        RandomDBodyDTO dBodyParams = new RandomDBodyDTO(
-                maxSize, minSize,
-                maxMass, minMass,
-                speedMaxModule, accMaxModule);
-
-        RandomSBodyDTO sBodyParams = new RandomSBodyDTO(
-                maxSize, minSize,
-                maxMass, minMass);
-
-        this.lifeParameters = new RandomWorldDTO(
-                maxCreationDelay, dBodyParams, sBodyParams);
-
-        this.lifeGenerator = new RandomWorld(this, this.lifeParameters, this.world.asteroids);
-        this.lifeGenerator.activate();
     }
 
 
@@ -227,5 +170,4 @@ public class Controller {
     public void setMaxVisualObjects(int maxVisualObjects) {
         this.maxVisualObjects = maxVisualObjects;
     }
-
 }

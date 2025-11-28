@@ -1,11 +1,10 @@
+package world;
 
-package worlds;
 
-public class DecoratorDef {
+public class StaticBodyDef {
 
     public final String assetId;
     public final StaticShapeType shapeType;
-    public final int layer;
 
     // Geometry
     public final double pos_x;
@@ -13,13 +12,13 @@ public class DecoratorDef {
     public final double size;
     public final double rotationDeg;
 
-    public DecoratorDef(
-            String assetId, StaticShapeType shapeType, int layer,
+
+    public StaticBodyDef(
+            String assetId, StaticShapeType shapeType,
             double pos_x, double pos_y, double size, double rotationDeg) {
 
         this.assetId = assetId;
         this.shapeType = shapeType;
-        this.layer = layer;
         
         this.pos_x = pos_x;
         this.pos_y = pos_y;
@@ -27,4 +26,3 @@ public class DecoratorDef {
         this.rotationDeg = rotationDeg;
     }
 }
-    

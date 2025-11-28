@@ -1,4 +1,4 @@
-package worlds.providers;
+package world.providers;
 
 
 import assets.AssetCatalog;
@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import worlds.BackgroundDef;
-import worlds.DecoratorDef;
-import worlds.DynamicBodyDef;
-import worlds.StaticBodyDef;
-import worlds.StaticShapeType;
-import worlds.WorldDefinition;
-import worlds.WorldDefinitionProvider;
+import world.BackgroundDef;
+import world.DecoratorDef;
+import world.DynamicBodyDef;
+import world.StaticBodyDef;
+import world.StaticShapeType;
+import world.WorldDefinition;
+import world.WorldDefinitionProvider;
 
 
 public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {

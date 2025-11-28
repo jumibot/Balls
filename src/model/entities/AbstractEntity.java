@@ -21,14 +21,14 @@ public abstract class AbstractEntity {
     private Model model = null;
     private volatile EntityState state;
 
-    private final int id;
+    private final int entityId;
     public final String assetId;
     public final int size;
     private Color color;
 
 
     public AbstractEntity(String assetId, int size) {
-        this.id = AbstractEntity.createdQuantity++;
+        this.entityId = AbstractEntity.createdQuantity++;
         this.assetId = assetId;
         this.size = size;
         this.color = Color.BLUE;
@@ -67,8 +67,8 @@ public abstract class AbstractEntity {
     }
 
 
-    public int getId() {
-        return this.id;
+    public int getEntityId() {
+        return this.entityId;
     }
 
 

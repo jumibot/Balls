@@ -1,4 +1,4 @@
-package worlds;
+package world;
 
 
 public enum StaticShapeType {

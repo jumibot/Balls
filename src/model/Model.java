@@ -14,6 +14,7 @@ import view.renderables.DBodyRenderInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import model.entities.AbstractEntity;
+import model.entities.StaticBody;
 import model.physics.BasicPhysicsEngine;
 
 
@@ -28,7 +29,9 @@ public class Model {
 
     private Controller controller = null;
     private volatile ModelState state = ModelState.STARTING;
-    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(15000);
+    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(10000);
+    private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
+    private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
 
 
     /**
@@ -58,12 +61,11 @@ public class Model {
     }
 
 
-    synchronized public boolean addDBody(
+    public boolean addDBody(
             String assetId, int size,
             double posX, double posY,
             double speedX, double speedY,
-            double accX, double accY,
-            double angle) {
+            double accX, double accY, double angle) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
             return false; // ========= Max vObject quantity reached ==========>>
@@ -72,22 +74,26 @@ public class Model {
         PhysicsValues phyVals = new PhysicsValues(
                 nanoTime(), posX, posY, speedX, speedY, accX, accY, angle);
 
-        DynamicBody newVObject
+        DynamicBody dBody
                 = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
 
-        return this.addDBody(newVObject);
+        dBody.setModel(this);
+        dBody.activate();
+        this.dBodies.put(dBody.getEntityId(), dBody);
+
+        return true;
     }
 
 
-    synchronized public boolean addDBody(DynamicBody newVObject) {
-        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
-            return false; // ========= Max vObject quantity reached ==========>>
-        }
+    public void addSBody(
+            String assetId, int size,
+            double posX, double posY, double angle) {
 
-        newVObject.setModel(this);
-        newVObject.activate();
-        this.dBodies.put(newVObject.getId(), newVObject);
-        return true;
+        StaticBody sBody = new StaticBody(assetId, size, posX, posY, angle);
+
+        sBody.setModel(this);
+        sBody.activate();
+        this.sBodies.put(sBody.getEntityId(), sBody);
     }
 
 
@@ -213,7 +219,7 @@ public class Model {
      * PRIVATE
      */
     synchronized private void removeDBody(DynamicBody dBody) {
-        if (this.dBodies.remove(dBody.getId()) == null) {
+        if (this.dBodies.remove(dBody.getEntityId()) == null) {
             return; // ======= Elmento no esta en la lista ========>
         }
         dBody.die();
@@ -307,5 +313,4 @@ public class Model {
     public static long getDeadVObjectQuantity() {
         return AbstractEntity.getDeadQuantity();
     }
-
 }

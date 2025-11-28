@@ -60,7 +60,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         super.activate();
 
         this.thread = new Thread(this);
-        this.thread.setName("Body " + this.getId());
+        this.thread.setName("Body " + this.getEntityId());
         this.thread.setPriority(Thread.NORM_PRIORITY - 1);
         this.thread.start();
         this.setState(EntityState.ALIVE);
@@ -76,7 +76,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new DBodyRenderInfoDTO(
-                this.getId(), this.assetId, this.size, 
+                this.getEntityId(), this.assetId, this.size, 
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
                 phyValues.speed_x, phyValues.speed_y,
@@ -116,7 +116,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
 
     @Override
     public String toString() {
-        return "Body <" + this.getId()
+        return "Body <" + this.getEntityId()
                 + "> p (" + this.phyEngine.getPhysicsValues().pos_x + "," + this.phyEngine.getPhysicsValues().pos_x + ") "
                 + " s (" + this.phyEngine.getPhysicsValues().speed_x + "," + this.phyEngine.getPhysicsValues().speed_x + ")";
     }

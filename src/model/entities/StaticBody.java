@@ -70,7 +70,7 @@ public class StaticBody extends AbstractEntity {
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new DBodyRenderInfoDTO(
-                this.getId(), this.assetId, this.size,
+                this.getEntityId(), this.assetId, this.size,
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
                 phyValues.speed_x, phyValues.speed_y,

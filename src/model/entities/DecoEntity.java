@@ -45,7 +45,7 @@ public class DecoEntity extends AbstractEntity {
         }
 
         return new DBodyRenderInfoDTO(
-                this.getId(),
+                this.getEntityId(),
                 this.assetId,
                 this.size,
                 0, // timeStamp
