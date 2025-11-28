@@ -5,12 +5,13 @@ package controller;
  * 
  * 1) Render static elements in world including dercoration
  * 2) Render spaceship
- * 3) Asteroids not rebound in limit of world
- * 4) Make spaceship controlable
+ * 3) Asteroids not rebound in limit of world -> Implementing entity die
+ * 4) Make spaceship controlable .> May be a new physic engine will be needed
  * 5) Colision detection
  * 6) Shotting
- * 7) Game rules
- * 8) 
+ * 7) Basic Fx
+ * 8) Game rules
+ * 9) Create a new Physic engine with gravity field
  * 
  * 
  */

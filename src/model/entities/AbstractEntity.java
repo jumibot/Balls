@@ -4,7 +4,7 @@ package model.entities;
 import java.awt.Color;
 import model.Model;
 import model.physics.PhysicsValues;
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 
 
 /**
@@ -55,7 +55,7 @@ public abstract class AbstractEntity {
     }
 
 
-    public abstract RenderInfoDTO buildRenderInfo();
+    public abstract DBodyRenderInfoDTO buildRenderInfo();
 
 
     public synchronized void die() {

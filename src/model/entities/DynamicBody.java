@@ -3,7 +3,7 @@ package model.entities;
 
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValues;
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 import _helpers.DoubleVector;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -72,14 +72,14 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
 
 
     @Override
-    public RenderInfoDTO buildRenderInfo() {
+    public DBodyRenderInfoDTO buildRenderInfo() {
         if (this.getState() == EntityState.DEAD || this.getState() == EntityState.STARTING) {
             return null;
         }
 
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
-        return new RenderInfoDTO(
+        return new DBodyRenderInfoDTO(
                 this.getId(), this.assetId, this.size, this.getColor(),
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
@@ -106,11 +106,11 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
                     && (this.getModel().getState() == ModelState.ALIVE)) {
 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
-                this.getModel().processVObjectEvents(this, newPhyValues, this.phyEngine.getPhysicsValues());
+                this.getModel().processDBodyEvents(this, newPhyValues, this.phyEngine.getPhysicsValues());
             }
 
             try {
-                Thread.sleep(20);
+                Thread.sleep(30);
             } catch (InterruptedException ex) {
                 System.err.println("ERROR Sleeping in vObject thread! (VObject) · " + ex.getMessage());
             }

@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import view.Renderable;
+import view.DBodyRenderable;
 
 
 /**
@@ -15,7 +15,7 @@ import view.Renderable;
 public abstract class Fx extends Thread {
 
     private long delayMills;
-    private Renderable renderable;
+    private DBodyRenderable renderable;
     private FxImage fxImage;
     private FxTyoe animationType;
 
@@ -59,7 +59,7 @@ public abstract class Fx extends Thread {
     }
 
 
-    public Renderable getRenderable() {
+    public DBodyRenderable getRenderable() {
         return this.renderable;
     }
 
@@ -84,7 +84,7 @@ public abstract class Fx extends Thread {
     }
 
 
-    public void setRenderable(Renderable renderable) {
+    public void setRenderable(DBodyRenderable renderable) {
         this.renderable = renderable;
     }
 

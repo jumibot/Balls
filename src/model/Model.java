@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
 import model.physics.PhysicsValues;
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import model.entities.AbstractEntity;
@@ -23,12 +23,12 @@ import model.physics.BasicPhysicsEngine;
  */
 public class Model {
 
-    private int maxVisualObjects;
+    private int maxDBody;
     private Dimension worldDim;
 
     private Controller controller = null;
     private volatile ModelState state = ModelState.STARTING;
-    private final Map<Integer, DynamicBody> dynamicBodies = new ConcurrentHashMap<>(15000);
+    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(15000);
 
 
     /**
@@ -51,21 +51,21 @@ public class Model {
             throw new IllegalArgumentException("Null world dimension");
         }
 
-        if (this.maxVisualObjects <= 0) {
+        if (this.maxDBody <= 0) {
             throw new IllegalArgumentException("Max visual objects not setted");
         }
         this.state = ModelState.ALIVE;
     }
 
 
-    synchronized public boolean addDynamicBody(
+    synchronized public boolean addDBody(
             String assetId, int size,
             double posX, double posY,
             double speedX, double speedY,
             double accX, double accY,
             double angle) {
 
-        if (AbstractEntity.getAliveQuantity() >= this.maxVisualObjects) {
+        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
             return false; // ========= Max vObject quantity reached ==========>>
         }
 
@@ -75,39 +75,39 @@ public class Model {
         DynamicBody newVObject
                 = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
 
-        return this.addDynamicBody(newVObject);
+        return this.addDBody(newVObject);
     }
 
 
-    synchronized public boolean addDynamicBody(DynamicBody newVObject) {
-        if (AbstractEntity.getAliveQuantity() >= this.maxVisualObjects) {
+    synchronized public boolean addDBody(DynamicBody newVObject) {
+        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
             return false; // ========= Max vObject quantity reached ==========>>
         }
 
         newVObject.setModel(this);
         newVObject.activate();
-        this.dynamicBodies.put(newVObject.getId(), newVObject);
+        this.dBodies.put(newVObject.getId(), newVObject);
         return true;
     }
 
 
-    public int getMaxVisualObjects() {
-        return this.maxVisualObjects;
+    public int getMaxDBody() {
+        return this.maxDBody;
     }
 
 
-    public ArrayList<RenderInfoDTO> getRenderableEntities() {
-        ArrayList<RenderInfoDTO> renderableObjects
+    public ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
+        ArrayList<DBodyRenderInfoDTO> dBodyRenderInfo
                 = new ArrayList(DynamicBody.getAliveQuantity() * 2);
 
-        this.dynamicBodies.forEach((id, vObject) -> {
-            RenderInfoDTO rInfo = vObject.buildRenderInfo();
+        this.dBodies.forEach((id, vObject) -> {
+            DBodyRenderInfoDTO rInfo = vObject.buildRenderInfo();
             if (rInfo != null) {
-                renderableObjects.add(rInfo);
+                dBodyRenderInfo.add(rInfo);
             }
         });
 
-        return renderableObjects;
+        return dBodyRenderInfo;
     }
 
 
@@ -126,7 +126,7 @@ public class Model {
     }
 
 
-    public void killVObject(int vObjectId) {
+    public void killDBody(int entityId) {
         /* 
         TO-DO:
         Change vObject state to finalize de thread execution
@@ -136,7 +136,7 @@ public class Model {
     }
 
 
-    private void killVObject(DynamicBody vObject) {
+    private void killDBody(DynamicBody entityId) {
         /* 
         TO-DO:
         Change vObject state to finalize de thread execution
@@ -158,43 +158,43 @@ public class Model {
     }
 
 
-    public void setMaxVisualObjects(int maxVisualObjects) {
-        this.maxVisualObjects = maxVisualObjects;
+    public void setMaxDBodyObjects(int maxDynamicBody) {
+        this.maxDBody = maxDynamicBody;
     }
 
 
-    public void processVObjectEvents(
-            DynamicBody vObjectToCheck,
+    public void processDBodyEvents(
+            DynamicBody dBodyToCheck,
             PhysicsValues newPhyValues,
             PhysicsValues oldPhyValues) {
 
-        if (vObjectToCheck.getState() != EntityState.ALIVE) {
+        if (dBodyToCheck.getState() != EntityState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
 
-        EntityState previousState = vObjectToCheck.getState();
-        vObjectToCheck.setState(EntityState.HANDS_OFF);
+        EntityState previousState = dBodyToCheck.getState();
+        dBodyToCheck.setState(EntityState.HANDS_OFF);
         EventType limitEvent = EventType.NONE;
 
         try {
             limitEvent = this.checkLimitEvent(newPhyValues);
 
             if (limitEvent != EventType.NONE) {
-                this.doVObjectAction(
+                this.doDBodyAction(
                         this.controller.decideAction(limitEvent),
-                        vObjectToCheck,
+                        dBodyToCheck,
                         newPhyValues,
                         oldPhyValues);
             }
         } catch (Exception e) {
             // Fallback anti-zombi: If exception ocurrs back to previous state
-            if (vObjectToCheck.getState() == EntityState.HANDS_OFF) {
-                vObjectToCheck.setState(previousState);
+            if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
+                dBodyToCheck.setState(previousState);
             }
 
         } finally {
-            if (vObjectToCheck.getState() == EntityState.HANDS_OFF) {
-                vObjectToCheck.setState(EntityState.ALIVE);
+            if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
+                dBodyToCheck.setState(EntityState.ALIVE);
             }
         }
 
@@ -202,7 +202,7 @@ public class Model {
             return; // ========================================================>
         }
 
-        this.doVObjectAction(BodyAction.MOVE, vObjectToCheck, newPhyValues, oldPhyValues);
+        this.doDBodyAction(BodyAction.MOVE, dBodyToCheck, newPhyValues, oldPhyValues);
 
         // 2 - Check if object want to go inside special areas
         // 3 - Check for collisions with other objects
@@ -212,11 +212,11 @@ public class Model {
     /**
      * PRIVATE
      */
-    synchronized private void removeVObject(DynamicBody vObject) {
-        if (this.dynamicBodies.remove(vObject.getId()) == null) {
+    synchronized private void removeDBody(DynamicBody dBody) {
+        if (this.dBodies.remove(dBody.getId()) == null) {
             return; // ======= Elmento no esta en la lista ========>
         }
-        vObject.die();
+        dBody.die();
     }
 
 
@@ -239,52 +239,52 @@ public class Model {
     }
 
 
-    private void doVObjectAction(
+    private void doDBodyAction(
             BodyAction action,
-            DynamicBody bEntity,
+            DynamicBody dBody,
             PhysicsValues newPhyValues,
             PhysicsValues oldPhyValues) {
 
         switch (action) {
             case MOVE:
-                bEntity.doMovement(newPhyValues);
-                bEntity.setState(EntityState.ALIVE);
+                dBody.doMovement(newPhyValues);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             case REBOUND_IN_EAST:
-                bEntity.reboundInEast(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                bEntity.setState(EntityState.ALIVE);
+                dBody.reboundInEast(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             case REBOUND_IN_WEST:
-                bEntity.reboundInWest(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                bEntity.setState(EntityState.ALIVE);
+                dBody.reboundInWest(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             case REBOUND_IN_NORTH:
-                bEntity.reboundInNorth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                bEntity.setState(EntityState.ALIVE);
+                dBody.reboundInNorth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             case REBOUND_IN_SOUTH:
-                bEntity.reboundInSouth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                bEntity.setState(EntityState.ALIVE);
+                dBody.reboundInSouth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             case DIE:
-                this.killVObject(bEntity);
-                bEntity.setState(EntityState.DEAD);
+                this.killDBody(dBody);
+                dBody.setState(EntityState.DEAD);
                 break;
 
             case TRY_TO_GO_INSIDE:
             case EXPLODE_IN_FRAGMENTS:
                 // to-do
-                bEntity.setState(EntityState.ALIVE);
+                dBody.setState(EntityState.ALIVE);
                 break;
 
             default:
                 // To avoid zombie state
-                bEntity.setState(EntityState.ALIVE);
+                dBody.setState(EntityState.ALIVE);
 
         }
 

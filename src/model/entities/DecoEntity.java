@@ -1,7 +1,7 @@
 package model.entities;
 
 
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 
 
 /**
@@ -37,14 +37,14 @@ public class DecoEntity extends AbstractEntity {
 
 
     @Override
-    public RenderInfoDTO buildRenderInfo() {
+    public DBodyRenderInfoDTO buildRenderInfo() {
         // Misma política que StaticBody: si no está viva, no se pinta
         if (this.getState() == EntityState.DEAD
                 || this.getState() == EntityState.STARTING) {
             return null;
         }
 
-        return new RenderInfoDTO(
+        return new DBodyRenderInfoDTO(
                 this.getId(),
                 this.assetId,
                 this.size,

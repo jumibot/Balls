@@ -4,7 +4,7 @@ package controller;
 import _helpers.DoubleVector;
 import assets.Assets;
 import java.awt.Dimension;
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;
@@ -80,7 +80,7 @@ public class Controller {
         this.view.activate();
 
         this.model.setDimension(this.worldDimension);
-        this.model.setMaxVisualObjects(this.maxVisualObjects);
+        this.model.setMaxDBodyObjects(this.maxVisualObjects);
         this.model.activate();
 
         this.controllerState = ControllerState.ALIVE;
@@ -92,13 +92,13 @@ public class Controller {
             DoubleVector pos, DoubleVector speed, DoubleVector acc,
             double angle) {
 
-        this.model.addDynamicBody(
+        this.model.addDBody(
                 assetId, size, pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, angle);
     }
 
 
     public void addDynamicBody(DynamicBody newDBody) {
-        this.model.addDynamicBody(newDBody);
+        this.model.addDBody(newDBody);
     }
 
 
@@ -187,8 +187,8 @@ public class Controller {
     }
 
 
-    public ArrayList<RenderInfoDTO> getRenderableObjects() {
-        return this.model.getRenderableEntities();
+    public ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
+        return this.model.getDBodyRenderInfo();
     }
 
 

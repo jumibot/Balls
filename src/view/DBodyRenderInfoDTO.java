@@ -13,7 +13,7 @@ import java.awt.Color;
  * (position, speed and acceleration), allowing the view layer to draw the
  * object without referencing any mutable model structures.
  */
-public class RenderInfoDTO {
+public class DBodyRenderInfoDTO {
 
     public final int entityId;
     public final String assetId;
@@ -29,7 +29,7 @@ public class RenderInfoDTO {
     public final double angle;
 
 
-    public RenderInfoDTO(
+    public DBodyRenderInfoDTO(
             int entityId, String assetId, int size, Color color,
             long timeStamp, double posX, double posY,
             double speedX, double speedY,
@@ -50,7 +50,7 @@ public class RenderInfoDTO {
     }
 
 
-    public RenderInfoDTO(
+    public DBodyRenderInfoDTO(
             int entityId, String assetId, int size,
             double posX, double posY, double angle) {
 

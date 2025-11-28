@@ -162,19 +162,19 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     /**
      * PROTECTED
      */
-    protected ArrayList<RenderInfoDTO> getRenderInfo() {
+    protected ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
 
-        return this.controller.getRenderableObjects();
+        return this.controller.getDBodyRenderInfo();
     }
 
 
     /**
      * PRIVATE
      */
-    private void addRenderer(Container container) {
+    private void addRendererCanva(Container container) {
         GridBagConstraints c = new GridBagConstraints();
 
         c.anchor = GridBagConstraints.NORTHWEST;
@@ -196,7 +196,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.setLayout(new GridBagLayout());
 
         panel = this.getContentPane();
-        this.addRenderer(panel);
+        this.addRendererCanva(panel);
 
         panel.addMouseWheelListener(this);
 

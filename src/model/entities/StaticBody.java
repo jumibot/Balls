@@ -2,7 +2,7 @@ package model.entities;
 
 
 import model.physics.PhysicsValues;
-import view.RenderInfoDTO;
+import view.DBodyRenderInfoDTO;
 import model.physics.NullPhysicsEngine;
 import model.physics.PhysicsEngine;
 
@@ -62,14 +62,14 @@ public class StaticBody extends AbstractEntity {
 
 
     @Override
-    public RenderInfoDTO buildRenderInfo() {
+    public DBodyRenderInfoDTO buildRenderInfo() {
         if (this.getState() == EntityState.DEAD || this.getState() == EntityState.STARTING) {
             return null;
         }
 
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
-        return new RenderInfoDTO(
+        return new DBodyRenderInfoDTO(
                 this.getId(), this.assetId, this.size, this.getColor(),
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,
