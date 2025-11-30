@@ -69,6 +69,7 @@ public class Model {
             double accX, double accY, double angle) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
+            System.out.println("=MAX=> " + AbstractEntity.getAliveQuantity());
             return false; // ========= Max vObject quantity reached ==========>>
         }
 
@@ -81,6 +82,9 @@ public class Model {
         dBody.setModel(this);
         dBody.activate();
         this.dBodies.put(dBody.getEntityId(), dBody);
+
+        System.out.println("-A--> " + AbstractEntity.getAliveQuantity());
+        System.out.println("-C--> " + AbstractEntity.getCreatedQuantity());
 
         return true;
     }
@@ -137,7 +141,8 @@ public class Model {
             }
         });
 
-        return decoInfoList;    }
+        return decoInfoList;
+    }
 
 
     public ArrayList<EntityInfoDTO> getSBodyInfo() {
@@ -170,40 +175,11 @@ public class Model {
     }
 
 
-    public void killDBody(int entityId) {
-        /* 
-        TO-DO:
-        Change vObject state to finalize de thread execution
-        Remove vObject from model
-         */
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-
-    private void killDBody(DynamicBody entityId) {
-        /* 
-        TO-DO:
-        Change vObject state to finalize de thread execution
-        Remove vObject from model
-         */
-
-        throw new UnsupportedOperationException("Not supported yet.");
-
-    }
-
-
-    public void setController(Controller controller) {
-        this.controller = controller;
-    }
-
-
-    public void setDimension(Dimension worldDim) {
-        this.worldDim = worldDim;
-    }
-
-
-    public void setMaxDBody(int maxDynamicBody) {
-        this.maxDBody = maxDynamicBody;
+    synchronized public void killDBody(DynamicBody dBody) {
+        this.dBodies.remove(dBody.getEntityId());
+        dBody.die();
+        System.out.println("*A**> " + AbstractEntity.getAliveQuantity());
+        System.out.println("*D**> " + AbstractEntity.getDeadQuantity());
     }
 
 
@@ -251,17 +227,24 @@ public class Model {
     }
 
 
-    /**
-     * PRIVATE
-     */
-    synchronized private void removeDBody(DynamicBody dBody) {
-        if (this.dBodies.remove(dBody.getEntityId()) == null) {
-            return; // ======= Elmento no esta en la lista ========>
-        }
-        dBody.die();
+    public void setController(Controller controller) {
+        this.controller = controller;
     }
 
 
+    public void setDimension(Dimension worldDim) {
+        this.worldDim = worldDim;
+    }
+
+
+    public void setMaxDBody(int maxDynamicBody) {
+        this.maxDBody = maxDynamicBody;
+    }
+
+
+    /**
+     * PRIVATE
+     */
     private EventType checkLimitEvent(PhysicsValues phyValues) {
         // Check if movement is out of world limits
         //     In a corner only one event is considered. 
@@ -312,7 +295,6 @@ public class Model {
 
             case DIE:
                 this.killDBody(dBody);
-                dBody.setState(EntityState.DEAD);
                 break;
 
             case TRY_TO_GO_INSIDE:

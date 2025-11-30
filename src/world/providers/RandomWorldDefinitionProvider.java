@@ -45,19 +45,19 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
         this.background = randomBackground();
 
         this.randomDecorators(
-                this.spaceDecorators, 1, assets.spaceDecors, AssetType.STARS, 175, 175);
+                this.spaceDecorators, 2, assets.spaceDecors, AssetType.STARS, 250, 125);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 90, 90);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 120, 80);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 40, 40);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 60, 15);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 15, 15);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 40, 15);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 25, 25);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 30, 20);
 
         this.randomStaticBodies(
                 this.bombs, 0, assets.weapons, AssetType.BOMB, 30, 20);
@@ -69,10 +69,10 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                 this.misils, 1, assets.weapons, AssetType.MISIL, 30, 20);
 
         this.randomDynamicBodies(
-                this.spaceships, 1, assets.spaceship, AssetType.SPACESHIP, 30, 30);
+                this.spaceships, 1, assets.spaceship, AssetType.SPACESHIP, 35, 25);
 
         this.randomDynamicBodies(
-                this.spaceships, 1, assets.spaceship, AssetType.LAB, 45, 45);
+                this.spaceships, 1, assets.spaceship, AssetType.LAB, 55, 20);
 
         // WorldDefinition
         return new WorldDefinition(

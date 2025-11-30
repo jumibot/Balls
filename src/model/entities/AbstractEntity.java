@@ -57,11 +57,9 @@ public abstract class AbstractEntity {
 
 
     public synchronized void die() {
-        if (this.state == EntityState.ALIVE) {
-            this.state = EntityState.DEAD;
-            AbstractEntity.deadQuantity++;
-            AbstractEntity.aliveQuantity--;
-        }
+        this.state = EntityState.DEAD;
+        AbstractEntity.deadQuantity++;
+        AbstractEntity.aliveQuantity--;
     }
 
 

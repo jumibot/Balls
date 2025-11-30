@@ -88,6 +88,7 @@ public class Controller {
 
         this.model.addDBody(
                 assetId, size, posX, posY, speedX, speedY, accX, accY, angle);
+
     }
 
 
@@ -110,31 +111,31 @@ public class Controller {
 
 
     public BodyAction decideAction(EventType eventType) {
-        BodyAction vObjectAction;
+        BodyAction bAction;
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                vObjectAction = BodyAction.REBOUND_IN_NORTH;
+                bAction = BodyAction.DIE;
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                vObjectAction = BodyAction.REBOUND_IN_SOUTH;
+                bAction = BodyAction.DIE;
                 break;
 
             case EAST_LIMIT_REACHED:
-                vObjectAction = BodyAction.REBOUND_IN_EAST;
+                bAction = BodyAction.DIE;
                 break;
 
             case WEST_LIMIT_REACHED:
-                vObjectAction = BodyAction.REBOUND_IN_WEST;
+                bAction = BodyAction.DIE;
                 break;
 
             default:
                 // To avoid zombie state
-                vObjectAction = BodyAction.NONE;
+                bAction = BodyAction.NONE;
         }
 
-        return vObjectAction;
+        return bAction;
     }
 
 
