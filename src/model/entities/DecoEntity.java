@@ -1,7 +1,8 @@
 package model.entities;
 
 
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.DBodyInfoDTO;
+import view.renderables.EntityInfoDTO;
 
 
 /**
@@ -18,7 +19,7 @@ public class DecoEntity extends AbstractEntity {
     /**
      * CONSTRUCTORS
      */
-    public DecoEntity(String assetId, int size, double x, double y, double angle) {
+    public DecoEntity(String assetId, double size, double x, double y, double angle) {
         super(assetId, size);
         this.x = x;
         this.y = y;
@@ -37,26 +38,19 @@ public class DecoEntity extends AbstractEntity {
 
 
     @Override
-    public DBodyRenderInfoDTO buildRenderInfo() {
+    public EntityInfoDTO buildEntityInfo() {
         // Misma política que StaticBody: si no está viva, no se pinta
         if (this.getState() == EntityState.DEAD
                 || this.getState() == EntityState.STARTING) {
             return null;
         }
 
-        return new DBodyRenderInfoDTO(
+        return new EntityInfoDTO(
                 this.getEntityId(),
                 this.assetId,
                 this.size,
-                0, // timeStamp
-                this.x,
-                this.y,
-                0.0, // speed_x
-                0.0, // speed_y
-                0.0, // acc_x
-                0.0, // acc_y
-                this.angle
-        );
+                this.x, this.y,
+                this.angle);
     }
 
 

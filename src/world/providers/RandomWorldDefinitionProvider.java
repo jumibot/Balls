@@ -5,14 +5,12 @@ import assets.AssetCatalog;
 import assets.AssetType;
 import assets.Assets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import world.BackgroundDef;
 import world.DecoratorDef;
 import world.DynamicBodyDef;
 import world.StaticBodyDef;
-import world.StaticShapeType;
 import world.WorldDefinition;
 import world.WorldDefinitionProvider;
 
@@ -23,6 +21,15 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     private final int width;
     private final int height;
     private final Assets assets;
+
+    private BackgroundDef background;
+
+    private ArrayList<DecoratorDef> spaceDecorators = new ArrayList<>(20);
+    private ArrayList<StaticBodyDef> gravityBodies = new ArrayList<>(20);
+    private ArrayList<StaticBodyDef> bombs = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> asteroids = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> misils = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> spaceships = new ArrayList<>(20);
 
 
     public RandomWorldDefinitionProvider(int worldWidth, int worldHeight, Assets assets) {
@@ -35,49 +42,59 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     @Override
     public WorldDefinition provide() {
 
-        BackgroundDef background = randomBackground();
-        ArrayList<DecoratorDef> spaceDecorators = this.randomDecorators(
-                3, assets.spaceDecors, null);
+        this.background = randomBackground();
 
-        ArrayList<DecoratorDef> labs = this.randomDecorators(
-                1, assets.solidBodies, AssetType.LAB);
+        this.randomDecorators(
+                this.spaceDecorators, 1, assets.spaceDecors, AssetType.STARS, 175, 175);
 
-        ArrayList<StaticBodyDef> gravityBodies = this.randomStaticBodies(
-                2, assets.gravityBodies, null);
+        this.randomStaticBodies(
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 90, 90);
 
-        ArrayList<StaticBodyDef> bombs = this.randomStaticBodies(
-                1, assets.weapons, AssetType.BOMB);
+        this.randomStaticBodies(
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 40, 40);
 
-        ArrayList<DynamicBodyDef> asteroids = this.randomDynamicBodies(
-                5, assets.solidBodies, AssetType.ASTEROID);
+        this.randomStaticBodies(
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 15, 15);
 
-        ArrayList<DynamicBodyDef> misils = this.randomDynamicBodies(
-                1, assets.weapons, AssetType.MISIL);
+        this.randomStaticBodies(
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 25, 25);
 
-        ArrayList<DynamicBodyDef> spaceships = this.randomDynamicBodies(
-                1, assets.spaceship, AssetType.SPACESHIP);
+        this.randomStaticBodies(
+                this.bombs, 0, assets.weapons, AssetType.BOMB, 30, 20);
+
+        this.randomDynamicBodies(
+                this.asteroids, 6, assets.solidBodies, AssetType.ASTEROID, 15, 3);
+
+        this.randomDynamicBodies(
+                this.misils, 1, assets.weapons, AssetType.MISIL, 30, 20);
+
+        this.randomDynamicBodies(
+                this.spaceships, 1, assets.spaceship, AssetType.SPACESHIP, 30, 30);
+
+        this.randomDynamicBodies(
+                this.spaceships, 1, assets.spaceship, AssetType.LAB, 45, 45);
 
         // WorldDefinition
         return new WorldDefinition(
                 this.width, this.height,
                 background, spaceDecorators, gravityBodies,
-                asteroids, misils, bombs, spaceships, labs);
+                asteroids, misils, bombs, spaceships);
     }
 
 
-    public ArrayList<DecoratorDef> randomDecorators(
-            int num, AssetCatalog catalog, AssetType type) {
+    private void randomDecorators(
+            ArrayList<DecoratorDef> decos,
+            int num, AssetCatalog catalog, AssetType type,
+            int maxSize, int minSize) {
 
-        double x, y, size, rotationDeg;
+        double x, y, size;
         int layer;
         String randomId;
-        ArrayList<DecoratorDef> decos = new ArrayList<>(num);
 
         for (int i = 0; i < num; i++) {
             x = rnd.nextDouble() * width;
             y = rnd.nextDouble() * height;
-            size = 100;
-            rotationDeg = 180;
+            size = this.randomSize(maxSize, minSize);
             layer = 1;
 
             if (type == null) {
@@ -86,21 +103,17 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                 randomId = catalog.randomId(type);
             }
 
-            decos.add(new DecoratorDef(
-                    randomId, StaticShapeType.RECTANGLE, layer,
-                    x, y, size, rotationDeg));
+            decos.add(new DecoratorDef(randomId, layer, x, y, size, 0));
         }
-
-        return decos;
     }
 
 
-    public ArrayList<DynamicBodyDef> randomDynamicBodies(
-            int num, AssetCatalog catalog, AssetType type) {
+    private void randomDynamicBodies(ArrayList<DynamicBodyDef> dBodies,
+            int num, AssetCatalog catalog, AssetType type,
+            int maxSize, int minSize) {
 
         double size;
         String randomId;
-        ArrayList<DynamicBodyDef> dBodies = new ArrayList<>();
 
         for (int i = 0; i < num; i++) {
             size = 100;
@@ -111,26 +124,24 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                 randomId = catalog.randomId(type);
             }
 
-            dBodies.add(
-                    new DynamicBodyDef(randomId, StaticShapeType.RECTANGLE, size));
+            dBodies.add(new DynamicBodyDef(randomId, size));
         }
-
-        return dBodies;
     }
 
 
-    public ArrayList<StaticBodyDef> randomStaticBodies(
-            int num, AssetCatalog catalog, AssetType type) {
+    private void randomStaticBodies(
+            ArrayList<StaticBodyDef> sBodies,
+            int num, AssetCatalog catalog, AssetType type,
+            int maxSize, int minSize) {
 
         double x, y, size, rotationDeg;
         String randomId;
-        ArrayList<StaticBodyDef> sBodies = new ArrayList<>();
 
         for (int i = 0; i < num; i++) {
             x = rnd.nextDouble() * width;
             y = rnd.nextDouble() * height;
-            size = 100;
-            rotationDeg = 180;
+            size = this.randomSize(maxSize, minSize);
+            rotationDeg = 0;
 
             if (type == null) {
                 randomId = catalog.randomId();
@@ -138,18 +149,19 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                 randomId = catalog.randomId(type);
             }
 
-            sBodies.add(new StaticBodyDef(
-                    randomId, StaticShapeType.RECTANGLE,
-                    x, y, size, rotationDeg));
+            sBodies.add(new StaticBodyDef(randomId, x, y, size, rotationDeg));
         }
-
-        return sBodies;
     }
 
 
-    public BackgroundDef randomBackground() {
+    private BackgroundDef randomBackground() {
         String randomId = this.assets.backgrounds.randomId();
 
         return new BackgroundDef(randomId, 0.0d, 0.0d);
+    }
+
+
+    private int randomSize(int maxSize, int minSize) {
+        return (int) (minSize + (this.rnd.nextFloat() * (maxSize - minSize)));
     }
 }

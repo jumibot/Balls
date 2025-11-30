@@ -11,12 +11,12 @@ public interface PhysicsBody {
 
 
     default PhysicsValues getPhysicsValues() {
-        return getPhysicsEngine().getPhysicsValues();
+        return this.getPhysicsEngine().getPhysicsValues();
     }
 
 
     default void doMovement(PhysicsValues phyValues) {
-        PhysicsEngine engine = getPhysicsEngine();
+        PhysicsEngine engine = this.getPhysicsEngine();
         engine.setPhysicsValues(phyValues);
     }
 
@@ -24,7 +24,7 @@ public interface PhysicsBody {
     default void reboundInEast(PhysicsValues newVals, PhysicsValues oldVals, 
             double worldWidth, double worldHeight) {
         
-        PhysicsEngine engine = getPhysicsEngine();
+        PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInEast(newVals, oldVals, worldWidth, worldHeight);
     }
 
@@ -32,21 +32,21 @@ public interface PhysicsBody {
     default void reboundInWest(PhysicsValues newVals, PhysicsValues oldVals,
             double worldWidth, double worldHeight) {
         
-        PhysicsEngine engine = getPhysicsEngine();
+        PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInWest(newVals, oldVals, worldWidth, worldHeight);
     }
 
 
     default void reboundInNorth(PhysicsValues newVals, PhysicsValues oldVals,
             double worldWidth, double worldHeight) {
-        PhysicsEngine engine = getPhysicsEngine();
+        PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInNorth(newVals, oldVals, worldWidth, worldHeight);
     }
 
 
     default void reboundInSouth(PhysicsValues newVals, PhysicsValues oldVals,
             double worldWidth, double worldHeight) {
-        PhysicsEngine engine = getPhysicsEngine();
+        PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInSouth(newVals, oldVals, worldWidth, worldHeight);
     }
 }

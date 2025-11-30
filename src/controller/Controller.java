@@ -1,24 +1,24 @@
 package controller;
 
 
-import _helpers.DoubleVector;
 import assets.Assets;
 import java.awt.Dimension;
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.DBodyInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;
 import model.entities.BodyAction;
 import model.EventType;
 import java.util.ArrayList;
+import view.renderables.EntityInfoDTO;
 import world.WorldDefinition;
 
 
 public class Controller {
 
     private Assets assets;
-    private volatile ControllerState controllerState = ControllerState.STARTING;
-    private int maxVisualObjects;
+    private volatile ControllerState controllerState;
+    private int maxDBody;
     private Model model;
     private View view;
     private WorldDefinition world;
@@ -26,10 +26,12 @@ public class Controller {
 
 
     public Controller() {
+        this.controllerState = ControllerState.STARTING;
     }
 
 
     public Controller(View view, Model model, Assets assets) {
+        this.controllerState = ControllerState.STARTING;
         this.assets = assets;
 
         this.setModel(model);
@@ -57,7 +59,7 @@ public class Controller {
             throw new IllegalArgumentException("World definition not setted");
         }
 
-        if (this.maxVisualObjects <= 0) {
+        if (this.maxDBody <= 0) {
             throw new IllegalArgumentException("Max visual objects not setted");
         }
 
@@ -74,20 +76,36 @@ public class Controller {
         this.view.activate();
 
         this.model.setDimension(this.worldDimension);
-        this.model.setMaxDBodyObjects(this.maxVisualObjects);
+        this.model.setMaxDBody(this.maxDBody);
         this.model.activate();
 
         this.controllerState = ControllerState.ALIVE;
     }
 
 
-    public void addDynamicBody(
-            String assetId, int size,
-            DoubleVector pos, DoubleVector speed, DoubleVector acc,
-            double angle) {
+    public void addDBody(String assetId, double size, double posX, double posY,
+            double speedX, double speedY, double accX, double accY, double angle) {
 
         this.model.addDBody(
-                assetId, size, pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, angle);
+                assetId, size, posX, posY, speedX, speedY, accX, accY, angle);
+    }
+
+
+    public void addSBody(
+            String assetId, double size, double posX, double posY, double angle) {
+
+        this.model.addSBody(assetId, size, posX, posY, angle);
+
+        ArrayList<EntityInfoDTO> bodiesInfo = this.getSBodyInfo();
+        this.view.updateSBodyInfo(bodiesInfo);
+    }
+
+
+    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
+        this.model.addDecorator(assetId, size, posX, posY, angle);
+
+        ArrayList<EntityInfoDTO> decosInfo = this.getDecoratorInfo();
+        this.view.updateDecoratorsInfo(decosInfo);
     }
 
 
@@ -130,8 +148,18 @@ public class Controller {
     }
 
 
-    public ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
-        return this.model.getDBodyRenderInfo();
+    public ArrayList<DBodyInfoDTO> getDBodyInfo() {
+        return this.model.getDBodyInfo();
+    }
+
+
+    private ArrayList<EntityInfoDTO> getDecoratorInfo() {
+        return this.model.getDecoratorsInfo();
+    }
+
+
+    public ArrayList<EntityInfoDTO> getSBodyInfo() {
+        return this.model.getSBodyInfo();
     }
 
 
@@ -167,7 +195,7 @@ public class Controller {
     }
 
 
-    public void setMaxVisualObjects(int maxVisualObjects) {
-        this.maxVisualObjects = maxVisualObjects;
+    public void setMaxDBody(int maxDBody) {
+        this.maxDBody = maxDBody;
     }
 }

@@ -4,7 +4,6 @@ package world;
 public class StaticBodyDef {
 
     public final String assetId;
-    public final StaticShapeType shapeType;
 
     // Geometry
     public final double pos_x;
@@ -14,12 +13,11 @@ public class StaticBodyDef {
 
 
     public StaticBodyDef(
-            String assetId, StaticShapeType shapeType,
-            double pos_x, double pos_y, double size, double rotationDeg) {
+            String assetId, double pos_x, double pos_y, 
+            double size, double rotationDeg) {
 
         this.assetId = assetId;
-        this.shapeType = shapeType;
-        
+
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.size = size;

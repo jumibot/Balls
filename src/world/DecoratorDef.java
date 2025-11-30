@@ -4,7 +4,6 @@ package world;
 public class DecoratorDef {
 
     public final String assetId;
-    public final StaticShapeType shapeType;
     public final int layer;
 
     // Geometry
@@ -14,11 +13,10 @@ public class DecoratorDef {
     public final double rotationDeg;
 
     public DecoratorDef(
-            String assetId, StaticShapeType shapeType, int layer,
+            String assetId, int layer,
             double pos_x, double pos_y, double size, double rotationDeg) {
 
         this.assetId = assetId;
-        this.shapeType = shapeType;
         this.layer = layer;
         
         this.pos_x = pos_x;

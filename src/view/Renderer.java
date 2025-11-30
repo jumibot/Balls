@@ -6,8 +6,8 @@
 package view;
 
 
-import view.renderables.DBodyRenderInfoDTO;
-import view.renderables.SBodyRenderable;
+import view.renderables.DBodyInfoDTO;
+import view.renderables.EntityRenderable;
 import view.renderables.DBodyRenderable;
 import _images.Images;
 import _images.ImageCache;
@@ -24,6 +24,8 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import view.renderables.EntityInfoDTO;
 
 
 public class Renderer extends Canvas implements Runnable {
@@ -37,15 +39,16 @@ public class Renderer extends Canvas implements Runnable {
     private BufferedImage background;
     private Images dBodyImage;
     private Images sBodyImage;
-    private Images spaceDecoratorImage;
+    private Images decoratorImage;
 
     private ImageCache dBodyCache;
     private ImageCache sBodyCache;
-    private ImageCache spaceDecoratorCache;
+    private ImageCache decoratorCache;
     private VolatileImage viBackground;
 
-    private final Map<Integer, DBodyRenderable> dBodyRenderables = new HashMap<>();
-    private final Map<Integer, SBodyRenderable> sBodyRenderables = new HashMap<>();
+    private final Map<Integer, DBodyRenderable> dBodyRenderables = new ConcurrentHashMap<>();
+    private final Map<Integer, EntityRenderable> sBodyRenderables = new ConcurrentHashMap<>();
+    private final Map<Integer, EntityRenderable> decoratorRenderables = new ConcurrentHashMap<>();
 
 
     /**
@@ -86,8 +89,8 @@ public class Renderer extends Canvas implements Runnable {
         this.sBodyImage = sBody;
         this.sBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.sBodyImage);
 
-        this.spaceDecoratorImage = sDecorator;
-        this.spaceDecoratorCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
+        this.decoratorImage = sDecorator;
+        this.decoratorCache = new ImageCache(this.getGraphicsConfSafe(), this.decoratorImage);
     }
 
 
@@ -126,15 +129,86 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
+    public void updateDecoratosRenderables(ArrayList<EntityInfoDTO> decosInfo) {
+        // If no objects are alive this frame, clear the cache entirely
+        if (decosInfo == null || decosInfo.isEmpty()) {
+            this.decoratorRenderables.clear();
+            return; // ========= Nothing to render by the moment ... =========>>
+        }
+
+        // Update or create a renderable associated with each DBodyRenderInfoDTO
+        for (EntityInfoDTO decoInfo : decosInfo) {
+            int entityId = decoInfo.entityId;
+
+            EntityRenderable renderable = this.decoratorRenderables.get(entityId);
+            if (renderable == null) {
+                // First time this VObject appears → create a cached renderable
+                renderable = new EntityRenderable(decoInfo, this.decoratorCache, this.currentFrame);
+                this.decoratorRenderables.put(entityId, renderable);
+            } else {
+                // Existing renderable → update its snapshot and sprite if needed
+                renderable.update(decoInfo, this.currentFrame);
+            }
+        }
+
+        // Remove renderables not updated this frame (i.e., objects no longer alive)
+        this.decoratorRenderables.entrySet().removeIf(entry
+                -> entry.getValue().getLastFrameSeen() != this.currentFrame
+        );
+    }
+
+
+    public void updateSBodyRenderables(ArrayList<EntityInfoDTO> bodiesInfo) {
+        // If no objects are alive this frame, clear the cache entirely
+        if (bodiesInfo == null || bodiesInfo.isEmpty()) {
+            this.sBodyRenderables.clear();
+            return; // ========= Nothing to render by the moment ... =========>>
+        }
+
+        // Update or create a renderable associated with each DBodyRenderInfoDTO
+        for (EntityInfoDTO bodyInfo : bodiesInfo) {
+            int id = bodyInfo.entityId;
+
+            EntityRenderable renderable = this.sBodyRenderables.get(id);
+            if (renderable == null) {
+                // First time this VObject appears → create a cached renderable
+                renderable = new EntityRenderable(bodyInfo, this.sBodyCache, this.currentFrame);
+                this.sBodyRenderables.put(id, renderable);
+            } else {
+                // Existing renderable → update its snapshot and sprite if needed
+                renderable.update(bodyInfo, this.currentFrame);
+            }
+        }
+
+        // Remove renderables not updated this frame (i.e., objects no longer alive)
+        this.sBodyRenderables.entrySet().removeIf(entry
+                -> entry.getValue().getLastFrameSeen() != this.currentFrame
+        );
+    }
+
+
     /**
      * PRIVATES
      */
     private void drawDBodies(Graphics2D g) {
-        ArrayList<DBodyRenderInfoDTO> dBodyRenderInfo = this.view.getDBodyRenderInfo();
+        ArrayList<DBodyInfoDTO> dBodyRenderInfo = this.view.getDBodyInfo();
 
         this.updateDBodyRenderables(dBodyRenderInfo);
 
         for (DBodyRenderable renderable : this.dBodyRenderables.values()) {
+            renderable.paint(g);
+        }
+    }
+
+    private void drawDecorators(Graphics2D g) {
+        for (EntityRenderable renderable : this.decoratorRenderables.values()) {
+            renderable.paint(g);
+        }
+    }
+
+
+    private void drawSBodies(Graphics2D g) {
+        for (EntityRenderable renderable : this.sBodyRenderables.values()) {
             renderable.paint(g);
         }
     }
@@ -149,12 +223,9 @@ public class Renderer extends Canvas implements Runnable {
             gg.setComposite(AlphaComposite.Src); // Opaque
             gg.drawImage(this.getVIBackground(), 0, 0, null);
 
-            // Show decorators
-            
-            // Show static bodies
-            
-            // Show ynamic bodies
             gg.setComposite(AlphaComposite.SrcOver); // With transparency
+            this.drawDecorators(gg);
+            this.drawSBodies(gg);
             this.drawDBodies(gg);
 
         } finally {
@@ -211,25 +282,25 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
-    private void updateDBodyRenderables(ArrayList<DBodyRenderInfoDTO> renderInfoList) {
+    private void updateDBodyRenderables(ArrayList<DBodyInfoDTO> bodiesInfo) {
         // If no objects are alive this frame, clear the cache entirely
-        if (renderInfoList == null || renderInfoList.isEmpty()) {
+        if (bodiesInfo == null || bodiesInfo.isEmpty()) {
             this.dBodyRenderables.clear();
             return; // ========= Nothing to render by the moment ... =========>>
         }
 
         // Update or create a renderable associated with each DBodyRenderInfoDTO
-        for (DBodyRenderInfoDTO newRInfo : renderInfoList) {
-            int id = newRInfo.entityId;
+        for (DBodyInfoDTO bodyInfo : bodiesInfo) {
+            int id = bodyInfo.entityId;
 
             DBodyRenderable renderable = this.dBodyRenderables.get(id);
             if (renderable == null) {
                 // First time this VObject appears → create a cached renderable
-                renderable = new DBodyRenderable(newRInfo, this.dBodyCache, this.currentFrame);
+                renderable = new DBodyRenderable(bodyInfo, this.dBodyCache, this.currentFrame);
                 this.dBodyRenderables.put(id, renderable);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed
-                renderable.update(newRInfo, this.currentFrame);
+                renderable.update(bodyInfo, this.currentFrame);
             }
         }
 

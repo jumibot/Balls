@@ -47,7 +47,7 @@ public class Images {
             return;
         }
 
-        this.images.put(assetId, this.loadImage(assetsPath + fileName));
+        this.images.put(assetId, this.loadImage(assetId, assetsPath + fileName));
     }
 
 
@@ -86,7 +86,7 @@ public class Images {
     }
 
 
-    private ImageDTO loadImage(String uri) {
+    private ImageDTO loadImage(String assetId, String uri) {
         ImageDTO imageDto = null;
         BufferedImage image;
 
@@ -95,7 +95,7 @@ public class Images {
             if (image == null) {
                 throw new IOException("Unsupported or empty image [" + uri + "] · <Images>");
             }
-            imageDto = new ImageDTO(uri, image);
+            imageDto = new ImageDTO(assetId, uri, image);
 
         } catch (IOException e) {
             System.err.println("> LOAD IMAGE ERROR· <Images> · [" + uri + "] · " + e.getMessage());

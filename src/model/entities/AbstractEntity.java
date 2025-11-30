@@ -3,8 +3,8 @@ package model.entities;
 
 import java.awt.Color;
 import model.Model;
-import model.physics.PhysicsValues;
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.EntityInfoDTO;
+import view.renderables.DBodyInfoDTO;
 
 
 /**
@@ -23,15 +23,13 @@ public abstract class AbstractEntity {
 
     private final int entityId;
     public final String assetId;
-    public final int size;
-    private Color color;
+    public final double size;
 
 
-    public AbstractEntity(String assetId, int size) {
+    public AbstractEntity(String assetId, double size) {
         this.entityId = AbstractEntity.createdQuantity++;
         this.assetId = assetId;
         this.size = size;
-        this.color = Color.BLUE;
 
         this.state = EntityState.STARTING;
     }
@@ -55,7 +53,7 @@ public abstract class AbstractEntity {
     }
 
 
-    public abstract DBodyRenderInfoDTO buildRenderInfo();
+    public abstract EntityInfoDTO buildEntityInfo();
 
 
     public synchronized void die() {
@@ -69,11 +67,6 @@ public abstract class AbstractEntity {
 
     public int getEntityId() {
         return this.entityId;
-    }
-
-
-    public Color getColor() {
-        return this.color;
     }
 
 

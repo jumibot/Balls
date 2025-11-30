@@ -1,21 +1,18 @@
 package view.renderables;
 
 
-import java.awt.Color;
-
-
-public class SBodyRenderInfoDTO {
+public class EntityInfoDTO {
 
     public final int entityId;
     public final String assetId;
-    public final int size;
+    public final double size;
     public final double posX;
     public final double posY;
     public final double angle;
 
 
-    public SBodyRenderInfoDTO(
-            int entityId, String assetId, int size,
+    public EntityInfoDTO(
+            int entityId, String assetId, double size,
             double posX, double posY, double angle) {
 
         this.entityId = entityId;
