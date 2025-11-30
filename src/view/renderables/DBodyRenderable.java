@@ -29,16 +29,16 @@ public class DBodyRenderable {
     private final int entityId;
     private int lastFrameSeen;
     private final ImageCache cache;
-    private DBodyRenderInfoDTO renderInfo = null;
+    private DBodyInfoDTO bodyInfo = null;
     private BufferedImage image = null;
 
 
-    public DBodyRenderable(DBodyRenderInfoDTO renderInfo, ImageCache cache, int currentFrame) {
-        this.entityId = renderInfo.entityId;
+    public DBodyRenderable(DBodyInfoDTO bodyInfo, ImageCache cache, int currentFrame) {
+        this.entityId = bodyInfo.entityId;
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = renderInfo;
+        this.bodyInfo = bodyInfo;
         this.cache = cache;
-        this.updateImageFromCache(renderInfo);
+        this.updateImageFromCache(bodyInfo);
     }
 
 
@@ -50,16 +50,16 @@ public class DBodyRenderable {
     }
 
 
-    public void update(DBodyRenderInfoDTO newRenderInfo, int currentFrame) {
-        this.updateImageFromCache(newRenderInfo);
+    public void update(DBodyInfoDTO newBodyInfo, int currentFrame) {
+        this.updateImageFromCache(newBodyInfo);
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = newRenderInfo;
+        this.bodyInfo = newBodyInfo;
     }
 
 
     public void paint(Graphics2D g) {
-        int x = (int) (this.renderInfo.posX - this.renderInfo.size);
-        int y = (int) (this.renderInfo.posY - this.renderInfo.size);
+        int x = (int) (this.bodyInfo.posX - this.bodyInfo.size);
+        int y = (int) (this.bodyInfo.posY - this.bodyInfo.size);
 
         if (this.image != null) {
             g.drawImage(this.image, x, y, null);
@@ -70,16 +70,16 @@ public class DBodyRenderable {
     /**
      * PRIVATE
      */
-    private void updateImageFromCache(DBodyRenderInfoDTO renderInfo) {
+    private void updateImageFromCache(DBodyInfoDTO bodyInfo) {
         boolean imageNeedsUpdate
                 = this.image == null
-                || this.renderInfo == null
-                || !this.renderInfo.assetId.equals(renderInfo.assetId)
-                || this.renderInfo.size != renderInfo.size
-                || this.renderInfo.angle != renderInfo.angle;
+                || this.bodyInfo == null
+                || !this.bodyInfo.assetId.equals(bodyInfo.assetId)
+                || this.bodyInfo.size != bodyInfo.size
+                || this.bodyInfo.angle != bodyInfo.angle;
 
         if (imageNeedsUpdate) {
-            this.image = this.cache.getImage(renderInfo.angle, renderInfo.assetId, renderInfo.size);
+            this.image = this.cache.getImage(bodyInfo.angle, bodyInfo.assetId, (int) bodyInfo.size);
         }
     }
 }

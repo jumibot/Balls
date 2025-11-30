@@ -9,23 +9,18 @@ import java.util.ArrayList;
 import world.DynamicBodyDef;
 
 
-/**
- *
- * VISUAL DYNAMIC OBJECTS GENERATOR
- *
- */
-public class AsteroidGenerator implements Runnable {
+public class LifeGenerator implements Runnable {
 
     private final Random rnd = new Random();
 
     private ArrayList<DynamicBodyDef> asteroid;
     private final Controller controller;
-    private int maxCreationDelay;
+    private final int maxCreationDelay;
     private Thread thread;
 
     public final int maxSize, minSize;
     public final double maxMass, minMass;
-    public final double speedMaxModule;
+    public final double maxSpeedModule;
     public final double accMaxModule;
     public final boolean fixedAcc;
     public final double acc_x, acc_y;
@@ -36,7 +31,7 @@ public class AsteroidGenerator implements Runnable {
     /**
      * CONSTRUCTORS
      */
-    public AsteroidGenerator(Controller controller,
+    public LifeGenerator(Controller controller,
             ArrayList<DynamicBodyDef> asteroid, int maxCreationDelay,
             int maxSize, int minSize, double maxMass, double minMass,
             double speed_x, double speed_y, double acc_x, double acc_y) {
@@ -49,7 +44,7 @@ public class AsteroidGenerator implements Runnable {
         this.minSize = minSize;
         this.maxMass = maxMass;
         this.minMass = minMass;
-        this.speedMaxModule = 0;
+        this.maxSpeedModule = 0;
         this.accMaxModule = 0;
         this.fixedSpeed = true;
         this.fixedAcc = true;
@@ -60,7 +55,7 @@ public class AsteroidGenerator implements Runnable {
     }
 
 
-    public AsteroidGenerator(Controller controller,
+    public LifeGenerator(Controller controller,
             ArrayList<DynamicBodyDef> asteroid, int maxCreationDelay,
             int maxSize, int minSize, double maxMass, double minMass,
             double maxSpeedModule, double maxAccModule) {
@@ -73,7 +68,7 @@ public class AsteroidGenerator implements Runnable {
         this.minSize = minSize;
         this.maxMass = maxMass;
         this.minMass = minMass;
-        this.speedMaxModule = maxSpeedModule;
+        this.maxSpeedModule = maxSpeedModule;
         this.accMaxModule = maxAccModule;
         this.fixedAcc = false;
         this.fixedSpeed = false;
@@ -83,7 +78,6 @@ public class AsteroidGenerator implements Runnable {
         this.speed_y = 0d;
     }
 
-    
 
     /**
      * PUBLIC
@@ -101,7 +95,7 @@ public class AsteroidGenerator implements Runnable {
      * PRIVATE
      */
     //++
-    private void newRandomDynamicBody() {
+    private void randomDBody() {
         DoubleVector acc, speed;
 
         if (this.fixedSpeed) {
@@ -111,13 +105,15 @@ public class AsteroidGenerator implements Runnable {
         }
 
         if (this.fixedAcc) {
-            acc = new DoubleVector(this.speed_x, this.speed_y);
+            acc = new DoubleVector(this.acc_x, this.acc_y);
         } else {
             acc = this.randomAcceleration();
         }
 
-        this.controller.addDynamicBody(
-                this.randomImage(), this.randomSize(), this.randomPosition(), speed, acc, 0);
+        DoubleVector pos = this.randomPosition();
+        this.controller.addDBody(
+                this.randomAsset(), this.randomSize(),
+                pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, 0);
     }
 
 
@@ -133,7 +129,7 @@ public class AsteroidGenerator implements Runnable {
 
 
     //*+
-    private String randomImage() {
+    private String randomAsset() {
         int index = this.rnd.nextInt(this.asteroid.size());
         return this.asteroid.get(index).assetId;
     }
@@ -161,7 +157,7 @@ public class AsteroidGenerator implements Runnable {
         DoubleVector newAcc = new DoubleVector(
                 this.rnd.nextGaussian(),
                 this.rnd.nextGaussian(),
-                this.rnd.nextFloat() * this.speedMaxModule);
+                this.rnd.nextFloat() * this.maxSpeedModule);
 
         return newAcc;
     }
@@ -175,7 +171,7 @@ public class AsteroidGenerator implements Runnable {
         while (this.controller.getState() != ControllerState.STOPPED) { // TO-DO End condition
 
             if (this.controller.getState() == ControllerState.ALIVE) { // TO-DO Pause condition
-                this.newRandomDynamicBody();
+                this.randomDBody();
             }
 
             try {

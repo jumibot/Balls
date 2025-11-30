@@ -72,10 +72,6 @@ public class Assets {
         this.solidBodies.register("asteroid_4", "asteroid-4-mini.png", AssetType.ASTEROID, AssetIntensity.HIGH);
         this.solidBodies.register("asteroid_5", "asteroid-5-mini.png", AssetType.ASTEROID, AssetIntensity.HIGH);
         this.solidBodies.register("asteroid_6", "asteroid-6-mini.png", AssetType.ASTEROID, AssetIntensity.HIGH);
-        this.solidBodies.register("lab_1", "lab-1.png", AssetType.LAB, AssetIntensity.HIGH);
-        this.solidBodies.register("lab_2", "lab-2.png", AssetType.LAB, AssetIntensity.HIGH);
-        this.solidBodies.register("lab_3", "lab-3.png", AssetType.LAB, AssetIntensity.HIGH);
-        this.solidBodies.register("lab_5", "lab-5.png", AssetType.LAB, AssetIntensity.HIGH);
         this.solidBodies.register("meteor_1", "meteor-1.png", AssetType.METEOR, AssetIntensity.HIGH);
         this.solidBodies.register("meteor_2", "meteor-2.png", AssetType.METEOR, AssetIntensity.HIGH);
         this.solidBodies.register("meteor_3", "meteor-3.png", AssetType.METEOR, AssetIntensity.HIGH);
@@ -93,12 +89,9 @@ public class Assets {
         this.spaceDecors.register("rainbow_1", "rainbow-1.png", AssetType.RAINBOW, AssetIntensity.HIGH);
         this.spaceDecors.register("stars_1", "stars-1.png", AssetType.STARS, AssetIntensity.HIGH);
         this.spaceDecors.register("stars_2", "stars-2.png", AssetType.STARS, AssetIntensity.HIGH);
-        this.spaceDecors.register("stars_3", "stars-3.png", AssetType.STARS, AssetIntensity.HIGH);
+//        this.spaceDecors.register("stars_3", "stars-3.png", AssetType.STARS, AssetIntensity.HIGH);
         this.spaceDecors.register("stars_4", "stars-4.png", AssetType.STARS, AssetIntensity.HIGH);
-        this.spaceDecors.register("stars_5", "stars-5.png", AssetType.STARS, AssetIntensity.HIGH);
-        this.spaceDecors.register("stars_6", "stars-6.png", AssetType.STARS, AssetIntensity.HIGH);
-        this.spaceDecors.register("stars_7", "stars-7.png", AssetType.STARS, AssetIntensity.HIGH);
-        this.spaceDecors.register("stars_8", "stars-8.png", AssetType.STARS, AssetIntensity.HIGH);
+//        this.spaceDecors.register("stars_5", "stars-5.png", AssetType.STARS, AssetIntensity.HIGH);
 
         this.spaceship = new AssetCatalog("src/resources/images/spaceship/");
         this.spaceship.register("rocket_1", "rocket-1.png", AssetType.ROCKET, AssetIntensity.HIGH);
@@ -115,6 +108,10 @@ public class Assets {
         this.spaceship.register("spaceship_5", "spaceship-5.png", AssetType.SPACESHIP, AssetIntensity.HIGH);
         this.spaceship.register("spaceship_6", "spaceship-6.png", AssetType.SPACESHIP, AssetIntensity.HIGH);
         this.spaceship.register("spaceship_7", "spaceship-7.png", AssetType.SPACESHIP, AssetIntensity.HIGH);
+        this.spaceship.register("lab_1", "lab-1.png", AssetType.LAB, AssetIntensity.HIGH);
+        this.spaceship.register("lab_2", "lab-2.png", AssetType.LAB, AssetIntensity.HIGH);
+        this.spaceship.register("lab_3", "lab-3.png", AssetType.LAB, AssetIntensity.HIGH);
+        this.spaceship.register("lab_4", "lab-4.png", AssetType.LAB, AssetIntensity.HIGH);
 
         this.uiDecors = new AssetCatalog("src/resources/images/ui_decors/");
         this.uiDecors.register("signs_1", "signs-1.png", AssetType.SIGN, AssetIntensity.HIGH);

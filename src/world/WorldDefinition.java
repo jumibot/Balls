@@ -2,7 +2,6 @@ package world;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class WorldDefinition {
@@ -17,7 +16,6 @@ public class WorldDefinition {
     public final ArrayList<DynamicBodyDef> misils;
     public ArrayList<StaticBodyDef> bombs;
     public ArrayList<DynamicBodyDef> spaceships;
-    public ArrayList<DecoratorDef> labs;
 
 
     public WorldDefinition(
@@ -29,8 +27,7 @@ public class WorldDefinition {
             ArrayList<DynamicBodyDef> asteroids,
             ArrayList<DynamicBodyDef> misils,
             ArrayList<StaticBodyDef> bombs,
-            ArrayList<DynamicBodyDef> spaceships,
-            ArrayList<DecoratorDef> labs) {
+            ArrayList<DynamicBodyDef> spaceships) {
 
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
@@ -41,6 +38,5 @@ public class WorldDefinition {
         this.misils = misils;
         this.bombs = bombs;
         this.spaceships = spaceships;
-        this.labs = labs;
     }
 }

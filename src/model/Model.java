@@ -10,12 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
 import model.physics.PhysicsValues;
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.DBodyInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import model.entities.AbstractEntity;
+import model.entities.DecoEntity;
 import model.entities.StaticBody;
 import model.physics.BasicPhysicsEngine;
+import view.renderables.EntityInfoDTO;
 
 
 /**
@@ -32,6 +34,7 @@ public class Model {
     private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(10000);
     private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
     private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
+    private final Map<Integer, DecoEntity> decorators = new ConcurrentHashMap<>(100);
 
 
     /**
@@ -61,10 +64,8 @@ public class Model {
     }
 
 
-    public boolean addDBody(
-            String assetId, int size,
-            double posX, double posY,
-            double speedX, double speedY,
+    public boolean addDBody(String assetId, double size,
+            double posX, double posY, double speedX, double speedY,
             double accX, double accY, double angle) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
@@ -85,8 +86,7 @@ public class Model {
     }
 
 
-    public void addSBody(
-            String assetId, int size,
+    public void addSBody(String assetId, double size,
             double posX, double posY, double angle) {
 
         StaticBody sBody = new StaticBody(assetId, size, posX, posY, angle);
@@ -97,23 +97,61 @@ public class Model {
     }
 
 
+    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
+        DecoEntity deco = new DecoEntity(assetId, size, posX, posY, angle);
+
+        deco.setModel(this);
+        deco.activate();
+        this.decorators.put(deco.getEntityId(), deco);
+    }
+
+
     public int getMaxDBody() {
         return this.maxDBody;
     }
 
 
-    public ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
-        ArrayList<DBodyRenderInfoDTO> dBodyRenderInfo
+    public ArrayList<DBodyInfoDTO> getDBodyInfo() {
+        ArrayList<DBodyInfoDTO> dBodyInfoList
                 = new ArrayList(DynamicBody.getAliveQuantity() * 2);
 
-        this.dBodies.forEach((id, vObject) -> {
-            DBodyRenderInfoDTO rInfo = vObject.buildRenderInfo();
-            if (rInfo != null) {
-                dBodyRenderInfo.add(rInfo);
+        this.dBodies.forEach((id, dBody) -> {
+            DBodyInfoDTO bodyInfo = dBody.buildEntityInfo();
+            if (bodyInfo != null) {
+                dBodyInfoList.add(bodyInfo);
             }
         });
 
-        return dBodyRenderInfo;
+        return dBodyInfoList;
+    }
+
+
+    public ArrayList<EntityInfoDTO> getDecoratorsInfo() {
+        ArrayList<EntityInfoDTO> decoInfoList
+                = new ArrayList(StaticBody.getAliveQuantity() * 2);
+
+        this.decorators.forEach((id, deco) -> {
+            EntityInfoDTO entityInfo = deco.buildEntityInfo();
+            if (entityInfo != null) {
+                decoInfoList.add(entityInfo);
+            }
+        });
+
+        return decoInfoList;    }
+
+
+    public ArrayList<EntityInfoDTO> getSBodyInfo() {
+        ArrayList<EntityInfoDTO> bodyInfoList
+                = new ArrayList(StaticBody.getAliveQuantity() * 2);
+
+        this.sBodies.forEach((id, sBody) -> {
+            EntityInfoDTO bodyInfo = sBody.buildEntityInfo();
+            if (bodyInfo != null) {
+                bodyInfoList.add(bodyInfo);
+            }
+        });
+
+        return bodyInfoList;
     }
 
 
@@ -164,15 +202,13 @@ public class Model {
     }
 
 
-    public void setMaxDBodyObjects(int maxDynamicBody) {
+    public void setMaxDBody(int maxDynamicBody) {
         this.maxDBody = maxDynamicBody;
     }
 
 
-    public void processDBodyEvents(
-            DynamicBody dBodyToCheck,
-            PhysicsValues newPhyValues,
-            PhysicsValues oldPhyValues) {
+    public void processDBodyEvents(DynamicBody dBodyToCheck,
+            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
         if (dBodyToCheck.getState() != EntityState.ALIVE) {
             return; // To avoid duplicate or unnecesary event processing ======>
@@ -245,11 +281,8 @@ public class Model {
     }
 
 
-    private void doDBodyAction(
-            BodyAction action,
-            DynamicBody dBody,
-            PhysicsValues newPhyValues,
-            PhysicsValues oldPhyValues) {
+    private void doDBodyAction(BodyAction action, DynamicBody dBody,
+            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
         switch (action) {
             case MOVE:

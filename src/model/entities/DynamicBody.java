@@ -3,7 +3,7 @@ package model.entities;
 
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValues;
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.DBodyInfoDTO;
 import model.ModelState;
 import model.physics.PhysicsEngine;
 
@@ -45,7 +45,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     /**
      * CONSTRUCTORS
      */
-    public DynamicBody(String assetId, int size, BasicPhysicsEngine phyEngine) {
+    public DynamicBody(String assetId, double size, BasicPhysicsEngine phyEngine) {
         super(assetId, size);
 
         this.phyEngine = phyEngine;
@@ -68,14 +68,14 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
 
 
     @Override
-    public DBodyRenderInfoDTO buildRenderInfo() {
+    public DBodyInfoDTO buildEntityInfo() {
         if (this.getState() == EntityState.DEAD || this.getState() == EntityState.STARTING) {
             return null;
         }
 
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
-        return new DBodyRenderInfoDTO(
+        return new DBodyInfoDTO(
                 this.getEntityId(), this.assetId, this.size, 
                 phyValues.timeStamp,
                 phyValues.pos_x, phyValues.pos_y,

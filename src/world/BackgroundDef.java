@@ -1,5 +1,6 @@
 package world;
 
+
 public class BackgroundDef {
 
     public final String assetId;
@@ -7,10 +8,7 @@ public class BackgroundDef {
     public final double scrollSpeedY;
 
 
-    public BackgroundDef(
-            String assetId,
-            double scrollSpeedX,
-            double scrollSpeedY) {
+    public BackgroundDef(String assetId, double scrollSpeedX, double scrollSpeedY) {
 
         this.assetId = assetId;
         this.scrollSpeedX = scrollSpeedX;

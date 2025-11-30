@@ -1,7 +1,7 @@
 package view;
 
 
-import view.renderables.DBodyRenderInfoDTO;
+import view.renderables.DBodyInfoDTO;
 import _images.Images;
 import assets.AssetCatalog;
 import assets.AssetInfo;
@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
+import view.renderables.EntityInfoDTO;
 import world.BackgroundDef;
 import world.DecoratorDef;
 import world.DynamicBodyDef;
@@ -95,31 +96,44 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
         this.loadDynamicImages(assets.solidBodies, world.asteroids);
         this.loadDynamicImages(assets.weapons, world.misils);
         this.loadDynamicImages(assets.spaceship, world.spaceships);
-
         this.loadStaticImages(assets.gravityBodies, world.gravityBodies);
         this.loadStaticImages(assets.weapons, world.bombs);
-
         this.loadDecoratorImages(assets.spaceDecors, world.spaceDecorators);
-        this.loadDecoratorImages(assets.solidBodies, world.labs);
     }
 
 
     public void loadBackground(AssetCatalog backs, BackgroundDef backDef) {
-
         this.background = Images.loadBufferedImage(
                 backs.getPath(), backs.get(backDef.assetId).fileName);
     }
 
 
+    public void loadDecoratorImages(AssetCatalog catalog, List<DecoratorDef> decoList) {
+        AssetInfo assetInfo;
+
+        for (DecoratorDef deco : decoList) {
+            assetInfo = catalog.get(deco.assetId);
+
+            if (assetInfo == null) {
+                System.err.println("Resource info <" + deco.assetId + "> not found in catalog");
+            } else {
+                this.spaceDecorators.add(
+                        deco.assetId, 
+                        catalog.getPath() + catalog.get(deco.assetId).fileName);
+            }
+        }
+    }
+
+
     public void loadDynamicImages(AssetCatalog catalog, List<DynamicBodyDef> bodyDef) {
         String fileName, path, uri;
-        AssetInfo aInfo;
+        AssetInfo assetInfo;
 
         for (DynamicBodyDef body : bodyDef) {
             path = catalog.getPath();
-            aInfo = catalog.get(body.assetId);
+            assetInfo = catalog.get(body.assetId);
 
-            if (aInfo == null) {
+            if (assetInfo == null) {
                 System.out.println("Resource info <" + body.assetId + "> not found in catalog");
             } else {
 
@@ -140,16 +154,6 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
-    public void loadDecoratorImages(AssetCatalog catalog, List<DecoratorDef> bodyDef) {
-        String uri;
-
-        for (DecoratorDef body : bodyDef) {
-            uri = catalog.getPath() + catalog.get(body.assetId).fileName;
-            this.spaceDecorators.add(body.assetId, uri);
-        }
-    }
-
-
     public void setController(Controller controller) {
         this.controller = controller;
     }
@@ -160,15 +164,34 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     }
 
 
+    public void updateSBodyInfo(ArrayList<EntityInfoDTO> bodiesInfo) {
+        this.renderer.updateSBodyRenderables(bodiesInfo);
+    }
+
+
+    public void updateDecoratorsInfo(ArrayList<EntityInfoDTO> decosInfo) {
+        this.renderer.updateDecoratosRenderables(decosInfo);
+    }
+
+
     /**
      * PROTECTED
      */
-    protected ArrayList<DBodyRenderInfoDTO> getDBodyRenderInfo() {
+    protected ArrayList<DBodyInfoDTO> getDBodyInfo() {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
 
-        return this.controller.getDBodyRenderInfo();
+        return this.controller.getDBodyInfo();
+    }
+
+
+    protected ArrayList<EntityInfoDTO> getSBodyInfo() {
+        if (this.controller == null) {
+            throw new IllegalArgumentException("Controller not setted");
+        }
+
+        return this.controller.getSBodyInfo();
     }
 
 
@@ -239,8 +262,4 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     @Override
     public void componentHidden(ComponentEvent ce) {
     }
-
-    /**
-     * PRIVATES
-     */
 }

@@ -6,21 +6,21 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 
-public class SBodyRenderable {
+public class EntityRenderable {
 
     private final int entityId;
     private int lastFrameSeen;
     private final ImageCache cache;
-    private DBodyRenderInfoDTO renderInfo = null;
+    private EntityInfoDTO renderInfo = null;
     private BufferedImage image = null;
 
 
-    public SBodyRenderable(DBodyRenderInfoDTO renderInfo, ImageCache cache, int currentFrame) {
+    public EntityRenderable(EntityInfoDTO renderInfo, ImageCache cache, int currentFrame) {
         this.entityId = renderInfo.entityId;
         this.lastFrameSeen = currentFrame;
         this.renderInfo = renderInfo;
         this.cache = cache;
-        this.updateImageFromCache(renderInfo.assetId, renderInfo.size, renderInfo.angle);
+        this.updateImageFromCache(renderInfo.assetId, (int) renderInfo.size, renderInfo.angle);
     }
 
 
@@ -32,16 +32,16 @@ public class SBodyRenderable {
     }
 
 
-    public void update(DBodyRenderInfoDTO renderInfo, int currentFrame) {
-        this.updateImageFromCache(renderInfo.assetId, renderInfo.size, renderInfo.angle);
+    public void update(EntityInfoDTO renderInfo, int currentFrame) {
+        this.updateImageFromCache(renderInfo.assetId, (int) renderInfo.size, renderInfo.angle);
         this.lastFrameSeen = currentFrame;
         this.renderInfo = renderInfo;
     }
 
 
     public void paint(Graphics2D g) {
-        int x = (int) (this.renderInfo.posX - this.renderInfo.size);
-        int y = (int) (this.renderInfo.posY - this.renderInfo.size);
+        int x = (int) (this.renderInfo.posX - this.renderInfo.size/2);
+        int y = (int) (this.renderInfo.posY - this.renderInfo.size/2);
 
         if (this.image != null) {
             g.drawImage(this.image, x, y, null);
@@ -64,7 +64,7 @@ public class SBodyRenderable {
             this.image = this.cache.getImage(angle, assetId, size);
             return true;
         }
-        
+
         return false;
     }
 }
