@@ -43,8 +43,7 @@ public class WorldGenerator {
 
     private void createSBodies(ArrayList<StaticBodyDef> sBodies) {
         for (StaticBodyDef body : sBodies) {
-            System.out.println(body.assetId);
-            this.controller.addSBody(body.assetId, body.size, body.pos_x, body.pos_y, 0);
+            this.controller.addSBody(body.assetId, body.size, body.posX, body.posY, body.angle);
         }
     }
 
@@ -52,8 +51,8 @@ public class WorldGenerator {
     private void createSpaceDecorators(ArrayList<DecoratorDef> decorators) {
 
         for (DecoratorDef deco : decorators) {
-            System.out.println(deco.assetId);
-            this.controller.addDecorator(deco.assetId, deco.size, deco.pos_x, deco.pos_y, 0);
+            this.controller.addDecorator(
+                    deco.assetId, deco.size, deco.pos_x, deco.pos_y, deco.angle);
         }
     }
 
@@ -63,7 +62,7 @@ public class WorldGenerator {
 
             DoubleVector pos = this.randomPosition();
             this.controller.addDBody(
-                    body.assetId, 25, pos.x, pos.y, 0, 0, 0, 0, 0);
+                    body.assetId, 25, pos.x, pos.y, 0, 0, 0, 0, body.angle);
         }
     }
 

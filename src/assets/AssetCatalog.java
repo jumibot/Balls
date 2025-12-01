@@ -44,22 +44,10 @@ public class AssetCatalog {
     public ArrayList<String> getAssetIds() {
         return new ArrayList(this.assetsById.keySet());
     }
-    
 
 
     public String getPath() {
         return this.path;
-    }
-
-
-    public String randomId() {
-        List<String> keys = new ArrayList<>(this.assetsById.keySet());
-
-        if (keys.isEmpty()) {
-            throw new IllegalStateException("AssetCatalog vacío");
-        }
-        int index = this.rnd.nextInt(keys.size());
-        return keys.get(index);
     }
 
 
@@ -69,7 +57,7 @@ public class AssetCatalog {
         List<String> filtered = new ArrayList<>();
 
         for (Map.Entry<String, AssetInfo> entry : assetsById.entrySet()) {
-            if (entry.getValue().type == type) {
+            if (type == null || entry.getValue().type == type) {
                 filtered.add(entry.getKey());
             }
         }

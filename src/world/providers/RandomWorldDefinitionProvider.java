@@ -45,16 +45,16 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
         this.background = randomBackground();
 
         this.randomDecorators(
-                this.spaceDecorators, 2, assets.spaceDecors, AssetType.STARS, 250, 125);
+                this.spaceDecorators, 1, assets.spaceDecors, AssetType.STARS, 250, 50);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 120, 80);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 100, 85);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 60, 15);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 50, 30);
 
         this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 40, 15);
+                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 30, 20);
 
         this.randomStaticBodies(
                 this.gravityBodies, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 30, 20);
@@ -72,7 +72,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                 this.spaceships, 1, assets.spaceship, AssetType.SPACESHIP, 35, 25);
 
         this.randomDynamicBodies(
-                this.spaceships, 1, assets.spaceship, AssetType.LAB, 55, 20);
+                this.spaceships, 1, assets.spaceship, AssetType.LAB, 35, 20);
 
         // WorldDefinition
         return new WorldDefinition(
@@ -87,23 +87,14 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
 
-        double x, y, size;
-        int layer;
-        String randomId;
-
         for (int i = 0; i < num; i++) {
-            x = rnd.nextDouble() * width;
-            y = rnd.nextDouble() * height;
-            size = this.randomSize(maxSize, minSize);
-            layer = 1;
-
-            if (type == null) {
-                randomId = catalog.randomId();
-            } else {
-                randomId = catalog.randomId(type);
-            }
-
-            decos.add(new DecoratorDef(randomId, layer, x, y, size, 0));
+            decos.add(new DecoratorDef(
+                    catalog.randomId(type),
+                    1, // Layer
+                    rnd.nextDouble() * this.width, // x
+                    rnd.nextDouble() * this.height, // y
+                    this.randomSize(maxSize, minSize),
+                    this.randomAngle()));
         }
     }
 
@@ -112,19 +103,11 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
 
-        double size;
-        String randomId;
-
         for (int i = 0; i < num; i++) {
-            size = 100;
-
-            if (type == null) {
-                randomId = catalog.randomId();
-            } else {
-                randomId = catalog.randomId(type);
-            }
-
-            dBodies.add(new DynamicBodyDef(randomId, size));
+            dBodies.add(new DynamicBodyDef(
+                    catalog.randomId(type),
+                    this.randomSize(maxSize, minSize),
+                    this.randomAngle()));
         }
     }
 
@@ -134,34 +117,30 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
 
-        double x, y, size, rotationDeg;
-        String randomId;
-
         for (int i = 0; i < num; i++) {
-            x = rnd.nextDouble() * width;
-            y = rnd.nextDouble() * height;
-            size = this.randomSize(maxSize, minSize);
-            rotationDeg = 0;
-
-            if (type == null) {
-                randomId = catalog.randomId();
-            } else {
-                randomId = catalog.randomId(type);
-            }
-
-            sBodies.add(new StaticBodyDef(randomId, x, y, size, rotationDeg));
+            sBodies.add(new StaticBodyDef(
+                    catalog.randomId(type),
+                    rnd.nextDouble() * this.width, // x
+                    rnd.nextDouble() * this.height, // y
+                    this.randomSize(maxSize, minSize),
+                    this.randomAngle()));
         }
     }
 
 
     private BackgroundDef randomBackground() {
-        String randomId = this.assets.backgrounds.randomId();
+        String randomId = this.assets.backgrounds.randomId(null);
 
         return new BackgroundDef(randomId, 0.0d, 0.0d);
     }
 
 
-    private int randomSize(int maxSize, int minSize) {
-        return (int) (minSize + (this.rnd.nextFloat() * (maxSize - minSize)));
+    private double randomSize(int maxSize, int minSize) {
+        return (minSize + (this.rnd.nextFloat() * (maxSize - minSize)));
+    }
+
+
+    private double randomAngle() {
+        return this.rnd.nextFloat() * 360;
     }
 }

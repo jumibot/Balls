@@ -69,7 +69,6 @@ public class Model {
             double accX, double accY, double angle) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
-            System.out.println("=MAX=> " + AbstractEntity.getAliveQuantity());
             return false; // ========= Max vObject quantity reached ==========>>
         }
 
@@ -82,9 +81,6 @@ public class Model {
         dBody.setModel(this);
         dBody.activate();
         this.dBodies.put(dBody.getEntityId(), dBody);
-
-        System.out.println("-A--> " + AbstractEntity.getAliveQuantity());
-        System.out.println("-C--> " + AbstractEntity.getCreatedQuantity());
 
         return true;
     }
@@ -178,8 +174,6 @@ public class Model {
     synchronized public void killDBody(DynamicBody dBody) {
         this.dBodies.remove(dBody.getEntityId());
         dBody.die();
-        System.out.println("*A**> " + AbstractEntity.getAliveQuantity());
-        System.out.println("*D**> " + AbstractEntity.getDeadQuantity());
     }
 
 

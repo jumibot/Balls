@@ -3,6 +3,7 @@ package view.renderables;
 
 import _images.ImageCache;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 
@@ -11,14 +12,14 @@ public class EntityRenderable {
     private final int entityId;
     private int lastFrameSeen;
     private final ImageCache cache;
-    private EntityInfoDTO renderInfo = null;
+    private EntityInfoDTO entityInfo = null;
     private BufferedImage image = null;
 
 
     public EntityRenderable(EntityInfoDTO renderInfo, ImageCache cache, int currentFrame) {
         this.entityId = renderInfo.entityId;
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = renderInfo;
+        this.entityInfo = renderInfo;
         this.cache = cache;
         this.updateImageFromCache(renderInfo.assetId, (int) renderInfo.size, renderInfo.angle);
     }
@@ -32,33 +33,53 @@ public class EntityRenderable {
     }
 
 
+    public EntityInfoDTO getEntityInfo() {
+        return this.entityInfo;
+    }
+
+
+    public BufferedImage getImage() {
+        return this.image;
+    }
+
+
     public void update(EntityInfoDTO renderInfo, int currentFrame) {
         this.updateImageFromCache(renderInfo.assetId, (int) renderInfo.size, renderInfo.angle);
         this.lastFrameSeen = currentFrame;
-        this.renderInfo = renderInfo;
+        this.entityInfo = renderInfo;
     }
 
 
     public void paint(Graphics2D g) {
-        int x = (int) (this.renderInfo.posX - this.renderInfo.size/2);
-        int y = (int) (this.renderInfo.posY - this.renderInfo.size/2);
+        int x = (int) (this.entityInfo.posX - this.entityInfo.size / 2);
+        int y = (int) (this.entityInfo.posY - this.entityInfo.size / 2);
 
-        if (this.image != null) {
-            g.drawImage(this.image, x, y, null);
+        if (this.image == null) {
+            return;
         }
+
+        AffineTransform defaultTransform = g.getTransform();
+
+        AffineTransform mainRotation = AffineTransform.getRotateInstance(
+                Math.toRadians(this.entityInfo.angle), x, y);
+
+        g.setTransform(mainRotation);
+        g.drawImage(this.image, x, y, null);
     }
 
 
-    /**
-     * PRIVATE
-     */
+    public void updateImageFromCache(EntityInfoDTO entityInfo) {
+        this.updateImageFromCache(entityInfo.assetId, (int) entityInfo.size, entityInfo.angle);
+    }
+
+
     private boolean updateImageFromCache(String assetId, int size, double angle) {
         boolean imageNeedsUpdate
                 = this.image == null
-                || this.renderInfo == null
-                || !this.renderInfo.assetId.equals(assetId)
-                || this.renderInfo.size != size
-                || this.renderInfo.angle != angle;
+                || this.entityInfo == null
+                || !this.entityInfo.assetId.equals(assetId)
+                || this.entityInfo.size != size
+                || this.entityInfo.angle != angle;
 
         if (imageNeedsUpdate) {
             this.image = this.cache.getImage(angle, assetId, size);
