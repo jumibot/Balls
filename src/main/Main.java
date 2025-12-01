@@ -4,13 +4,13 @@ package main;
 /**
  * TO-DO:
  *
- * 3) Asteroids not rebound in limit of world -> Implementing entity die 
- * 4) Make spaceship controlable .> May be a new physic engine will be needed 
- * 5) Colision detection 
- * 6) Shotting 
- * 7) Basic Fx 
- * 8) Game rules 
- * 9) Create a new Physic engine with gravity field
+ * 3) Make spaceship controlable ··> A new physic engine may be needed 
+ * 6) Firing
+ * 2) Colision detection 
+ * 7) Basic Fx
+ * 9) Create a new physic engine with a gravitational field
+ * 8) Game rules
+ * 
  */
 import assets.Assets;
 import controller.Controller;
@@ -34,7 +34,7 @@ public class Main {
         Assets assets = new Assets();
 
         WorldDefinitionProvider world
-                = new RandomWorldDefinitionProvider(1000, 600, assets);
+                = new RandomWorldDefinitionProvider(1150, 650, assets);
 
         WorldDefinition worldDef = world.provide();
 
@@ -42,8 +42,8 @@ public class Main {
         Controller controller = new Controller();
         controller.setAssets(assets);
         controller.setWorld(worldDef);
-        controller.setWorldDimension(1250, 750);
-        controller.setMaxDBody(14);
+        controller.setWorldDimension(1150, 650);
+        controller.setMaxDBody(30);
 
         controller.setModel(new Model());
         controller.setView(new View());
@@ -51,7 +51,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroids, 3000, 12, 4, 1000, 10, 100, 0);
+                controller, worldDef.asteroids, 1000, 12, 4, 1000, 10, 250, 0);
 
         lifeGenerator.activate();
     }

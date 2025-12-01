@@ -95,7 +95,7 @@ public class LifeGenerator implements Runnable {
      * PRIVATE
      */
     //++
-    private void randomDBody() {
+    private void addRandomDBody() {
         DoubleVector acc, speed;
 
         if (this.fixedSpeed) {
@@ -154,12 +154,12 @@ public class LifeGenerator implements Runnable {
 
 
     private DoubleVector randomSpeed() {
-        DoubleVector newAcc = new DoubleVector(
+        DoubleVector speed = new DoubleVector(
                 this.rnd.nextGaussian(),
                 this.rnd.nextGaussian(),
                 this.rnd.nextFloat() * this.maxSpeedModule);
 
-        return newAcc;
+        return speed;
     }
 
 
@@ -171,7 +171,7 @@ public class LifeGenerator implements Runnable {
         while (this.controller.getState() != ControllerState.STOPPED) { // TO-DO End condition
 
             if (this.controller.getState() == ControllerState.ALIVE) { // TO-DO Pause condition
-                this.randomDBody();
+                this.addRandomDBody();
             }
 
             try {
