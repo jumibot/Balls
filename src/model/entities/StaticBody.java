@@ -2,7 +2,6 @@ package model.entities;
 
 
 import model.physics.PhysicsValues;
-import view.renderables.DBodyInfoDTO;
 import model.physics.NullPhysicsEngine;
 import model.physics.PhysicsEngine;
 import view.renderables.EntityInfoDTO;
@@ -46,7 +45,7 @@ public class StaticBody extends AbstractEntity {
     public StaticBody(String assetId, double size, double x, double y, double angle) {
         super(assetId, size);
 
-        PhysicsValues phyVals = new PhysicsValues(0, x, y, 0, 0, 0, 0, angle);
+        PhysicsValues phyVals = new PhysicsValues(0, x, y, 0, 0, 0, 0, angle, 0 ,0 ,0);
         this.phyEngine = new NullPhysicsEngine(phyVals);
     }
 
@@ -72,6 +71,6 @@ public class StaticBody extends AbstractEntity {
 
         return new EntityInfoDTO(
                 this.getEntityId(), this.assetId, this.size,
-                phyValues.pos_x, phyValues.pos_y, phyValues.angle);
+                phyValues.posX, phyValues.posY, phyValues.angle);
     }
 }

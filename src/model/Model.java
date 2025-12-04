@@ -1,7 +1,6 @@
 package model;
 
 
-import model.entities.BodyAction;
 import model.entities.EntityState;
 import model.entities.DynamicBody;
 import java.util.ArrayList;
@@ -15,15 +14,12 @@ import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import model.entities.AbstractEntity;
 import model.entities.DecoEntity;
+import model.entities.PlayerBody;
 import model.entities.StaticBody;
 import model.physics.BasicPhysicsEngine;
 import view.renderables.EntityInfoDTO;
 
 
-/**
- *
- * @author juanm
- */
 public class Model {
 
     private int maxDBody;
@@ -31,7 +27,9 @@ public class Model {
 
     private Controller controller = null;
     private volatile ModelState state = ModelState.STARTING;
+
     private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(10000);
+    private final Map<String, PlayerBody> pBodies = new ConcurrentHashMap<>(10);
     private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
     private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
     private final Map<Integer, DecoEntity> decorators = new ConcurrentHashMap<>(100);
@@ -73,7 +71,12 @@ public class Model {
         }
 
         PhysicsValues phyVals = new PhysicsValues(
-                nanoTime(), posX, posY, speedX, speedY, accX, accY, angle);
+                nanoTime(),
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                angle, 0d, 0d,
+                0d);
 
         DynamicBody dBody
                 = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
@@ -83,6 +86,34 @@ public class Model {
         this.dBodies.put(dBody.getEntityId(), dBody);
 
         return true;
+    }
+
+
+    public String addPlayer(String assetId, double size,
+            double posX, double posY, double speedX, double speedY,
+            double accX, double accY, double angle) {
+
+        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
+            return null; // ========= Max vObject quantity reached ==========>>
+        }
+
+        PhysicsValues phyVals = new PhysicsValues(
+                nanoTime(),
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                angle, 0d, 0d,
+                0d);
+
+        PlayerBody pBody
+                = new PlayerBody(assetId, size, new BasicPhysicsEngine(phyVals));
+
+        pBody.setModel(this);
+        pBody.activate();
+        this.dBodies.put(pBody.getEntityId(), pBody);
+        this.pBodies.put(pBody.getPlayerId(), pBody);
+
+        return pBody.getPlayerId();
     }
 
 
@@ -177,6 +208,55 @@ public class Model {
     }
 
 
+    // ==== API de control, SIEMPRE con playerId ====
+    public void playerThrustOn(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.thrustOn();
+        }
+    }
+
+
+    public void playerThrustOff(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.thrustOff();
+        }
+    }
+
+
+    public void playerReverseThrust(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.reverseThrust();
+        }
+    }
+
+
+    public void playerRotateLeftOn(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.rotateLeftOn();
+        }
+    }
+
+
+    public void playerRotateOff(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.rotateOff();
+        }
+    }
+
+
+    public void playerRotateRightOn(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.rotateRightOn();
+        }
+    }
+
+
     public void processDBodyEvents(DynamicBody dBodyToCheck,
             PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
@@ -214,7 +294,7 @@ public class Model {
             return; // ========================================================>
         }
 
-        this.doDBodyAction(BodyAction.MOVE, dBodyToCheck, newPhyValues, oldPhyValues);
+        this.doDBodyAction(BodyActionType.MOVE, dBodyToCheck, newPhyValues, oldPhyValues);
 
         // 2 - Check if object want to go inside special areas
         // 3 - Check for collisions with other objects
@@ -244,13 +324,13 @@ public class Model {
         //     In a corner only one event is considered. 
         //     The order of conditions defines the event priority.
 
-        if (phyValues.pos_x < 0) {
+        if (phyValues.posX < 0) {
             return (EventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.pos_x >= this.worldDim.width) {
+        } else if (phyValues.posX >= this.worldDim.width) {
             return (EventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.pos_y < 0) {
+        } else if (phyValues.posY < 0) {
             return (EventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.pos_y >= this.worldDim.height) {
+        } else if (phyValues.posY >= this.worldDim.height) {
             return (EventType.SOUTH_LIMIT_REACHED);
         }
 
@@ -258,7 +338,7 @@ public class Model {
     }
 
 
-    private void doDBodyAction(BodyAction action, DynamicBody dBody,
+    private void doDBodyAction(BodyActionType action, DynamicBody dBody,
             PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
         switch (action) {

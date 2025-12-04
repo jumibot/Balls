@@ -16,28 +16,28 @@ public class WorldGenerator {
     private final Random rnd = new Random();
 
     private final Controller controller;
-    private final ArrayList<DecoratorDef> spaceDecorators;
-    private final ArrayList<StaticBodyDef> gravityBodies;
-    private final ArrayList<StaticBodyDef> bombs;
-    private final ArrayList<DynamicBodyDef> spaceships;
+    private final ArrayList<DecoratorDef> spaceDecoratorsDef;
+    private final ArrayList<StaticBodyDef> gravityBodiesDef;
+    private final ArrayList<StaticBodyDef> bombsDef;
+    private final ArrayList<DynamicBodyDef> spaceshipsDef;
 
 
     public WorldGenerator(Controller controller, WorldDefinition worldDef) {
         this.controller = controller;
-        this.gravityBodies = worldDef.gravityBodies;
-        this.bombs = worldDef.bombs;
-        this.spaceships = worldDef.spaceships;
-        this.spaceDecorators = worldDef.spaceDecorators;
+        this.gravityBodiesDef = worldDef.gravityBodiesDef;
+        this.bombsDef = worldDef.bombsDef;
+        this.spaceshipsDef = worldDef.spaceshipsDef;
+        this.spaceDecoratorsDef = worldDef.spaceDecoratorsDef;
 
         this.createWorld();
     }
 
 
     private void createWorld() {
-        this.createSpaceDecorators(this.spaceDecorators);
-        this.createSBodies(this.gravityBodies);
-        this.createSBodies(this.bombs);
-        this.createSpaceships(this.spaceships);
+        this.createSpaceDecorators(this.spaceDecoratorsDef);
+        this.createSBodies(this.gravityBodiesDef);
+        this.createSBodies(this.bombsDef);
+        this.createPlayers(this.spaceshipsDef);
     }
 
 
@@ -51,18 +51,23 @@ public class WorldGenerator {
     private void createSpaceDecorators(ArrayList<DecoratorDef> decorators) {
 
         for (DecoratorDef deco : decorators) {
-            this.controller.addDecorator(
-                    deco.assetId, deco.size, deco.pos_x, deco.pos_y, deco.angle);
+            this.controller.addDecorator(deco.assetId, deco.size, deco.posX, deco.posY, deco.angle);
         }
     }
 
 
-    private void createSpaceships(ArrayList<DynamicBodyDef> dBodies) {
-        for (DynamicBodyDef body : dBodies) {
+    private void createPlayers(ArrayList<DynamicBodyDef> dBodies) {
+        String playerId = null;
 
+        for (DynamicBodyDef body : dBodies) {
             DoubleVector pos = this.randomPosition();
-            this.controller.addDBody(
-                    body.assetId, 25, pos.x, pos.y, 0, 0, 0, 0, body.angle);
+            playerId = this.controller.addPlayer(
+                    body.assetId, body.size, 600, 300, 0, 0, 0, 0, 0);
+//                    body.assetId, body.size, pos.x, pos.y, 0, 0, 0, 0, body.angle);
+        }
+
+        if (playerId != null) {
+            this.controller.setLocalPlayer(playerId);
         }
     }
 

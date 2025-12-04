@@ -7,7 +7,7 @@ import view.renderables.DBodyInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;
-import model.entities.BodyAction;
+import model.BodyActionType;
 import model.EventType;
 import java.util.ArrayList;
 import view.renderables.EntityInfoDTO;
@@ -92,6 +92,15 @@ public class Controller {
     }
 
 
+    public String addPlayer(String assetId, double size, double posX, double posY,
+            double speedX, double speedY, double accX, double accY, double angle) {
+
+        return this.model.addPlayer(
+                assetId, size, posX, posY, speedX, speedY, accX, accY, angle);
+
+    }
+
+
     public void addSBody(
             String assetId, double size, double posX, double posY, double angle) {
 
@@ -110,36 +119,36 @@ public class Controller {
     }
 
 
-    public BodyAction decideAction(EventType eventType) {
-        BodyAction bAction;
+    public BodyActionType decideAction(EventType eventType) {
+        BodyActionType bAction;
 
         switch (eventType) {
             case NORTH_LIMIT_REACHED:
-                bAction = BodyAction.DIE;
+                bAction = BodyActionType.DIE;
                 break;
 
             case SOUTH_LIMIT_REACHED:
-                bAction = BodyAction.DIE;
+                bAction = BodyActionType.DIE;
                 break;
 
             case EAST_LIMIT_REACHED:
-                bAction = BodyAction.DIE;
+                bAction = BodyActionType.DIE;
                 break;
 
             case WEST_LIMIT_REACHED:
-                bAction = BodyAction.DIE;
+                bAction = BodyActionType.DIE;
                 break;
 
             default:
                 // To avoid zombie state
-                bAction = BodyAction.NONE;
+                bAction = BodyActionType.NONE;
         }
 
         return bAction;
     }
 
 
-    public BodyAction decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
+    public BodyActionType decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -169,8 +178,43 @@ public class Controller {
     }
 
 
+    public void playerThrustOn(String playerId) {
+        model.playerThrustOn(playerId);
+    }
+
+
+    public void playerThrustOff(String playerId) {
+        this.model.playerThrustOff(playerId);
+    }
+
+
+    public void playerReverseThrust(String playerId) {
+        this.model.playerReverseThrust(playerId);
+    }
+
+
+    public void playerRotateLeftOn(String playerId) {
+        model.playerRotateLeftOn(playerId);
+    }
+
+
+    public void playerRotateOff(String playerId) {
+        this.model.playerRotateOff(playerId);
+    }
+
+
+    public void playerRotateRightOn(String playerId) {
+        model.playerRotateRightOn(playerId);
+    }
+
+
     public void setAssets(Assets assets) {
         this.assets = assets;
+    }
+
+
+    public void setLocalPlayer(String playerId) {
+        this.view.setLocalPlayer(playerId);
     }
 
 
@@ -199,4 +243,5 @@ public class Controller {
     public void setMaxDBody(int maxDBody) {
         this.maxDBody = maxDBody;
     }
+
 }

@@ -2,15 +2,14 @@ package main;
 
 
 /**
- * TO-DO:
- *
- * 3) Make spaceship controlable ··> A new physic engine may be needed 
- * 6) Firing
+ * TO-DO
+ * =====
+ * 1) Firing
  * 2) Colision detection 
- * 7) Basic Fx
- * 9) Create a new physic engine with a gravitational field
- * 8) Game rules
- * 
+ * 3) Basic Fx
+ * 4) Create a new physic engine with a gravitational field
+ * 5) Game rules
+ * =====
  */
 import assets.Assets;
 import controller.Controller;
@@ -43,7 +42,7 @@ public class Main {
         controller.setAssets(assets);
         controller.setWorld(worldDef);
         controller.setWorldDimension(1150, 650);
-        controller.setMaxDBody(30);
+        controller.setMaxDBody(300);
 
         controller.setModel(new Model());
         controller.setView(new View());
@@ -51,7 +50,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroids, 1000, 12, 4, 1000, 10, 250, 0);
+                controller, worldDef.asteroidsDef, 1000, 12, 4, 1000, 10, 250, 0);
 
         lifeGenerator.activate();
     }

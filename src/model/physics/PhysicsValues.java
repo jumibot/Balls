@@ -16,32 +16,34 @@ import java.io.Serializable;
 public class PhysicsValues implements Serializable {
 
     public final long timeStamp;
-    public final double pos_x;
-    public final double pos_y;
-    public final double speed_x;
-    public final double speed_y;
-    public final double acc_x;
-    public final double acc_y;
+    public final double posX, posY;
+    public final double speedX, speedY;
+    public final double accX, accY;
+
     public final double angle;
+    public final double angularSpeed;
+    public final double angularAcc;
+
+    public final double thrust;
 
 
     public PhysicsValues(long timeStamp,
             double pos_x, double pos_y,
             double speed_x, double speed_y,
             double acc_x, double acc_y,
-            double angle
-    ) {
+            double angle, double angularSpeed, double angularAcc,
+            double thrust) {
+        
         this.timeStamp = timeStamp;
-
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
-
-        this.speed_x = speed_x;
-        this.speed_y = speed_y;
-
-        this.acc_x = acc_x;
-        this.acc_y = acc_y;
-
+        this.posX = pos_x;
+        this.posY = pos_y;
+        this.speedX = speed_x;
+        this.speedY = speed_y;
+        this.accX = acc_x;
+        this.accY = acc_y;
         this.angle = angle;
+        this.angularSpeed = angularSpeed;
+        this.angularAcc = angularAcc;
+        this.thrust = thrust;
     }
 }

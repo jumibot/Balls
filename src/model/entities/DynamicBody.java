@@ -11,11 +11,11 @@ import model.physics.PhysicsEngine;
 /**
  * BodyEntity
  *
- * Represents a single entity in the simulation model. Each BodyEntity maintains: 
- * • A unique identifier, visual attributes (imageId, radius, color) 
- * • Its own PhysicsEngine instance, which stores and updates the immutable 
- * PhysicsValues snapshot (position, speed, acceleration, angle, etc.) 
- * • A dedicated thread responsible for advancing its physics state over time
+ * Represents a single entity in the simulation model. Each BodyEntity
+ * maintains: • A unique identifier, visual attributes (imageId, radius, color)
+ * • Its own PhysicsEngine instance, which stores and updates the immutable
+ * PhysicsValues snapshot (position, speed, acceleration, angle, etc.) • A
+ * dedicated thread responsible for advancing its physics state over time
  *
  * VObjects interact exclusively with the Model, reporting physics updates and
  * requesting event processing (collisions, rebounds, etc.). The view layer
@@ -76,18 +76,47 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
 
         return new DBodyInfoDTO(
-                this.getEntityId(), this.assetId, this.size, 
+                this.getEntityId(), this.assetId, this.size,
                 phyValues.timeStamp,
-                phyValues.pos_x, phyValues.pos_y,
-                phyValues.speed_x, phyValues.speed_y,
-                phyValues.acc_x, phyValues.acc_y,
+                phyValues.posX, phyValues.posY,
+                phyValues.speedX, phyValues.speedY,
+                phyValues.accX, phyValues.accY,
                 phyValues.angle);
     }
 
 
-    @Override
+    public void addAngularAcceleration(double angularSpeed) {
+        this.phyEngine.addAngularAcceleration(angularSpeed);
+    }
+
+
+    public double getAngularSpeed() {
+        return this.phyEngine.getAngularSpeed();
+    }
+
+
     public PhysicsEngine getPhysicsEngine() {
         return this.phyEngine;
+    }
+
+
+    public void setAngularAcceleration(double angularAcc) {
+        this.phyEngine.setAngularAcceleration(angularAcc);
+    }
+
+
+    public void setAngularSpeed(double angularSpeed) {
+        this.phyEngine.setAngularSpeed(angularSpeed);
+    }
+
+
+    public void resetAcceleration() {
+        this.phyEngine.resetAcceleration();
+    }
+
+
+    public void setThrust(double thrust) {
+        this.phyEngine.setThrust(thrust);
     }
 
 
@@ -117,8 +146,7 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     @Override
     public String toString() {
         return "Body <" + this.getEntityId()
-                + "> p (" + this.phyEngine.getPhysicsValues().pos_x + "," + this.phyEngine.getPhysicsValues().pos_x + ") "
-                + " s (" + this.phyEngine.getPhysicsValues().speed_x + "," + this.phyEngine.getPhysicsValues().speed_x + ")";
+                + "> p (" + this.phyEngine.getPhysicsValues().posX + "," + this.phyEngine.getPhysicsValues().posX + ") "
+                + " s (" + this.phyEngine.getPhysicsValues().speedX + "," + this.phyEngine.getPhysicsValues().speedX + ")";
     }
-
 }

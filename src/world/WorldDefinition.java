@@ -9,13 +9,13 @@ public class WorldDefinition {
     public final int worldWidth;
     public final int worldHeight;
 
-    public final BackgroundDef background;
-    public final ArrayList<DecoratorDef> spaceDecorators;
-    public final ArrayList<StaticBodyDef> gravityBodies;
-    public final ArrayList<DynamicBodyDef> asteroids;
-    public final ArrayList<DynamicBodyDef> misils;
-    public ArrayList<StaticBodyDef> bombs;
-    public ArrayList<DynamicBodyDef> spaceships;
+    public final BackgroundDef backgroundDef;
+    public final ArrayList<DecoratorDef> spaceDecoratorsDef;
+    public final ArrayList<StaticBodyDef> gravityBodiesDef;
+    public final ArrayList<DynamicBodyDef> asteroidsDef;
+    public final ArrayList<DynamicBodyDef> misilsDef;
+    public ArrayList<StaticBodyDef> bombsDef;
+    public ArrayList<DynamicBodyDef> spaceshipsDef;
 
 
     public WorldDefinition(
@@ -31,12 +31,12 @@ public class WorldDefinition {
 
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
-        this.background = background;
-        this.spaceDecorators = spaceDecorators;
-        this.gravityBodies = gravityBodies;
-        this.asteroids = asteroids;
-        this.misils = misils;
-        this.bombs = bombs;
-        this.spaceships = spaceships;
+        this.backgroundDef = background;
+        this.spaceDecoratorsDef = spaceDecorators;
+        this.gravityBodiesDef = gravityBodies;
+        this.asteroidsDef = asteroids;
+        this.misilsDef = misils;
+        this.bombsDef = bombs;
+        this.spaceshipsDef = spaceships;
     }
 }
