@@ -24,12 +24,12 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
     private BackgroundDef background;
 
-    private ArrayList<DecoratorDef> spaceDecorators = new ArrayList<>(20);
-    private ArrayList<StaticBodyDef> gravityBodies = new ArrayList<>(20);
-    private ArrayList<StaticBodyDef> bombs = new ArrayList<>(20);
-    private ArrayList<DynamicBodyDef> asteroids = new ArrayList<>(20);
-    private ArrayList<DynamicBodyDef> misils = new ArrayList<>(20);
-    private ArrayList<DynamicBodyDef> spaceships = new ArrayList<>(20);
+    private ArrayList<DecoratorDef> spaceDecoratorsDef = new ArrayList<>(20);
+    private ArrayList<StaticBodyDef> gravityBodiesDef = new ArrayList<>(20);
+    private ArrayList<StaticBodyDef> bombsDef = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> asteroidsDef = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> misilsDef = new ArrayList<>(20);
+    private ArrayList<DynamicBodyDef> spaceshipsDef = new ArrayList<>(20);
 
 
     public RandomWorldDefinitionProvider(int worldWidth, int worldHeight, Assets assets) {
@@ -42,47 +42,47 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     @Override
     public WorldDefinition provide() {
 
-        this.background = randomBackground();
+        this.background = randomBackgroundDef();
 
-        this.randomDecorators(
-                this.spaceDecorators, 1, assets.spaceDecors, AssetType.STARS, 250, 50);
+        this.randomDecoratorsDef(
+                this.spaceDecoratorsDef, 1, assets.spaceDecors, AssetType.STARS, 250, 200);
 
-        this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.PLANET, 100, 85);
+        this.randomStaticBodiesDef(
+                this.gravityBodiesDef, 1, assets.gravityBodies, AssetType.PLANET, 125, 115);
 
-        this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.MOON, 50, 30);
+        this.randomStaticBodiesDef(
+                this.gravityBodiesDef, 1, assets.gravityBodies, AssetType.MOON, 50, 30);
 
-        this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.SUN, 30, 20);
+        this.randomStaticBodiesDef(
+                this.gravityBodiesDef, 1, assets.gravityBodies, AssetType.SUN, 20, 20);
 
-        this.randomStaticBodies(
-                this.gravityBodies, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 30, 20);
+        this.randomStaticBodiesDef(
+                this.gravityBodiesDef, 1, assets.gravityBodies, AssetType.BLACK_HOLE, 30, 20);
 
-        this.randomStaticBodies(
-                this.bombs, 0, assets.weapons, AssetType.BOMB, 30, 20);
+        this.randomStaticBodiesDef(
+                this.bombsDef, 0, assets.weapons, AssetType.BOMB, 30, 20);
 
-        this.randomDynamicBodies(
-                this.asteroids, 6, assets.solidBodies, AssetType.ASTEROID, 15, 3);
+        this.randomDBodiesDef(
+                this.asteroidsDef, 6, assets.solidBodies, AssetType.ASTEROID, 15, 3);
 
-        this.randomDynamicBodies(
-                this.misils, 1, assets.weapons, AssetType.MISIL, 30, 20);
+        this.randomDBodiesDef(
+                this.misilsDef, 1, assets.weapons, AssetType.MISIL, 30, 20);
 
-        this.randomDynamicBodies(
-                this.spaceships, 1, assets.spaceship, AssetType.SPACESHIP, 35, 25);
+        this.randomDBodiesDef(
+                this.spaceshipsDef, 1, assets.spaceship, AssetType.SPACESHIP, 30, 30);
 
-        this.randomDynamicBodies(
-                this.spaceships, 1, assets.spaceship, AssetType.LAB, 35, 20);
+//        this.randomDBodiesDef(
+//                this.spaceshipsDef, 2, assets.spaceship, AssetType.LAB, 35, 20);
 
         // WorldDefinition
         return new WorldDefinition(
                 this.width, this.height,
-                background, spaceDecorators, gravityBodies,
-                asteroids, misils, bombs, spaceships);
+                background, spaceDecoratorsDef, gravityBodiesDef,
+                asteroidsDef, misilsDef, bombsDef, spaceshipsDef);
     }
 
 
-    private void randomDecorators(
+    private void randomDecoratorsDef(
             ArrayList<DecoratorDef> decos,
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
@@ -99,7 +99,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     }
 
 
-    private void randomDynamicBodies(ArrayList<DynamicBodyDef> dBodies,
+    private void randomDBodiesDef(ArrayList<DynamicBodyDef> dBodies,
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
 
@@ -112,7 +112,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     }
 
 
-    private void randomStaticBodies(
+    private void randomStaticBodiesDef(
             ArrayList<StaticBodyDef> sBodies,
             int num, AssetCatalog catalog, AssetType type,
             int maxSize, int minSize) {
@@ -128,7 +128,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     }
 
 
-    private BackgroundDef randomBackground() {
+    private BackgroundDef randomBackgroundDef() {
         String randomId = this.assets.backgrounds.randomId(null);
 
         return new BackgroundDef(randomId, 0.0d, 0.0d);

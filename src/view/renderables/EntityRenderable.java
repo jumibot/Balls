@@ -51,8 +51,6 @@ public class EntityRenderable {
 
 
     public void paint(Graphics2D g) {
-        int x = (int) (this.entityInfo.posX - this.entityInfo.size / 2);
-        int y = (int) (this.entityInfo.posY - this.entityInfo.size / 2);
 
         if (this.image == null) {
             return;
@@ -61,10 +59,17 @@ public class EntityRenderable {
         AffineTransform defaultTransform = g.getTransform();
 
         AffineTransform mainRotation = AffineTransform.getRotateInstance(
-                Math.toRadians(this.entityInfo.angle), x, y);
+                Math.toRadians(this.entityInfo.angle),
+                this.entityInfo.posX, this.entityInfo.posY);
 
         g.setTransform(mainRotation);
-        g.drawImage(this.image, x, y, null);
+        
+        g.drawImage(
+                this.image,
+                (int) (this.entityInfo.posX - this.entityInfo.size / 2),
+                (int) (this.entityInfo.posY - this.entityInfo.size / 2),
+                null);
+        g.setTransform(defaultTransform);
     }
 
 

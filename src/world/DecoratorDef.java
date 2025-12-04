@@ -7,8 +7,8 @@ public class DecoratorDef {
     public final int layer;
 
     // Geometry
-    public final double pos_x;
-    public final double pos_y;
+    public final double posX;
+    public final double posY;
     public final double size;
     public final double angle;
 
@@ -19,8 +19,8 @@ public class DecoratorDef {
         this.assetId = assetId;
         this.layer = layer;
         
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
+        this.posX = pos_x;
+        this.posY = pos_y;
         this.size = size;
         this.angle = angle;
     }

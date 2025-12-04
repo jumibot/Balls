@@ -1,18 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model.physics;
 
 
-import java.awt.Dimension;
-
-
-/**
- *
- * @author juanm
- */
 public interface PhysicsEngine {
 
     public abstract PhysicsValues calcNewPhysicsValues();
@@ -39,9 +27,13 @@ public interface PhysicsEngine {
     public abstract void reboundInSouth(
             PhysicsValues newPhyValues, PhysicsValues oldPhyValues,
             double worldDim_x, double worldDim_y);
-    
-    
+
+
+    public void setAngularAcceleration(double angularAcceleration);
+
+
     public abstract void setPhysicsValues(PhysicsValues phyValues);
 
 
+    public void setThrust(double thrust);
 }

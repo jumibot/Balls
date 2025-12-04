@@ -1,11 +1,11 @@
-package model.entities;
+package model;
 
 
 /**
  *
  * @author juanm
  */
-public enum BodyAction {
+public enum BodyActionType {
     REBOUND_IN_EAST,
     REBOUND_IN_WEST,
     REBOUND_IN_NORTH,
@@ -14,5 +14,5 @@ public enum BodyAction {
     TRY_TO_GO_INSIDE,
     EXPLODE_IN_FRAGMENTS,
     MOVE,
-    NONE
+    NONE,
 }

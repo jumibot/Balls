@@ -13,13 +13,13 @@ public class StaticBodyDef {
 
 
     public StaticBodyDef(
-            String assetId, double pos_x, double pos_y, 
+            String assetId, double posX, double posY, 
             double size, double angle) {
 
         this.assetId = assetId;
 
-        this.posX = pos_x;
-        this.posY = pos_y;
+        this.posX = posX;
+        this.posY = posY;
         this.size = size;
         this.angle = angle;
     }

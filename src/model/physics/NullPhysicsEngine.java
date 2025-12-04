@@ -55,4 +55,14 @@ public class NullPhysicsEngine extends AbstractPhysicsEngine implements PhysicsE
             double worldDim_x, double worldDim_y) {
     }
 
+
+    @Override
+    public void setAngularAcceleration(double angularAcceleration) {
+    }
+
+
+    @Override
+    public void setThrust(double thrust) {
+    }
+
 }

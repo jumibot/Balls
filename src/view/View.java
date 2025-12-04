@@ -15,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
@@ -29,7 +31,8 @@ import world.StaticBodyDef;
 import world.WorldDefinition;
 
 
-public class View extends JFrame implements MouseWheelListener, ActionListener, ComponentListener {
+public class View extends JFrame implements MouseWheelListener,
+        ActionListener, ComponentListener, KeyListener {
 
     private Controller controller = null;
     private ControlPanel controlPanel;
@@ -41,14 +44,17 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
     private Images sBodyImages = new Images("");
     private Images dBodyImage = new Images("");
 
+    private String localPlayerId;
+
 
     /**
      * CONSTRUCTOR
      */
     public View() {
         this.controlPanel = new ControlPanel(this);
-        this.renderer = new Renderer(this);
         this.controlPanel = new ControlPanel(this);
+
+        this.renderer = new Renderer(this);
 
         this.createFrame();
     }
@@ -91,14 +97,14 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
 
     public void loadAssets(Assets assets, WorldDefinition world) {
-        this.loadBackground(assets.backgrounds, world.background);
+        this.loadBackground(assets.backgrounds, world.backgroundDef);
 
-        this.loadDynamicImages(assets.solidBodies, world.asteroids);
-        this.loadDynamicImages(assets.weapons, world.misils);
-        this.loadDynamicImages(assets.spaceship, world.spaceships);
-        this.loadStaticImages(assets.gravityBodies, world.gravityBodies);
-        this.loadStaticImages(assets.weapons, world.bombs);
-        this.loadDecoratorImages(assets.spaceDecors, world.spaceDecorators);
+        this.loadDynamicImages(assets.solidBodies, world.asteroidsDef);
+        this.loadDynamicImages(assets.weapons, world.misilsDef);
+        this.loadDynamicImages(assets.spaceship, world.spaceshipsDef);
+        this.loadStaticImages(assets.gravityBodies, world.gravityBodiesDef);
+        this.loadStaticImages(assets.weapons, world.bombsDef);
+        this.loadDecoratorImages(assets.spaceDecors, world.spaceDecoratorsDef);
     }
 
 
@@ -118,7 +124,7 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
                 System.err.println("Resource info <" + deco.assetId + "> not found in catalog");
             } else {
                 this.spaceDecorators.add(
-                        deco.assetId, 
+                        deco.assetId,
                         catalog.getPath() + catalog.get(deco.assetId).fileName);
             }
         }
@@ -161,6 +167,11 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
     public void setDimension(Dimension worldDim) {
         this.worldDimension = worldDim;
+    }
+
+
+    public void setLocalPlayer(String localPlayerId) {
+        this.localPlayerId = localPlayerId;
     }
 
 
@@ -221,6 +232,9 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
         panel = this.getContentPane();
         this.addRendererCanva(panel);
+        this.renderer.setFocusable(true);
+        this.renderer.requestFocusInWindow();   // Para que reciba el foco de teclado
+        this.renderer.addKeyListener(this);
 
         panel.addMouseWheelListener(this);
 
@@ -261,5 +275,68 @@ public class View extends JFrame implements MouseWheelListener, ActionListener, 
 
     @Override
     public void componentHidden(ComponentEvent ce) {
+    }
+
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (this.localPlayerId == null) {
+            System.out.println("Local player not setted!");
+            return;
+        }
+
+        if (this.controller == null) {
+            System.out.println("Controller not set yet");
+            return;
+        }
+
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                controller.playerThrustOn(this.localPlayerId);
+                break;
+            case KeyEvent.VK_DOWN:
+                this.controller.playerReverseThrust(this.localPlayerId);
+                break;
+            case KeyEvent.VK_LEFT:
+                controller.playerRotateLeftOn(this.localPlayerId);
+                break;
+            case KeyEvent.VK_RIGHT:
+                controller.playerRotateRightOn(this.localPlayerId);
+        }
+    }
+
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (this.localPlayerId == null) {
+            System.out.println("Local player not setted!");
+            return;
+        }
+
+        if (this.controller == null) {
+            System.out.println("Controller not set yet");
+            return;
+        }
+               
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                this.controller.playerThrustOff(localPlayerId);
+                break;
+            case KeyEvent.VK_DOWN:
+                this.controller.playerThrustOff(localPlayerId);
+                break;
+            case KeyEvent.VK_LEFT:
+                this.controller.playerRotateOff(localPlayerId);
+                break;
+            case KeyEvent.VK_RIGHT:
+                this.controller.playerRotateOff(localPlayerId);
+                break;
+        }
+    }
+
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // No usado
     }
 }
