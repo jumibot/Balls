@@ -3,6 +3,7 @@ package model.entities;
 
 import java.util.UUID;
 import model.physics.BasicPhysicsEngine;
+import model.weapons.Weapon;
 
 
 public class PlayerBody extends DynamicBody {
@@ -13,6 +14,10 @@ public class PlayerBody extends DynamicBody {
     private double maxThrustForce = 60;     //
     private double maxAngularAcc = 1800;       // degrees*s^-2
     private double angularSpeed = 180;       // degrees*s^-1
+
+    // === WEAPONS ===
+    private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(10);
+    private int currentWeaponIndex = -1; // -1 = sin arma
 
 
     public PlayerBody(String playerId, String assetId,
@@ -43,6 +48,22 @@ public class PlayerBody extends DynamicBody {
     public void thrustOff() {
         this.resetAcceleration();
         this.setThrust(0.0d);
+    }
+
+
+    public void requestFire() {
+        if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
+            // No weapon selected or no weapons
+            return;
+        }
+
+        Weapon weapon = this.weapons.get(this.currentWeaponIndex);
+        if (weapon == null) {
+            // Weapon is not created
+            return;
+        }
+
+        weapon.registerFireRequest();
     }
 
 

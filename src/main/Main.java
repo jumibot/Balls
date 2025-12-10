@@ -4,6 +4,7 @@ package main;
 /**
  * TO-DO
  * =====
+ * 0) Mostrar FPS
  * 1) Firing
  * 2) Colision detection 
  * 3) Basic Fx
@@ -50,7 +51,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroidsDef, 1000, 12, 4, 1000, 10, 250, 0);
+                controller, worldDef.asteroidsDef, 750, 12, 4, 1000, 10, 250, 0);
 
         lifeGenerator.activate();
     }

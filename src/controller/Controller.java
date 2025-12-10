@@ -178,8 +178,13 @@ public class Controller {
     }
 
 
+    public void playerFire(String playerId) {
+        this.model.playerFire(playerId);
+    }
+
+
     public void playerThrustOn(String playerId) {
-        model.playerThrustOn(playerId);
+        this.model.playerThrustOn(playerId);
     }
 
 

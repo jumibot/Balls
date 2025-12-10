@@ -292,9 +292,11 @@ public class View extends JFrame implements MouseWheelListener,
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
+            case KeyEvent.VK_A:
                 controller.playerThrustOn(this.localPlayerId);
                 break;
             case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_Z:
                 this.controller.playerReverseThrust(this.localPlayerId);
                 break;
             case KeyEvent.VK_LEFT:
@@ -302,6 +304,11 @@ public class View extends JFrame implements MouseWheelListener,
                 break;
             case KeyEvent.VK_RIGHT:
                 controller.playerRotateRightOn(this.localPlayerId);
+
+            case KeyEvent.VK_SPACE:
+                this.controller.playerFire(this.localPlayerId);
+                break;
+
         }
     }
 
@@ -317,19 +324,25 @@ public class View extends JFrame implements MouseWheelListener,
             System.out.println("Controller not set yet");
             return;
         }
-               
+
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                this.controller.playerThrustOff(localPlayerId);
+            case KeyEvent.VK_A:
+                this.controller.playerThrustOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_DOWN:
-                this.controller.playerThrustOff(localPlayerId);
+            case KeyEvent.VK_Z:
+                this.controller.playerThrustOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_LEFT:
-                this.controller.playerRotateOff(localPlayerId);
+                this.controller.playerRotateOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_RIGHT:
-                this.controller.playerRotateOff(localPlayerId);
+                this.controller.playerRotateOff(this.localPlayerId);
+                break;
+            case KeyEvent.VK_SPACE:
+                //*+
+//                this.controller.playerSingleFire(this.localPlayerId);
                 break;
         }
     }

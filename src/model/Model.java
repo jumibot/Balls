@@ -209,6 +209,14 @@ public class Model {
 
 
     // ==== API de control, SIEMPRE con playerId ====
+    public void playerFire(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.requestFire();
+        }
+    }
+
+
     public void playerThrustOn(String playerId) {
         PlayerBody pBody = this.pBodies.get(playerId);
         if (pBody != null) {

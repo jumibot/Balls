@@ -1,16 +1,6 @@
 package model.physics;
 
 
-import static java.lang.System.nanoTime;
-
-
-/**
- *
- * @author juanm
- *
- * A SIMPLE PHYSICAL MODEL APPLIED TO DYNAMIC OBJECTS BY DEFAULT
- *
- */
 public class NullPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
     /**
