@@ -12,5 +12,5 @@ public interface Weapon {
     public void registerFireRequest();
 
 
-    public boolean update(double dtSeconds);
+    public boolean mustFireNow(double dtSeconds);
 }

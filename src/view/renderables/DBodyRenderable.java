@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
 
 public class DBodyRenderable extends EntityRenderable {
 
-    private final boolean debugMode = true;
+    private final boolean debugMode = false;
 
 
     public DBodyRenderable(DBodyInfoDTO bodyInfo, ImageCache cache, int currentFrame) {

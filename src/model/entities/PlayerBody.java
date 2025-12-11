@@ -35,6 +35,25 @@ public class PlayerBody extends DynamicBody {
     }
 
 
+    public void addWeapon(Weapon weapon) {
+        this.weapons.add(weapon);
+
+        if (this.currentWeaponIndex < 0) {
+            // Signaling existence of weapon in the spaceship
+            this.currentWeaponIndex = 0;
+        }
+    }
+
+
+    public Weapon getCurrentWeapon() {
+        if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
+            return null;
+        }
+
+        return this.weapons.get(this.currentWeaponIndex);
+    }
+
+
     public String getPlayerId() {
         return this.playerId;
     }
@@ -96,6 +115,13 @@ public class PlayerBody extends DynamicBody {
     }
 
 
+    public void selectWeapon(int weaponIndex) {
+        if (weaponIndex >= 0 && weaponIndex < this.weapons.size()) {
+            this.currentWeaponIndex = weaponIndex;
+        }
+    }
+
+
     public void setMaxThrustForce(double maxThrust) {
         this.maxThrustForce = maxThrust;
     }
@@ -106,4 +132,17 @@ public class PlayerBody extends DynamicBody {
         this.maxAngularAcc = maxAngularAcc;
     }
 
+
+    public boolean mustFireNow(double dtSeconds) {
+        if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
+            return false;
+        }
+
+        Weapon weapon = this.weapons.get(this.currentWeaponIndex);
+        if (weapon == null) {
+            return false;
+        }
+
+        return weapon.mustFireNow(dtSeconds);
+    }
 }

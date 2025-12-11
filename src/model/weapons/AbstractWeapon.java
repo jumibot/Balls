@@ -133,7 +133,4 @@ public abstract class AbstractWeapon implements Weapon {
         this.lastFireRequest.set(System.nanoTime());
     }
 
-
-    @Override
-    public abstract boolean update(double dtSeconds);
 }

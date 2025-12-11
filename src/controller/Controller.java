@@ -7,7 +7,7 @@ import view.renderables.DBodyInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;
-import model.BodyActionType;
+import model.ActionType;
 import model.EventType;
 import java.util.ArrayList;
 import view.renderables.EntityInfoDTO;
@@ -119,36 +119,36 @@ public class Controller {
     }
 
 
-    public BodyActionType decideAction(EventType eventType) {
-        BodyActionType bAction;
+    public ActionType decideAction(EventType eventType) {
+        ActionType bAction;
 
         switch (eventType) {
-            case NORTH_LIMIT_REACHED:
-                bAction = BodyActionType.DIE;
+            case REACHED_NORTH_LIMIT:
+                bAction = ActionType.DIE;
                 break;
 
-            case SOUTH_LIMIT_REACHED:
-                bAction = BodyActionType.DIE;
+            case REACHED_SOUTH_LIMIT:
+                bAction = ActionType.DIE;
                 break;
 
-            case EAST_LIMIT_REACHED:
-                bAction = BodyActionType.DIE;
+            case REACHED_EAST_LIMIT:
+                bAction = ActionType.DIE;
                 break;
 
-            case WEST_LIMIT_REACHED:
-                bAction = BodyActionType.DIE;
+            case REACHED_WEST_LIMIT:
+                bAction = ActionType.DIE;
                 break;
 
             default:
                 // To avoid zombie state
-                bAction = BodyActionType.NONE;
+                bAction = ActionType.NONE;
         }
 
         return bAction;
     }
 
 
-    public BodyActionType decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
+    public ActionType decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

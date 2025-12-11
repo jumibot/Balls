@@ -1,10 +1,8 @@
 package model.entities;
 
 
-import java.awt.Color;
 import model.Model;
 import view.renderables.EntityInfoDTO;
-import view.renderables.DBodyInfoDTO;
 
 
 /**

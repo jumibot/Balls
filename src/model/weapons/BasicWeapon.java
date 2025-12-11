@@ -12,7 +12,7 @@ public class BasicWeapon extends AbstractWeapon {
 
 
     @Override
-    public boolean update(double dtSeconds) {
+    public boolean mustFireNow(double dtSeconds) {
         if (this.cooldown > 0) {
             // Cool down weapon. Any pending requests are discarded.
             this.cooldown -= dtSeconds;

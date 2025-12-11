@@ -43,7 +43,7 @@ public class Main {
         controller.setAssets(assets);
         controller.setWorld(worldDef);
         controller.setWorldDimension(1150, 650);
-        controller.setMaxDBody(300);
+        controller.setMaxDBody(12);
 
         controller.setModel(new Model());
         controller.setView(new View());
@@ -51,7 +51,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroidsDef, 750, 12, 4, 1000, 10, 250, 0);
+                controller, worldDef.asteroidsDef, 850, 12, 4, 1000, 10, 175, 0);
 
         lifeGenerator.activate();
     }
