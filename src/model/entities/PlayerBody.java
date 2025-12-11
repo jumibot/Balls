@@ -3,7 +3,9 @@ package model.entities;
 
 import java.util.UUID;
 import model.physics.BasicPhysicsEngine;
+import model.physics.PhysicsValues;
 import model.weapons.Weapon;
+import model.weapons.WeaponDto;
 
 
 public class PlayerBody extends DynamicBody {
@@ -45,12 +47,18 @@ public class PlayerBody extends DynamicBody {
     }
 
 
-    public Weapon getCurrentWeapon() {
+    public Weapon getActiveWeapon() {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
             return null;
         }
 
         return this.weapons.get(this.currentWeaponIndex);
+    }
+
+
+    public WeaponDto getActiveWeaponConfig() {
+        Weapon weapon = getActiveWeapon();
+        return (weapon != null) ? weapon.getWeaponConfig() : null;
     }
 
 
@@ -72,7 +80,7 @@ public class PlayerBody extends DynamicBody {
 
     public void requestFire() {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
-            // No weapon selected or no weapons
+            System.out.println("> No weapon active or no weapons!");
             return;
         }
 
@@ -133,7 +141,7 @@ public class PlayerBody extends DynamicBody {
     }
 
 
-    public boolean mustFireNow(double dtSeconds) {
+    public boolean mustFireNow(PhysicsValues newPhyValues) {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
             return false;
         }
@@ -142,6 +150,9 @@ public class PlayerBody extends DynamicBody {
         if (weapon == null) {
             return false;
         }
+
+        double dtNanos = newPhyValues.timeStamp - this.getPhysicsValues().timeStamp;
+        double dtSeconds = dtNanos / 1_000_000_000;
 
         return weapon.mustFireNow(dtSeconds);
     }

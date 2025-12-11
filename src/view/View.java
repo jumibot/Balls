@@ -46,6 +46,8 @@ public class View extends JFrame implements MouseWheelListener,
 
     private String localPlayerId;
 
+    private boolean fireKeyDown = false;
+
 
     /**
      * CONSTRUCTOR
@@ -295,20 +297,26 @@ public class View extends JFrame implements MouseWheelListener,
             case KeyEvent.VK_A:
                 controller.playerThrustOn(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_DOWN:
             case KeyEvent.VK_Z:
                 this.controller.playerReverseThrust(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_LEFT:
                 controller.playerRotateLeftOn(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_RIGHT:
                 controller.playerRotateRightOn(this.localPlayerId);
-
-            case KeyEvent.VK_SPACE:
-                this.controller.playerFire(this.localPlayerId);
                 break;
 
+            case KeyEvent.VK_SPACE:
+                if (!this.fireKeyDown) {                    // << solo en el primer PRESS
+                    this.fireKeyDown = true;
+                    controller.playerFire(this.localPlayerId);
+                }
+                break;
         }
     }
 
@@ -341,8 +349,7 @@ public class View extends JFrame implements MouseWheelListener,
                 this.controller.playerRotateOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_SPACE:
-                //*+
-//                this.controller.playerSingleFire(this.localPlayerId);
+                fireKeyDown = false;                  // << permite el siguiente disparo
                 break;
         }
     }

@@ -43,7 +43,7 @@ public class Main {
         controller.setAssets(assets);
         controller.setWorld(worldDef);
         controller.setWorldDimension(1150, 650);
-        controller.setMaxDBody(12);
+        controller.setMaxDBody(200);
 
         controller.setModel(new Model());
         controller.setView(new View());

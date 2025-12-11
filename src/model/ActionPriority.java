@@ -2,7 +2,7 @@ package model;
 
 
 public enum ActionPriority {
-    HIGHT,
+    HIGH,
     NORMAL,
     LOW
 }

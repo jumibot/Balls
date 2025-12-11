@@ -10,6 +10,13 @@ import model.entities.DynamicBody;
 import model.ActionType;
 import model.EventType;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import model.ActionDTO;
+import model.ActionExecutor;
+import model.ActionPriority;
+import model.EventDTO;
+import model.entities.AbstractEntity;
 import view.renderables.EntityInfoDTO;
 import world.WorldDefinition;
 
@@ -119,36 +126,56 @@ public class Controller {
     }
 
 
-    public ActionType decideAction(EventType eventType) {
-        ActionType bAction;
+    public List<ActionDTO> decideActions(AbstractEntity entity, List<EventDTO> events) {
+        List<ActionDTO> actions = new ArrayList<>();
 
-        switch (eventType) {
-            case REACHED_NORTH_LIMIT:
-                bAction = ActionType.DIE;
-                break;
-
-            case REACHED_SOUTH_LIMIT:
-                bAction = ActionType.DIE;
-                break;
-
-            case REACHED_EAST_LIMIT:
-                bAction = ActionType.DIE;
-                break;
-
-            case REACHED_WEST_LIMIT:
-                bAction = ActionType.DIE;
-                break;
-
-            default:
-                // To avoid zombie state
-                bAction = ActionType.NONE;
+        if (events != null) {
+            for (EventDTO event : events) {
+                if (event != null && event.eventType != null && event.eventType != EventType.NONE) {
+                    actions.addAll(appliyGameRules(entity, event));
+                }
+            }
         }
 
-        return bAction;
+        if (!containsDeathLikeAction(actions)) {
+            actions.add(new ActionDTO(
+                    ActionType.MOVE, ActionExecutor.BODY, ActionPriority.NORMAL));
+        }
+
+        return actions;
     }
 
 
-    public ActionType decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
+    private List<ActionDTO> appliyGameRules(
+            AbstractEntity entity, EventDTO event) {
+
+        List<ActionDTO> actions = new ArrayList<>(2);
+
+        switch (event.eventType) {
+            case REACHED_NORTH_LIMIT:
+            case REACHED_SOUTH_LIMIT:
+            case REACHED_EAST_LIMIT:
+            case REACHED_WEST_LIMIT:
+                actions.add(new ActionDTO(
+                        ActionType.DIE, ActionExecutor.BODY, ActionPriority.HIGH));
+                break;
+
+            case MUST_FIRE:
+                actions.add(new ActionDTO(
+                        ActionType.FIRE, ActionExecutor.MODEL, ActionPriority.HIGH));
+                break;
+
+            case COLLIDED:
+            case NONE:
+            default:
+                break;
+        }
+
+        return actions;
+    }
+
+
+    public List<ActionDTO> decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -249,4 +276,23 @@ public class Controller {
         this.maxDBody = maxDBody;
     }
 
+
+    /**
+     * PRIVATE
+     */
+    private boolean containsDeathLikeAction(List<ActionDTO> actions) {
+        if (actions == null || actions.isEmpty()) {
+            return false;
+        }
+
+        for (ActionDTO a : actions) {
+            if (a != null && a.type != null) {
+                if (a.type == ActionType.DIE || a.type == ActionType.EXPLODE_IN_FRAGMENTS) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
