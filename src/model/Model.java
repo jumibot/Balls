@@ -12,11 +12,16 @@ import model.physics.PhysicsValues;
 import view.renderables.DBodyInfoDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
+import java.util.Comparator;
+import java.util.List;
 import model.entities.AbstractEntity;
 import model.entities.DecoEntity;
 import model.entities.PlayerBody;
 import model.entities.StaticBody;
 import model.physics.BasicPhysicsEngine;
+import model.weapons.BasicWeapon;
+import model.weapons.Weapon;
+import model.weapons.WeaponDto;
 import view.renderables.EntityInfoDTO;
 
 
@@ -98,15 +103,26 @@ public class Model {
         }
 
         PhysicsValues phyVals = new PhysicsValues(
-                nanoTime(),
-                posX, posY,
-                speedX, speedY,
-                accX, accY,
-                angle, 0d, 0d,
-                0d);
+                nanoTime(), posX, posY, speedX, speedY, accX, accY,
+                angle, 0d, 0d, 0d);
 
         PlayerBody pBody
                 = new PlayerBody(assetId, size, new BasicPhysicsEngine(phyVals));
+
+        // Add Weapon
+        WeaponDto cfg = new WeaponDto(
+                "projectile_basic", 
+                4.0, // Size
+                600.0, // firingSpeed
+                0.0, // acceleration 
+                0.0, // acceleration time
+                0, // shootingOffeset 
+                0, // burstSize (single shot)
+                3.0 // fireRatePerSec 
+        );
+
+        BasicWeapon weapon = new BasicWeapon(cfg);
+        pBody.addWeapon(weapon);
 
         pBody.setModel(this);
         pBody.activate();
@@ -208,7 +224,14 @@ public class Model {
     }
 
 
-    // ==== API de control, SIEMPRE con playerId ====
+    public void playerFire(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody != null) {
+            pBody.requestFire();
+        }
+    }
+
+
     public void playerThrustOn(String playerId) {
         PlayerBody pBody = this.pBodies.get(playerId);
         if (pBody != null) {
@@ -260,44 +283,35 @@ public class Model {
     public void processDBodyEvents(DynamicBody dBodyToCheck,
             PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
-        if (dBodyToCheck.getState() != EntityState.ALIVE) {
+        if (!isProcessable(dBodyToCheck)) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
 
         EntityState previousState = dBodyToCheck.getState();
         dBodyToCheck.setState(EntityState.HANDS_OFF);
-        EventType limitEvent = EventType.NONE;
 
         try {
-            limitEvent = this.checkLimitEvent(newPhyValues);
+            List<EventDTO> events = this.detectEvents(
+                    dBodyToCheck, newPhyValues, oldPhyValues);
 
-            if (limitEvent != EventType.NONE) {
-                this.doDBodyAction(
-                        this.controller.decideAction(limitEvent),
-                        dBodyToCheck,
-                        newPhyValues,
-                        oldPhyValues);
-            }
+            List<ActionDTO> actions = this.resolveActionsForEvents(
+                    dBodyToCheck, events);
+
+            this.doActions(
+                    dBodyToCheck, actions, newPhyValues, oldPhyValues);
+
         } catch (Exception e) {
-            // Fallback anti-zombi: If exception ocurrs back to previous state
+            // Fallback anti-zombi
             if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
                 dBodyToCheck.setState(previousState);
             }
 
         } finally {
+            // Getout: off HANDS_OFF ... if leaving
             if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
                 dBodyToCheck.setState(EntityState.ALIVE);
             }
         }
-
-        if (limitEvent != EventType.NONE) {
-            return; // ========================================================>
-        }
-
-        this.doDBodyAction(BodyActionType.MOVE, dBodyToCheck, newPhyValues, oldPhyValues);
-
-        // 2 - Check if object want to go inside special areas
-        // 3 - Check for collisions with other objects
     }
 
 
@@ -319,70 +333,218 @@ public class Model {
     /**
      * PRIVATE
      */
-    private EventType checkLimitEvent(PhysicsValues phyValues) {
-        // Check if movement is out of world limits
-        //     In a corner only one event is considered. 
-        //     The order of conditions defines the event priority.
+    private List<EventDTO> checkLimitEvents(AbstractEntity entity, PhysicsValues phyValues) {
+        List<EventDTO> limitEvents = new ArrayList<>(4);
 
         if (phyValues.posX < 0) {
-            return (EventType.EAST_LIMIT_REACHED);
-        } else if (phyValues.posX >= this.worldDim.width) {
-            return (EventType.WEST_LIMIT_REACHED);
-        } else if (phyValues.posY < 0) {
-            return (EventType.NORTH_LIMIT_REACHED);
-        } else if (phyValues.posY >= this.worldDim.height) {
-            return (EventType.SOUTH_LIMIT_REACHED);
+            limitEvents.add(
+                    new EventDTO(entity, EventType.REACHED_EAST_LIMIT));
         }
 
-        return EventType.NONE;
+        if (phyValues.posX >= this.worldDim.width) {
+            limitEvents.add(
+                    new EventDTO(entity, EventType.REACHED_WEST_LIMIT));
+        }
+
+        if (phyValues.posY < 0) {
+            limitEvents.add(
+                    new EventDTO(entity, EventType.REACHED_NORTH_LIMIT));
+        }
+
+        if (phyValues.posY >= this.worldDim.height) {
+            limitEvents.add(
+                    new EventDTO(entity, EventType.REACHED_SOUTH_LIMIT));
+        }
+
+        return limitEvents;
     }
 
 
-    private void doDBodyAction(BodyActionType action, DynamicBody dBody,
+    private List<ActionDTO> resolveActionsForEvents(
+            AbstractEntity entity, List<EventDTO> events) {
+
+        List<ActionDTO> actionsFromController = this.controller.decideActions(entity, events);
+
+        if (actionsFromController == null || actionsFromController.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+
+        List<ActionDTO> actions = new ArrayList<>(actionsFromController.size());
+        for (ActionDTO a : actionsFromController) {
+            if (a != null && a.type != null && a.type != ActionType.NONE) {
+                actions.add(a);
+            }
+        }
+
+        return actions;
+    }
+
+
+    private List<EventDTO> detectEvents(DynamicBody body,
+            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+
+        List<EventDTO> events = this.checkLimitEvents(body, newPhyValues);
+
+        if (body instanceof PlayerBody) {
+            if (((PlayerBody) body).mustFireNow(newPhyValues)) {
+                events.add(new EventDTO(body, EventType.MUST_FIRE));
+            }
+        }
+
+        // Eventos de colisión, zonas, etc.
+        return events;
+    }
+
+
+    private void doActions(
+            DynamicBody body, List<ActionDTO> actions,
+            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+
+        if (actions == null || actions.isEmpty()) {
+            return;
+        }
+
+        actions.sort(Comparator.comparing(a -> a.priority));
+
+        for (ActionDTO action : actions) {
+            if (action == null || action.type == null) {
+                continue;
+            }
+
+            switch (action.executor) {
+                case BODY:
+                    doDBodyAction(action.type, body, newPhyValues, oldPhyValues);
+                    break;
+
+                case MODEL:
+                    doModelAction(action.type, body, newPhyValues, oldPhyValues);
+                    break;
+
+                default:
+                // Nada
+            }
+
+            if (body.getState() == EntityState.DEAD) {
+                return; // no seguimos con más acciones
+            }
+        }
+    }
+
+
+    private void doDBodyAction(ActionType action, DynamicBody dBody,
             PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
 
         switch (action) {
             case MOVE:
                 dBody.doMovement(newPhyValues);
-                dBody.setState(EntityState.ALIVE);
                 break;
 
             case REBOUND_IN_EAST:
-                dBody.reboundInEast(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                dBody.setState(EntityState.ALIVE);
+                dBody.reboundInEast(newPhyValues, oldPhyValues,
+                                    this.worldDim.width, this.worldDim.height);
                 break;
 
             case REBOUND_IN_WEST:
-                dBody.reboundInWest(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                dBody.setState(EntityState.ALIVE);
+                dBody.reboundInWest(newPhyValues, oldPhyValues,
+                                    this.worldDim.width, this.worldDim.height);
                 break;
 
             case REBOUND_IN_NORTH:
-                dBody.reboundInNorth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                dBody.setState(EntityState.ALIVE);
+                dBody.reboundInNorth(newPhyValues, oldPhyValues,
+                                     this.worldDim.width, this.worldDim.height);
                 break;
 
             case REBOUND_IN_SOUTH:
-                dBody.reboundInSouth(newPhyValues, oldPhyValues, this.worldDim.width, this.worldDim.height);
-                dBody.setState(EntityState.ALIVE);
+                dBody.reboundInSouth(newPhyValues, oldPhyValues,
+                                     this.worldDim.width, this.worldDim.height);
                 break;
 
             case DIE:
                 this.killDBody(dBody);
                 break;
 
-            case TRY_TO_GO_INSIDE:
+            case GO_INSIDE:
+                // To-Do: lógica futura
+                break;
+
+            case NONE:
+            default:
+            // Nada que hacer
+        }
+    }
+
+
+    private void doModelAction(ActionType action, DynamicBody dBody,
+            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+
+        switch (action) {
+            case FIRE:
+                System.out.println("Fire");
+                this.spawnProjectileFrom(dBody, newPhyValues);
+                break;
+
             case EXPLODE_IN_FRAGMENTS:
-                // to-do
-                dBody.setState(EntityState.ALIVE);
                 break;
 
             default:
-                // To avoid zombie state
-                dBody.setState(EntityState.ALIVE);
+        }
+    }
 
+
+    private boolean isProcessable(AbstractEntity entity) {
+        return entity != null
+                && this.state == ModelState.ALIVE
+                && entity.getState() == EntityState.ALIVE;
+    }
+
+
+    private void spawnProjectileFrom(DynamicBody shooter, PhysicsValues shooterNewPhy) {
+
+        // De momento solo los PlayerBody disparan
+        if (!(shooter instanceof PlayerBody)) {
+            return;
         }
 
+        PlayerBody pBody = (PlayerBody) shooter;
+
+        Weapon activeWeapon = pBody.getActiveWeapon();
+        if (activeWeapon == null) {
+            return; // sin arma activa
+        }
+
+        WeaponDto cfg = activeWeapon.getWeaponConfig();
+        if (cfg == null) {
+            return;
+        }
+
+        // Ángulo del disparo (en grados -> radianes)
+        double angleDeg = shooterNewPhy.angle;
+        double angleRad = Math.toRadians(angleDeg);
+
+        double dirX = Math.cos(angleRad);
+        double dirY = Math.sin(angleRad);
+
+        // 1) Posición de salida: centro nave + offset en la dirección del disparo
+        double spawnX = shooterNewPhy.posX + cfg.shootingOffeset * dirX;
+        double spawnY = shooterNewPhy.posY + cfg.shootingOffeset * dirY;
+
+        // 2) Velocidad inicial: velocidad de la nave + muzzle speed del arma
+        double projSpeedX = shooterNewPhy.speedX + cfg.firingSpeed * dirX;
+        double projSpeedY = shooterNewPhy.speedY + cfg.firingSpeed * dirY;
+
+        // 3) Aceleración (misil autopropulsado) si cfg.acceleration != 0
+        double accX = cfg.acceleration * dirX;
+        double accY = cfg.acceleration * dirY;
+
+        // 4) Crear el DynamicBody del proyectil usando el API estándar del modelo
+        this.addDBody(
+                cfg.projectileAssetId,
+                cfg.projectileSize,
+                spawnX, spawnY,
+                projSpeedX, projSpeedY,
+                accX, accY,
+                angleDeg
+        );
     }
 
 

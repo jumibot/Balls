@@ -5,7 +5,6 @@ import _images.ImageCache;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 
 
 public class DBodyRenderable extends EntityRenderable {
@@ -39,7 +38,7 @@ public class DBodyRenderable extends EntityRenderable {
         if ((bodyInfo.speedX != 0) || (bodyInfo.speedY != 0)) {
             g.setStroke(new BasicStroke(1f));
             g.setColor(Color.YELLOW);
-            g.drawLine(x, y, x + (int) (bodyInfo.speedX/4d), y + (int) (bodyInfo.speedY/4d));
+            g.drawLine(x, y, x + (int) (bodyInfo.speedX / 4d), y + (int) (bodyInfo.speedY / 4d));
         }
 
         // Acc vector

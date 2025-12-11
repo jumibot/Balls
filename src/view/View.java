@@ -46,6 +46,8 @@ public class View extends JFrame implements MouseWheelListener,
 
     private String localPlayerId;
 
+    private boolean fireKeyDown = false;
+
 
     /**
      * CONSTRUCTOR
@@ -292,16 +294,29 @@ public class View extends JFrame implements MouseWheelListener,
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
+            case KeyEvent.VK_A:
                 controller.playerThrustOn(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_Z:
                 this.controller.playerReverseThrust(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_LEFT:
                 controller.playerRotateLeftOn(this.localPlayerId);
                 break;
+
             case KeyEvent.VK_RIGHT:
                 controller.playerRotateRightOn(this.localPlayerId);
+                break;
+
+            case KeyEvent.VK_SPACE:
+                if (!this.fireKeyDown) {                    // << solo en el primer PRESS
+                    this.fireKeyDown = true;
+                    controller.playerFire(this.localPlayerId);
+                }
+                break;
         }
     }
 
@@ -317,19 +332,24 @@ public class View extends JFrame implements MouseWheelListener,
             System.out.println("Controller not set yet");
             return;
         }
-               
+
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                this.controller.playerThrustOff(localPlayerId);
+            case KeyEvent.VK_A:
+                this.controller.playerThrustOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_DOWN:
-                this.controller.playerThrustOff(localPlayerId);
+            case KeyEvent.VK_Z:
+                this.controller.playerThrustOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_LEFT:
-                this.controller.playerRotateOff(localPlayerId);
+                this.controller.playerRotateOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_RIGHT:
-                this.controller.playerRotateOff(localPlayerId);
+                this.controller.playerRotateOff(this.localPlayerId);
+                break;
+            case KeyEvent.VK_SPACE:
+                fireKeyDown = false;                  // << permite el siguiente disparo
                 break;
         }
     }

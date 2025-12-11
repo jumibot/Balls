@@ -4,19 +4,12 @@ package model.physics;
 import static java.lang.System.nanoTime;
 
 
-/**
- *
- * @author juanm
- *
- * A SIMPLE PHYSICAL MODEL APPLIED TO DYNAMIC OBJECTS BY DEFAULT
- *
- */
-public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
+public class SpinPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
     /**
      * CONSTRUCTORS
      */
-    public BasicPhysicsEngine(PhysicsValues phyVals) {
+    public SpinPhysicsEngine(PhysicsValues phyVals) {
         super(phyVals);
     }
 

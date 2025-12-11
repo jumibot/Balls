@@ -67,6 +67,11 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     }
 
 
+    public void addAngularAcceleration(double angularSpeed) {
+        this.phyEngine.addAngularAcceleration(angularSpeed);
+    }
+
+
     @Override
     public DBodyInfoDTO buildEntityInfo() {
         if (this.getState() == EntityState.DEAD || this.getState() == EntityState.STARTING) {
@@ -85,11 +90,6 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     }
 
 
-    public void addAngularAcceleration(double angularSpeed) {
-        this.phyEngine.addAngularAcceleration(angularSpeed);
-    }
-
-
     public double getAngularSpeed() {
         return this.phyEngine.getAngularSpeed();
     }
@@ -100,23 +100,8 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
     }
 
 
-    public void setAngularAcceleration(double angularAcc) {
-        this.phyEngine.setAngularAcceleration(angularAcc);
-    }
-
-
-    public void setAngularSpeed(double angularSpeed) {
-        this.phyEngine.setAngularSpeed(angularSpeed);
-    }
-
-
     public void resetAcceleration() {
         this.phyEngine.resetAcceleration();
-    }
-
-
-    public void setThrust(double thrust) {
-        this.phyEngine.setThrust(thrust);
     }
 
 
@@ -140,6 +125,21 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
                 System.err.println("ERROR Sleeping in vObject thread! (VObject) · " + ex.getMessage());
             }
         }
+    }
+
+
+    public void setAngularAcceleration(double angularAcc) {
+        this.phyEngine.setAngularAcceleration(angularAcc);
+    }
+
+
+    public void setAngularSpeed(double angularSpeed) {
+        this.phyEngine.setAngularSpeed(angularSpeed);
+    }
+
+
+    public void setThrust(double thrust) {
+        this.phyEngine.setThrust(thrust);
     }
 
 
