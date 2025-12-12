@@ -13,11 +13,10 @@ public class PlayerBody extends DynamicBody {
     private final String playerId;
 
     // Calibrate is needed
-    private double maxThrustForce = 60;     //
-    private double maxAngularAcc = 1800;       // degrees*s^-2
-    private double angularSpeed = 180;       // degrees*s^-1
+    private double maxThrustForce = 80;     //
+    private double maxAngularAcc = 1000;       // degrees*s^-2
+    private double angularSpeed = 30;       // degrees*s^-1
 
-    // === WEAPONS ===
     private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(10);
     private int currentWeaponIndex = -1; // -1 = sin arma
 

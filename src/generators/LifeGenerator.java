@@ -4,7 +4,7 @@ package generators;
 import java.util.Random;
 import _helpers.DoubleVector;
 import controller.Controller;
-import controller.ControllerState;
+import controller.EngineState;
 import java.util.ArrayList;
 import world.DynamicBodyDef;
 
@@ -113,7 +113,8 @@ public class LifeGenerator implements Runnable {
         DoubleVector pos = this.randomPosition();
         this.controller.addDBody(
                 this.randomAsset(), this.randomSize(),
-                pos.x, pos.y, speed.x, speed.y, acc.x, acc.y, 0);
+                pos.x, pos.y, speed.x, speed.y, acc.x, acc.y,
+                0d, this.randomAngularSpeed(720d), 0d, 0d);
     }
 
 
@@ -163,14 +164,19 @@ public class LifeGenerator implements Runnable {
     }
 
 
+    private double randomAngularSpeed(double maxAngularSpeed) {
+        return this.rnd.nextFloat() * maxAngularSpeed - maxAngularSpeed / 2;
+    }
+
+
     /**
      * OVERRIDES
      */
     @Override
     public void run() {
-        while (this.controller.getState() != ControllerState.STOPPED) { // TO-DO End condition
+        while (this.controller.getEngineState() != EngineState.STOPPED) { // TO-DO End condition
 
-            if (this.controller.getState() == ControllerState.ALIVE) { // TO-DO Pause condition
+            if (this.controller.getEngineState() == EngineState.ALIVE) { // TO-DO Pause condition
                 this.addRandomDBody();
             }
 

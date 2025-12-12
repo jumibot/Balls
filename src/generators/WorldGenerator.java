@@ -5,6 +5,7 @@ import _helpers.DoubleVector;
 import controller.Controller;
 import java.util.ArrayList;
 import java.util.Random;
+import model.weapons.WeaponDto;
 import world.DecoratorDef;
 import world.DynamicBodyDef;
 import world.StaticBodyDef;
@@ -59,16 +60,33 @@ public class WorldGenerator {
     private void createPlayers(ArrayList<DynamicBodyDef> dBodies) {
         String playerId = null;
 
+        // Add Weapon
+        WeaponDto weaponConfig = new WeaponDto(
+                "projectile_basic",
+                4.0, // Size
+                600.0, // firingSpeed
+                0.0, // acceleration 
+                0.0, // acceleration time
+                0, // shootingOffeset 
+                0, // burstSize (single shot)
+                10.0 // fireRatePerSec 
+        );
+
         for (DynamicBodyDef body : dBodies) {
             DoubleVector pos = this.randomPosition();
             playerId = this.controller.addPlayer(
-                    body.assetId, body.size, 600, 300, 0, 0, 0, 0, 0);
-//                    body.assetId, body.size, pos.x, pos.y, 0, 0, 0, 0, body.angle);
+                    body.assetId, body.size, 600, 300, 0, 0, 0, 0, 0,
+                    this.randomAngularSpeed(270), 0, 0);
         }
 
         if (playerId != null) {
             this.controller.setLocalPlayer(playerId);
         }
+    }
+
+
+    private double randomAngularSpeed(double maxAngularSpeed) {
+        return this.rnd.nextFloat() * maxAngularSpeed;
     }
 
 

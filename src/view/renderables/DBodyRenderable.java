@@ -12,7 +12,7 @@ public class DBodyRenderable extends EntityRenderable {
     private final boolean debugMode = false;
 
 
-    public DBodyRenderable(DBodyInfoDTO bodyInfo, ImageCache cache, int currentFrame) {
+    public DBodyRenderable(DBodyInfoDTO bodyInfo, ImageCache cache, long currentFrame) {
         super(bodyInfo, cache, currentFrame);
 
     }
