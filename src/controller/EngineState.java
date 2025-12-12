@@ -14,7 +14,7 @@ import java.io.Serializable;
  *
  * @author juanm
  */
-public enum ControllerState implements Serializable {
+public enum EngineState implements Serializable {
     STARTING,
     ALIVE,
     PAUSED,

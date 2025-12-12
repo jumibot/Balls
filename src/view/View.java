@@ -7,6 +7,7 @@ import assets.AssetCatalog;
 import assets.AssetInfo;
 import assets.Assets;
 import controller.Controller;
+import controller.EngineState;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -23,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import view.renderables.EntityInfoDTO;
 import world.BackgroundDef;
 import world.DecoratorDef;
@@ -30,9 +32,87 @@ import world.DynamicBodyDef;
 import world.StaticBodyDef;
 import world.WorldDefinition;
 
-
-public class View extends JFrame implements MouseWheelListener,
-        ActionListener, ComponentListener, KeyListener {
+/**
+ * View
+ * ----
+ *
+ * Swing top-level window that represents the presentation layer of the engine.
+ * This class wires together:
+ * - The rendering surface (Renderer)
+ * - Asset loading and image catalogs (Images)
+ * - User input (KeyListener) and command dispatch to the Controller
+ *
+ * Architectural role
+ * ------------------
+ * View is a thin façade over rendering + input:
+ * - It does not simulate anything.
+ * - It does not own world state.
+ * - It communicates with the model exclusively through the Controller.
+ *
+ * The Renderer pulls dynamic snapshots every frame (via View -> Controller),
+ * while static/decorator snapshots are pushed into the View/Renderer only when
+ * they change (to avoid redundant per-frame updates for entities that do not move).
+ *
+ * Lifecycle
+ * ---------
+ * Construction:
+ * - Creates the ControlPanel (UI controls, if any).
+ * - Creates the Renderer (Canvas).
+ * - Builds the JFrame layout and attaches the key listener.
+ *
+ * Activation (activate()):
+ * - Validates mandatory dependencies (dimensions, background, image catalogs).
+ * - Injects view dimensions and images into the Renderer.
+ * - Starts the Renderer thread (active rendering loop).
+ *
+ * Asset management
+ * ---------------
+ * loadAssets(...) loads and registers all visual resources required by the world:
+ * - Background image (single BufferedImage).
+ * - Dynamic body sprites (ships, asteroids, missiles, etc.).
+ * - Static body sprites (gravity bodies, bombs, etc.).
+ * - Decorator sprites (parallax / space decor).
+ *
+ * The View stores catalogs as Images collections, which are later converted into
+ * GPU/compatible caches inside the Renderer (ImageCache).
+ *
+ * Engine state delegation
+ * -----------------------
+ * View exposes getEngineState() as a convenience bridge for the Renderer.
+ * The render loop can stop or pause based on Controller-owned engine state.
+ *
+ * Input handling
+ * --------------
+ * Keyboard input is captured at the rendering Canvas level (Renderer is focusable
+ * and receives the KeyListener) and translated into high-level Controller commands:
+ * - Thrust on/off (forward uses positive thrust; reverse thrust is handled as negative thrust,
+ *   and both are stopped via the same thrustOff command).
+ * - Rotation left/right and rotation off.
+ * - Fire: handled as an edge-triggered action using fireKeyDown to prevent key repeat
+ *   from generating continuous shots while SPACE is held.
+ *
+ * Focus and Swing considerations
+ * ------------------------------
+ * The Renderer is the focus owner for input. Focus is requested after the frame
+ * becomes visible using SwingUtilities.invokeLater(...) to improve reliability
+ * with Swing’s event dispatch timing.
+ *
+ * Threading considerations
+ * ------------------------
+ * Swing is single-threaded (EDT), while rendering runs on its own thread.
+ * This class keeps its responsibilities minimal:
+ * - It only pushes static/decorator updates when needed.
+ * - Dynamic snapshot pulling is done inside the Renderer thread through
+ *   View -> Controller getters.
+ *
+ * Design goals
+ * ------------
+ * - Keep the View as a coordinator, not a state holder.
+ * - Keep rendering independent and real-time (active rendering).
+ * - Translate user input into controller commands cleanly and predictably.
+ * 
+ */
+public class View extends JFrame implements KeyListener {
 
     private Controller controller = null;
     private ControlPanel controlPanel;
@@ -54,7 +134,6 @@ public class View extends JFrame implements MouseWheelListener,
      */
     public View() {
         this.controlPanel = new ControlPanel(this);
-        this.controlPanel = new ControlPanel(this);
 
         this.renderer = new Renderer(this);
 
@@ -67,24 +146,19 @@ public class View extends JFrame implements MouseWheelListener,
      */
     public void activate() {
         if (this.worldDimension == null) {
-            throw new IllegalArgumentException("Null world dimension");
-        }
-
-        if (this.worldDimension == null) {
             throw new IllegalArgumentException("View dimensions not setted");
         }
 
         if (this.background == null) {
             throw new IllegalArgumentException("Background image not setted");
         }
-        if (this.dBodyImage == null) {
+
+        if (this.dBodyImage.getSize() <= 0) {
             throw new IllegalArgumentException("Dynamic body images no setted");
         }
-        if (this.sBodyImages == null) {
+
+        if (this.sBodyImages.getSize() <= 0) {
             throw new IllegalArgumentException("Static body images no setted");
-        }
-        if (this.spaceDecorators == null) {
-            throw new IllegalArgumentException("Space Decorators not setted");
         }
 
         this.renderer.SetViewDimension(this.worldDimension);
@@ -97,6 +171,9 @@ public class View extends JFrame implements MouseWheelListener,
         this.pack();
     }
 
+    public EngineState getEngineState() {
+        return this.controller.getEngineState();
+    }
 
     public void loadAssets(Assets assets, WorldDefinition world) {
         this.loadBackground(assets.backgrounds, world.backgroundDef);
@@ -134,11 +211,11 @@ public class View extends JFrame implements MouseWheelListener,
 
 
     public void loadDynamicImages(AssetCatalog catalog, List<DynamicBodyDef> bodyDef) {
-        String fileName, path, uri;
+        String fileName;
+        String path = catalog.getPath();
         AssetInfo assetInfo;
 
         for (DynamicBodyDef body : bodyDef) {
-            path = catalog.getPath();
             assetInfo = catalog.get(body.assetId);
 
             if (assetInfo == null) {
@@ -235,51 +312,18 @@ public class View extends JFrame implements MouseWheelListener,
         panel = this.getContentPane();
         this.addRendererCanva(panel);
         this.renderer.setFocusable(true);
-        this.renderer.requestFocusInWindow();   // Para que reciba el foco de teclado
         this.renderer.addKeyListener(this);
-
-        panel.addMouseWheelListener(this);
 
         this.pack();
         this.setVisible(true);
+        SwingUtilities.invokeLater(() -> this.renderer.requestFocusInWindow());
 
-        this.addComponentListener(this);
     }
 
 
     /**
      * OVERRIDES
      */
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent mwe) {
-    }
-
-
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-    }
-
-
-    @Override
-    public void componentResized(ComponentEvent ce) {
-    }
-
-
-    @Override
-    public void componentMoved(ComponentEvent ce) {
-    }
-
-
-    @Override
-    public void componentShown(ComponentEvent ce) {
-    }
-
-
-    @Override
-    public void componentHidden(ComponentEvent ce) {
-    }
-
-
     @Override
     public void keyPressed(KeyEvent e) {
         if (this.localPlayerId == null) {

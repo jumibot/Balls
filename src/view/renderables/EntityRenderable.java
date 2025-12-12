@@ -10,13 +10,13 @@ import java.awt.image.BufferedImage;
 public class EntityRenderable {
 
     private final int entityId;
-    private int lastFrameSeen;
+    private long lastFrameSeen;
     private final ImageCache cache;
     private EntityInfoDTO entityInfo = null;
     private BufferedImage image = null;
 
 
-    public EntityRenderable(EntityInfoDTO renderInfo, ImageCache cache, int currentFrame) {
+    public EntityRenderable(EntityInfoDTO renderInfo, ImageCache cache, long currentFrame) {
         this.entityId = renderInfo.entityId;
         this.lastFrameSeen = currentFrame;
         this.entityInfo = renderInfo;
@@ -28,7 +28,7 @@ public class EntityRenderable {
     /**
      * PUBLICS
      */
-    public int getLastFrameSeen() {
+    public long getLastFrameSeen() {
         return this.lastFrameSeen;
     }
 
@@ -43,7 +43,7 @@ public class EntityRenderable {
     }
 
 
-    public void update(EntityInfoDTO renderInfo, int currentFrame) {
+    public void update(EntityInfoDTO renderInfo, long currentFrame) {
         this.updateImageFromCache(renderInfo.assetId, (int) renderInfo.size, renderInfo.angle);
         this.lastFrameSeen = currentFrame;
         this.entityInfo = renderInfo;

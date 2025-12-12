@@ -4,8 +4,7 @@ package main;
 /**
  * TO-DO
  * =====
- * 0) Mostrar FPS
- * 1) Firing
+ * 1) More weapon types like missils and shoot in streams
  * 2) Colision detection 
  * 3) Basic Fx
  * 4) Create a new physic engine with a gravitational field
@@ -38,12 +37,11 @@ public class Main {
 
         WorldDefinition worldDef = world.provide();
 
-        // Setting controller
         Controller controller = new Controller();
         controller.setAssets(assets);
         controller.setWorld(worldDef);
         controller.setWorldDimension(1150, 650);
-        controller.setMaxDBody(200);
+        controller.setMaxDBody(1000);
 
         controller.setModel(new Model());
         controller.setView(new View());
@@ -51,7 +49,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroidsDef, 850, 12, 4, 1000, 10, 175, 0);
+                controller, worldDef.asteroidsDef, 1250, 12, 4, 1000, 10, 175, 0);
 
         lifeGenerator.activate();
     }

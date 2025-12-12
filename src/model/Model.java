@@ -69,19 +69,17 @@ public class Model {
 
     public boolean addDBody(String assetId, double size,
             double posX, double posY, double speedX, double speedY,
-            double accX, double accY, double angle) {
+            double accX, double accY,
+            double angle, double angularSpeed, double angularAcc,
+            double thrust) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
             return false; // ========= Max vObject quantity reached ==========>>
         }
 
         PhysicsValues phyVals = new PhysicsValues(
-                nanoTime(),
-                posX, posY,
-                speedX, speedY,
-                accX, accY,
-                angle, 0d, 0d,
-                0d);
+                nanoTime(), posX, posY, speedX, speedY,
+                accX, accY, angle, angularSpeed, angularAcc, thrust);
 
         DynamicBody dBody
                 = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
@@ -96,7 +94,9 @@ public class Model {
 
     public String addPlayer(String assetId, double size,
             double posX, double posY, double speedX, double speedY,
-            double accX, double accY, double angle) {
+            double accX, double accY,
+            double angle, double angularSpeed, double angularAcc,
+            double thrust) {
 
         if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
             return null; // ========= Max vObject quantity reached ==========>>
@@ -104,21 +104,21 @@ public class Model {
 
         PhysicsValues phyVals = new PhysicsValues(
                 nanoTime(), posX, posY, speedX, speedY, accX, accY,
-                angle, 0d, 0d, 0d);
+                angle, angularSpeed, angularAcc, thrust);
 
         PlayerBody pBody
                 = new PlayerBody(assetId, size, new BasicPhysicsEngine(phyVals));
 
         // Add Weapon
         WeaponDto cfg = new WeaponDto(
-                "projectile_basic", 
+                "projectile_basic",
                 4.0, // Size
                 600.0, // firingSpeed
                 0.0, // acceleration 
                 0.0, // acceleration time
                 0, // shootingOffeset 
                 0, // burstSize (single shot)
-                3.0 // fireRatePerSec 
+                6.0 // fireRatePerSec 
         );
 
         BasicWeapon weapon = new BasicWeapon(cfg);
@@ -300,14 +300,12 @@ public class Model {
             this.doActions(
                     dBodyToCheck, actions, newPhyValues, oldPhyValues);
 
-        } catch (Exception e) {
-            // Fallback anti-zombi
+        } catch (Exception e) { // Fallback anti-zombi
             if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
                 dBodyToCheck.setState(previousState);
             }
 
-        } finally {
-            // Getout: off HANDS_OFF ... if leaving
+        } finally { // Getout: off HANDS_OFF ... if leaving
             if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
                 dBodyToCheck.setState(EntityState.ALIVE);
             }
@@ -337,23 +335,19 @@ public class Model {
         List<EventDTO> limitEvents = new ArrayList<>(4);
 
         if (phyValues.posX < 0) {
-            limitEvents.add(
-                    new EventDTO(entity, EventType.REACHED_EAST_LIMIT));
+            limitEvents.add(new EventDTO(entity, EventType.REACHED_EAST_LIMIT));
         }
 
         if (phyValues.posX >= this.worldDim.width) {
-            limitEvents.add(
-                    new EventDTO(entity, EventType.REACHED_WEST_LIMIT));
+            limitEvents.add(new EventDTO(entity, EventType.REACHED_WEST_LIMIT));
         }
 
         if (phyValues.posY < 0) {
-            limitEvents.add(
-                    new EventDTO(entity, EventType.REACHED_NORTH_LIMIT));
+            limitEvents.add(new EventDTO(entity, EventType.REACHED_NORTH_LIMIT));
         }
 
         if (phyValues.posY >= this.worldDim.height) {
-            limitEvents.add(
-                    new EventDTO(entity, EventType.REACHED_SOUTH_LIMIT));
+            limitEvents.add(new EventDTO(entity, EventType.REACHED_SOUTH_LIMIT));
         }
 
         return limitEvents;
@@ -479,7 +473,6 @@ public class Model {
 
         switch (action) {
             case FIRE:
-                System.out.println("Fire");
                 this.spawnProjectileFrom(dBody, newPhyValues);
                 break;
 
@@ -499,17 +492,11 @@ public class Model {
 
 
     private void spawnProjectileFrom(DynamicBody shooter, PhysicsValues shooterNewPhy) {
-
-        // De momento solo los PlayerBody disparan
-        if (!(shooter instanceof PlayerBody)) {
-            return;
-        }
-
         PlayerBody pBody = (PlayerBody) shooter;
 
         Weapon activeWeapon = pBody.getActiveWeapon();
         if (activeWeapon == null) {
-            return; // sin arma activa
+            return;
         }
 
         WeaponDto cfg = activeWeapon.getWeaponConfig();
@@ -517,51 +504,24 @@ public class Model {
             return;
         }
 
-        // Ángulo del disparo (en grados -> radianes)
         double angleDeg = shooterNewPhy.angle;
         double angleRad = Math.toRadians(angleDeg);
 
         double dirX = Math.cos(angleRad);
         double dirY = Math.sin(angleRad);
 
-        // 1) Posición de salida: centro nave + offset en la dirección del disparo
         double spawnX = shooterNewPhy.posX + cfg.shootingOffeset * dirX;
         double spawnY = shooterNewPhy.posY + cfg.shootingOffeset * dirY;
 
-        // 2) Velocidad inicial: velocidad de la nave + muzzle speed del arma
         double projSpeedX = shooterNewPhy.speedX + cfg.firingSpeed * dirX;
         double projSpeedY = shooterNewPhy.speedY + cfg.firingSpeed * dirY;
 
-        // 3) Aceleración (misil autopropulsado) si cfg.acceleration != 0
         double accX = cfg.acceleration * dirX;
         double accY = cfg.acceleration * dirY;
 
-        // 4) Crear el DynamicBody del proyectil usando el API estándar del modelo
         this.addDBody(
-                cfg.projectileAssetId,
-                cfg.projectileSize,
-                spawnX, spawnY,
-                projSpeedX, projSpeedY,
-                accX, accY,
-                angleDeg
-        );
-    }
-
-
-    /**
-     * STATIC
-     */
-    public static long getAlivedVObjectQuantity() {
-        return AbstractEntity.getAliveQuantity();
-    }
-
-
-    public static long getCreatedVObjectQuantity() {
-        return AbstractEntity.getCreatedQuantity();
-    }
-
-
-    public static long getDeadVObjectQuantity() {
-        return AbstractEntity.getDeadQuantity();
+                cfg.projectileAssetId, cfg.projectileSize,
+                spawnX, spawnY, projSpeedX, projSpeedY,
+                accX, accY, angleDeg, 0d, 0d, 0d);
     }
 }
