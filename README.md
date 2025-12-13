@@ -1,6 +1,8 @@
 # Balls
 
-An educational Java project that demonstrates real-time 2D physics simulation through a dynamic bouncing balls environment with interactive gameplay elements. This project serves as a comprehensive learning platform for understanding software architecture patterns, concurrent programming, game engine fundamentals, and object-oriented design principles.
+An educational Java project that demonstrates real-time 2D physics simulation through a dynamic bouncing balls environment with interactive gameplay elements. 
+
+This project serves as a comprehensive learning platform for understanding software architecture patterns, concurrent programming, game engine fundamentals, and object-oriented design principles.
 
 ## What the Program Does
 
@@ -122,9 +124,9 @@ This project provides hands-on experience with fundamental game engine concepts:
 - **Language**: Java (leveraging strong OOP features)
 - **GUI Framework**: Java Swing for cross-platform rendering
 - **Architecture**: Strict MVC separation
-- **Concurrency**: Producer-consumer pattern with thread-safe collections
+- **Concurrency**: Multithreaded architecture with thread-safe collections
 - **Design**: UML class diagrams guide implementation
-- **Scalability**: Supports up to 1000+ dynamic entities with configurable limits
+- **Scalability**: Designed to support 1000+ dynamic entities with configurable limits
 
 ## Getting Started
 
