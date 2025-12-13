@@ -128,6 +128,34 @@ This project provides hands-on experience with fundamental game engine concepts:
 - **Design**: UML class diagrams guide implementation
 - **Scalability**: Designed to support 1000+ dynamic entities with configurable limits
 
+## Project Structure
+
+The codebase is organized into well-defined packages, each with clear responsibilities:
+
+### Core MVC Packages
+
+- **`main`**: Application entry point that bootstraps the engine, wires dependencies, and starts the simulation
+- **`model`**: Game state and simulation logic (entities, physics, weapons, events, actions)
+  - **`model.entities`**: Entity implementations (DynamicBody, StaticBody, PlayerBody, AbstractEntity, DecoEntity)
+  - **`model.physics`**: Physics engine implementations (BasicPhysicsEngine, SpinPhysicsEngine, NullPhysicsEngine, AbstractPhysicsEngine)
+  - **`model.weapons`**: Weapon system implementations (BasicWeapon, WeaponDto)
+- **`view`**: Presentation layer handling rendering and display (View, Renderer, ControlPanel)
+  - **`view.renderables`**: Visual representation objects for entities (DBodyRenderable, EntityRenderable, EntityInfoDTO)
+- **`controller`**: Mediator coordinating Model and View, processing user input and managing engine state
+
+### Supporting Packages
+
+- **`assets`**: Asset management system for loading and organizing visual resources (Assets, AssetCatalog, AssetInfo, AssetType)
+- **`world`**: World definition and configuration (WorldDefinition, BackgroundDef, DynamicBodyDef, StaticBodyDef, DecoratorDef)
+  - **`world.providers`**: Factory implementations for generating different world configurations (RandomWorldDefinitionProvider)
+- **`generators`**: Procedural content generators (WorldGenerator for initial setup, LifeGenerator for dynamic entity spawning)
+- **`fx`**: Visual effects system for animations and particle effects (Fx, FxImage, Spin)
+- **`_helpers`**: Utility classes for common operations (DoubleVector for 2D vector math, RandomArrayList)
+- **`_images`**: Image loading and caching infrastructure (Images, ImageCache, ImageDTO, CachedImageKeyDTO)
+- **`resources`**: Static resources including sprite images organized by type (backgrounds, gravity_bodies, solid_bodies, space_decors, spaceship, ui_decors, weapons)
+
+This package structure follows a clear architectural separation, making it easy to locate functionality and understand the system's organization.
+
 ## Getting Started
 
 To run the simulation:
