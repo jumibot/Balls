@@ -5,10 +5,9 @@ import _helpers.DoubleVector;
 import controller.Controller;
 import java.util.ArrayList;
 import java.util.Random;
-import model.weapons.WeaponDto;
-import world.DecoratorDef;
-import world.DynamicBodyDef;
-import world.StaticBodyDef;
+import world.VItemDto;
+import world.PositionVItemDto;
+import world.WeaponVItemDto;
 import world.WorldDefinition;
 
 
@@ -17,66 +16,65 @@ public class WorldGenerator {
     private final Random rnd = new Random();
 
     private final Controller controller;
-    private final ArrayList<DecoratorDef> spaceDecoratorsDef;
-    private final ArrayList<StaticBodyDef> gravityBodiesDef;
-    private final ArrayList<StaticBodyDef> bombsDef;
-    private final ArrayList<DynamicBodyDef> spaceshipsDef;
+    WorldDefinition worldDefinition;
 
 
     public WorldGenerator(Controller controller, WorldDefinition worldDef) {
         this.controller = controller;
-        this.gravityBodiesDef = worldDef.gravityBodiesDef;
-        this.bombsDef = worldDef.bombsDef;
-        this.spaceshipsDef = worldDef.spaceshipsDef;
-        this.spaceDecoratorsDef = worldDef.spaceDecoratorsDef;
+        this.worldDefinition = worldDef;
 
         this.createWorld();
     }
 
 
     private void createWorld() {
-        this.createSpaceDecorators(this.spaceDecoratorsDef);
-        this.createSBodies(this.gravityBodiesDef);
-        this.createSBodies(this.bombsDef);
-        this.createPlayers(this.spaceshipsDef);
+        this.createSpaceDecorators(this.worldDefinition.spaceDecoratorsDef);
+        this.createSBodies(this.worldDefinition.gravityBodiesDef);
+        this.createSBodies(this.worldDefinition.bombsDef);
+        this.createPlayers(this.worldDefinition.spaceshipsDef);
     }
 
 
-    private void createSBodies(ArrayList<StaticBodyDef> sBodies) {
-        for (StaticBodyDef body : sBodies) {
+    private void createSBodies(ArrayList<PositionVItemDto> sBodies) {
+        for (PositionVItemDto body : sBodies) {
             this.controller.addSBody(body.assetId, body.size, body.posX, body.posY, body.angle);
         }
     }
 
 
-    private void createSpaceDecorators(ArrayList<DecoratorDef> decorators) {
+    private void createSpaceDecorators(ArrayList<PositionVItemDto> decorators) {
 
-        for (DecoratorDef deco : decorators) {
+        for (PositionVItemDto deco : decorators) {
             this.controller.addDecorator(deco.assetId, deco.size, deco.posX, deco.posY, deco.angle);
         }
     }
 
 
-    private void createPlayers(ArrayList<DynamicBodyDef> dBodies) {
+    private void createPlayers(ArrayList<VItemDto> dBodies) {
         String playerId = null;
 
-        // Add Weapon
-        WeaponDto weaponConfig = new WeaponDto(
-                "projectile_basic",
-                4.0, // Size
-                600.0, // firingSpeed
-                0.0, // acceleration 
-                0.0, // acceleration time
-                0, // shootingOffeset 
-                0, // burstSize (single shot)
-                10.0 // fireRatePerSec 
-        );
-
-        for (DynamicBodyDef body : dBodies) {
-            DoubleVector pos = this.randomPosition();
+        for (VItemDto body : dBodies) {
             playerId = this.controller.addPlayer(
-                    body.assetId, body.size, 600, 300, 0, 0, 0, 0, 0,
+                    body.assetId, body.size, 500, 200, 0, 0, 0, 0, 0,
                     this.randomAngularSpeed(270), 0, 0);
+
+            // Bullet weapon
+            WeaponVItemDto bullet = this.worldDefinition.bullets.get(0);
+            this.controller.addWeaponToPlayer(
+                    playerId, bullet.assetId, bullet.size,
+                    bullet.firingSpeed, bullet.acc, bullet.accTime,
+                    0, bullet.burstSize, bullet.fireRate);
+
+            WeaponVItemDto misil = this.worldDefinition.misilsDef.get(0);
+            this.controller.addWeaponToPlayer(
+                    playerId, misil.assetId, misil.size,
+                    misil.firingSpeed, misil.acc, misil.accTime,
+                    -body.size*0.75, misil.burstSize, misil.fireRate);
+
+            this.controller.addWeaponToPlayer(
+                    playerId, misil.assetId, misil.size,
+                    misil.firingSpeed, misil.acc, misil.accTime,
+                    body.size*0.75, misil.burstSize, misil.fireRate);
         }
 
         if (playerId != null) {

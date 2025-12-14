@@ -64,7 +64,7 @@ public class ImageCache {
      */
     private BufferedImage putInCache(double angle, String assetId, int size) {
         if (this.gc == null) {
-            System.err.println("Graphics configuration is null · SpriteCache");
+            System.err.println("Graphics configuration is null · ImageCache");
             return null;  // =================================================>
         }
 

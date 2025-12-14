@@ -6,8 +6,13 @@ public class BasicWeapon extends AbstractWeapon {
     private double cooldown = 0.0;  // seconds
 
 
-    public BasicWeapon(WeaponDto weaponConfig) {
-        super(weaponConfig);
+    public BasicWeapon(String projectileAssetId, double projectileSize,
+            double firingSpeed, double acceleration, double accelerationTime,
+            double shootingOffset, int burstSize, double fireRate) {
+        
+        super(projectileAssetId, projectileSize,
+            firingSpeed, acceleration, accelerationTime,
+            shootingOffset, burstSize, fireRate);
     }
 
 

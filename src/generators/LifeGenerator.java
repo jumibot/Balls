@@ -6,14 +6,14 @@ import _helpers.DoubleVector;
 import controller.Controller;
 import controller.EngineState;
 import java.util.ArrayList;
-import world.DynamicBodyDef;
+import world.VItemDto;
 
 
 public class LifeGenerator implements Runnable {
 
     private final Random rnd = new Random();
 
-    private ArrayList<DynamicBodyDef> asteroid;
+    private ArrayList<VItemDto> asteroid;
     private final Controller controller;
     private final int maxCreationDelay;
     private Thread thread;
@@ -32,7 +32,7 @@ public class LifeGenerator implements Runnable {
      * CONSTRUCTORS
      */
     public LifeGenerator(Controller controller,
-            ArrayList<DynamicBodyDef> asteroid, int maxCreationDelay,
+            ArrayList<VItemDto> asteroid, int maxCreationDelay,
             int maxSize, int minSize, double maxMass, double minMass,
             double speed_x, double speed_y, double acc_x, double acc_y) {
 
@@ -56,7 +56,7 @@ public class LifeGenerator implements Runnable {
 
 
     public LifeGenerator(Controller controller,
-            ArrayList<DynamicBodyDef> asteroid, int maxCreationDelay,
+            ArrayList<VItemDto> asteroid, int maxCreationDelay,
             int maxSize, int minSize, double maxMass, double minMass,
             double maxSpeedModule, double maxAccModule) {
 
@@ -114,7 +114,7 @@ public class LifeGenerator implements Runnable {
         this.controller.addDBody(
                 this.randomAsset(), this.randomSize(),
                 pos.x, pos.y, speed.x, speed.y, acc.x, acc.y,
-                0d, this.randomAngularSpeed(720d), 0d, 0d);
+                0d, this.randomAngularSpeed(460d), 0d, 0d);
     }
 
 
@@ -177,7 +177,7 @@ public class LifeGenerator implements Runnable {
         while (this.controller.getEngineState() != EngineState.STOPPED) { // TO-DO End condition
 
             if (this.controller.getEngineState() == EngineState.ALIVE) { // TO-DO Pause condition
-                this.addRandomDBody();
+//                this.addRandomDBody();
             }
 
             try {

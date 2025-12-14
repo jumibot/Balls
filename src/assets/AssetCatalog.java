@@ -52,12 +52,15 @@ public class AssetCatalog {
 
 
     public String randomId(AssetType type) {
+        if (type == null) {
+            throw new IllegalStateException("Asset type is null!");
+        }
 
         // Filtrar solo los ids del tipo solicitado
         List<String> filtered = new ArrayList<>();
 
         for (Map.Entry<String, AssetInfo> entry : assetsById.entrySet()) {
-            if (type == null || entry.getValue().type == type) {
+            if (entry.getValue().type == type) {
                 filtered.add(entry.getKey());
             }
         }
@@ -72,6 +75,9 @@ public class AssetCatalog {
 
 
     public String randomId(AssetType type, AssetIntensity intensity) {
+        if (type == null) {
+            throw new IllegalStateException("Asset type is null!");
+        }
 
         List<String> filtered = new ArrayList<>();
 

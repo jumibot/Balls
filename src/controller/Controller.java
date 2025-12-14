@@ -1,7 +1,7 @@
 package controller;
 
 
-import assets.Assets;
+import assets.ProjectAssets;
 import java.awt.Dimension;
 import view.renderables.DBodyInfoDTO;
 import view.View;
@@ -16,6 +16,7 @@ import model.ActionExecutor;
 import model.ActionPriority;
 import model.EventDTO;
 import model.entities.AbstractEntity;
+import model.weapons.WeaponDto;
 import view.renderables.EntityInfoDTO;
 import world.WorldDefinition;
 
@@ -86,7 +87,7 @@ import world.WorldDefinition;
  */
 public class Controller {
 
-    private Assets assets;
+    private ProjectAssets assets;
     private volatile EngineState engineState;
     private int maxDBody;
     private Model model;
@@ -100,7 +101,7 @@ public class Controller {
     }
 
 
-    public Controller(View view, Model model, Assets assets) {
+    public Controller(View view, Model model, ProjectAssets assets) {
         this.engineState = EngineState.STARTING;
         this.assets = assets;
 
@@ -186,6 +187,18 @@ public class Controller {
 
         ArrayList<EntityInfoDTO> decosInfo = this.getDecoratorInfo();
         this.view.updateDecoratorsInfo(decosInfo);
+    }
+
+
+    public void addWeaponToPlayer(
+            String playerId, String projectileAssetId, double projectileSize,
+            double firingSpeed, double acceleration, double accelerationTime,
+            double shootingOffset, int burstSize, double fireRate) {
+
+        this.model.addWeaponToPlayer(
+                playerId, projectileAssetId, projectileSize,
+                firingSpeed, acceleration, accelerationTime,
+                shootingOffset, burstSize, fireRate);
     }
 
 
@@ -299,11 +312,15 @@ public class Controller {
 
 
     public void playerRotateRightOn(String playerId) {
-        model.playerRotateRightOn(playerId);
+        this.model.playerRotateRightOn(playerId);
     }
 
 
-    public void setAssets(Assets assets) {
+    public void selectNextWeapon(String playerId) {
+        this.model.selectNextWeapon(playerId);
+    }
+    
+    public void setAssets(ProjectAssets assets) {
         this.assets = assets;
     }
 

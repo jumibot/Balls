@@ -17,7 +17,7 @@ public class PlayerBody extends DynamicBody {
     private double maxAngularAcc = 1000;       // degrees*s^-2
     private double angularSpeed = 30;       // degrees*s^-1
 
-    private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(10);
+    private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(4);
     private int currentWeaponIndex = -1; // -1 = sin arma
 
 
@@ -121,6 +121,15 @@ public class PlayerBody extends DynamicBody {
         this.setAngularSpeed(0.0d);
     }
 
+    public void selectNextWeapon() {
+        if (this.weapons.size()<=0) {
+            return;
+        }        
+        
+        this.currentWeaponIndex ++;
+        this.currentWeaponIndex = 
+                this.currentWeaponIndex % this.weapons.size();
+    }
 
     public void selectWeapon(int weaponIndex) {
         if (weaponIndex >= 0 && weaponIndex < this.weapons.size()) {
