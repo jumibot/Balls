@@ -172,7 +172,7 @@ public class Renderer extends Canvas implements Runnable {
         BufferStrategy bs = getBufferStrategy();
 
         if (this.viewDimension == null) {
-            throw new IllegalArgumentException("View dimensions not setteds");
+            throw new IllegalArgumentException("View dimensions not setted");
         }
 
         if ((this.viewDimension.width <= 0) || (this.viewDimension.height
@@ -292,6 +292,7 @@ public class Renderer extends Canvas implements Runnable {
 
         g.setColor(Color.YELLOW);
         g.drawString("FPS: " + fps, 12, 20);
+        
         g.setColor(old);
     }
 

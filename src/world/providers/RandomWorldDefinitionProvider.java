@@ -2,6 +2,7 @@ package world.providers;
 
 
 import assets.AssetCatalog;
+import assets.AssetInfoDTO;
 import assets.AssetType;
 import assets.ProjectAssets;
 import java.util.ArrayList;
@@ -20,7 +21,8 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     private final Random rnd = new Random();
     private final int width;
     private final int height;
-    private final ProjectAssets assets;
+    private final ProjectAssets projectAssets;
+    private final AssetCatalog gameAssets = new AssetCatalog("src/resources/images/");
 
     private BackgroundDto background;
 
@@ -36,7 +38,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     public RandomWorldDefinitionProvider(int worldWidth, int worldHeight, ProjectAssets assets) {
         this.width = worldWidth;
         this.height = worldHeight;
-        this.assets = assets;
+        this.projectAssets = assets;
     }
 
 
@@ -45,32 +47,32 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
         this.background = randomBackgroundDef();
 
-        this.randomDecoratorsDef(this.spaceDecoratorsDef, 1, assets.catalog, AssetType.STARS, 200, 150);
+        this.randomDecoratorsDef(this.spaceDecoratorsDef, 1, AssetType.STARS, 200, 150);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, assets.catalog, AssetType.PLANET, 150, 110);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.PLANET, 150, 110);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, assets.catalog, AssetType.MOON, 45, 40);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.MOON, 45, 40);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, assets.catalog, AssetType.SUN, 25, 15);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.SUN, 25, 15);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, assets.catalog, AssetType.BLACK_HOLE, 35, 25);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.BLACK_HOLE, 35, 25);
 
-        this.randomStaticBodiesDef(this.bombsDef, 0, assets.catalog, AssetType.BOMB, 30, 20);
+        this.randomStaticBodiesDef(this.bombsDef, 0, AssetType.BOMB, 30, 20);
 
-        this.randomDBodiesDef(this.asteroidsDef, 6, assets.catalog, AssetType.ASTEROID, 15, 3);
+        this.randomDBodiesDef(this.asteroidsDef, 6, AssetType.ASTEROID, 15, 3);
 
-        this.randomWeaponsDef(this.bulletDef, 1, this.assets.catalog, AssetType.BULLET, 6, 6,
-                150d, 0d, 0d, // firingSpeed, acc, accTime 
-                0, 1, 12); // shootingOffset, burstSize, fireRate
+        this.randomWeaponsDef(this.bulletDef, 1, AssetType.BULLET, 5, 5,
+                              275d, 0d, 0d, // firingSpeed, acc, accTime 
+                              0, 1, 20); // shootingOffset, burstSize, fireRate
 
-        this.randomWeaponsDef(this.misilsDef, 1, this.assets.catalog, AssetType.MISIL, 20, 20,
-                0, 2000d, 1d, // firingSpeed, acc, accTime 
-                0, 1, 2); // shootingOffset, burstSize, fireRate
+        this.randomWeaponsDef(this.misilsDef, 1, AssetType.MISIL, 30, 30,
+                              -100, 4000d, 1d, // firingSpeed, acc, accTime 
+                              0, 1, 1); // shootingOffset, burstSize, fireRate
 
-        this.randomDBodiesDef(this.spaceshipsDef, 1, assets.catalog, AssetType.SPACESHIP, 25, 25);
+        this.randomDBodiesDef(this.spaceshipsDef, 1, AssetType.SPACESHIP, 25, 25);
 
         return new WorldDefinition(
-                this.width, this.height,
+                this.width, this.height, this.gameAssets,
                 background, spaceDecoratorsDef, gravityBodiesDef,
                 asteroidsDef, bulletDef, misilsDef, bombsDef, spaceshipsDef);
     }
@@ -83,29 +85,41 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
     private void randomDecoratorsDef(
             ArrayList<PositionVItemDto> decos,
-            int num, AssetCatalog catalog, AssetType type,
+            int num, AssetType type,
             int maxSize, int minSize) {
 
+        String randomId;
+        AssetInfoDTO assetInfo;
+
         for (int i = 0; i < num; i++) {
+            randomId = this.projectAssets.catalog.randomId(type);
+            assetInfo = this.projectAssets.catalog.get(randomId);
+            this.gameAssets.register(assetInfo);
+
             decos.add(new PositionVItemDto(
-                    catalog.randomId(type),
+                    randomId,
                     this.randomSize(maxSize, minSize),
                     this.randomAngle(),
                     rnd.nextDouble() * this.width, // x
                     rnd.nextDouble() * this.height)); // y
         }
-        
-        
     }
 
 
     private void randomDBodiesDef(ArrayList<VItemDto> dBodies,
-            int num, AssetCatalog catalog, AssetType type,
+            int num, AssetType type,
             int maxSize, int minSize) {
 
+        String randomId;
+        AssetInfoDTO assetInfo;
+
         for (int i = 0; i < num; i++) {
+            randomId = this.projectAssets.catalog.randomId(type);
+            assetInfo = this.projectAssets.catalog.get(randomId);
+            this.gameAssets.register(assetInfo);
+
             dBodies.add(new VItemDto(
-                    catalog.randomId(type),
+                    randomId,
                     this.randomSize(maxSize, minSize),
                     this.randomAngle()));
         }
@@ -114,22 +128,31 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
     private void randomStaticBodiesDef(
             ArrayList<PositionVItemDto> sBodies,
-            int num, AssetCatalog catalog, AssetType type,
+            int num, AssetType type,
             int maxSize, int minSize) {
 
+        String randomId;
+        AssetInfoDTO assetInfo;
+
         for (int i = 0; i < num; i++) {
+            randomId = this.projectAssets.catalog.randomId(type);
+            assetInfo = this.projectAssets.catalog.get(randomId);
+            this.gameAssets.register(assetInfo);
+
             sBodies.add(new PositionVItemDto(
-                    catalog.randomId(type),
+                    randomId,
                     this.randomSize(maxSize, minSize),
                     this.randomAngle(),
                     rnd.nextDouble() * this.width,
-                    rnd.nextDouble() * this.height)); 
+                    rnd.nextDouble() * this.height));
         }
     }
 
 
     private BackgroundDto randomBackgroundDef() {
-        String randomId = this.assets.catalog.randomId(AssetType.BACKGROUND);
+        String randomId = this.projectAssets.catalog.randomId(AssetType.BACKGROUND);
+        AssetInfoDTO assetInfo = this.projectAssets.catalog.get(randomId);
+        this.gameAssets.register(assetInfo);
 
         return new BackgroundDto(randomId, 0.0d, 0.0d);
     }
@@ -141,23 +164,24 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
 
     private void randomWeaponsDef(ArrayList<WeaponVItemDto> weapons,
-            int num, AssetCatalog catalog, AssetType type,
+            int num, AssetType type,
             int maxSize, int minSize, double firingSpeed,
             double acc, double accTime, int shootingOffset,
-            int bustSize, int fireRate) {
+            int burstSize, int fireRate) {
+
+        String randomId;
+        AssetInfoDTO assetInfo;
 
         for (int i = 0; i < num; i++) {
-            weapons.add(new WeaponVItemDto(
-                            catalog.randomId(type),
-                            this.randomSize(maxSize, minSize),
-                            0, //firingSpeed
-                            1200d, // acc
-                            1d, // accTime 
-                            1, // burstSize
-                            12 // fireRate
-                    )
-            );
+            randomId = this.projectAssets.catalog.randomId(type);
+            assetInfo = this.projectAssets.catalog.get(randomId);
+            this.gameAssets.register(assetInfo);
+
+            weapons.add(
+                    new WeaponVItemDto(
+                            randomId, this.randomSize(maxSize, minSize),
+                            firingSpeed, acc, accTime,
+                            burstSize, fireRate));
         }
     }
-
 }

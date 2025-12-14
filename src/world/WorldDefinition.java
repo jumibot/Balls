@@ -1,6 +1,7 @@
 package world;
 
 
+import assets.AssetCatalog;
 import java.util.ArrayList;
 
 
@@ -9,6 +10,7 @@ public class WorldDefinition {
     public final int worldWidth;
     public final int worldHeight;
 
+    public final AssetCatalog gameAssets;
     public final BackgroundDto backgroundDef;
     public final ArrayList<PositionVItemDto> spaceDecoratorsDef;
     public final ArrayList<PositionVItemDto> gravityBodiesDef;
@@ -22,6 +24,7 @@ public class WorldDefinition {
     public WorldDefinition(
             int worldWidth,
             int worldHeight,
+            AssetCatalog gameAssets,
             BackgroundDto background,
             ArrayList<PositionVItemDto> spaceDecorators,
             ArrayList<PositionVItemDto> gravityBodies,
@@ -33,6 +36,7 @@ public class WorldDefinition {
 
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
+        this.gameAssets = gameAssets;
         this.backgroundDef = background;
         this.spaceDecoratorsDef = spaceDecorators;
         this.gravityBodiesDef = gravityBodies;

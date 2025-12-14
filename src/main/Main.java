@@ -2,14 +2,9 @@ package main;
 
 
 /**
- * TO-DO 
- * ===== 
- * 0) Include all the assets in the same Images instance
- * 1) More weapon types like missils and shoot in burts 
- * 2) Colision detection 
- * 3) Basic Fx 
- * 4) Create a new physic engine with a gravitational field 
- * 5) Game rules 
+ * TO-DO ===== 0) Include all the assets in the same Images instance 1) More
+ * weapon types like missils and shoot in burts 2) Colision detection 3) Basic
+ * Fx 4) Create a new physic engine with a gravitational field 5) Game rules
  * =====
  */
 import assets.ProjectAssets;
@@ -27,21 +22,19 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ProjectAssets assets = new ProjectAssets();
+        ProjectAssets projectAssets = new ProjectAssets();
 
         WorldDefinitionProvider world
-                = new RandomWorldDefinitionProvider(1150, 650, assets);
+                = new RandomWorldDefinitionProvider(1150, 650, projectAssets);
 
         WorldDefinition worldDef = world.provide();
 
-        Controller controller = new Controller();
-        controller.setAssets(assets);
-        controller.setWorld(worldDef);
-        controller.setWorldDimension(1150, 650);
-        controller.setMaxDBody(500);
+        Controller controller = new Controller(
+                1150, 650, // World dimensions
+                500, // Max dynamic bodies
+                new View(), new Model(),
+                worldDef.gameAssets);
 
-        controller.setModel(new Model());
-        controller.setView(new View());
         controller.activate();
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);

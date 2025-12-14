@@ -28,6 +28,8 @@ public class WorldGenerator {
 
 
     private void createWorld() {
+        this.controller.loadAssets(this.worldDefinition.gameAssets);
+
         this.createSpaceDecorators(this.worldDefinition.spaceDecoratorsDef);
         this.createSBodies(this.worldDefinition.gravityBodiesDef);
         this.createSBodies(this.worldDefinition.bombsDef);
@@ -69,12 +71,12 @@ public class WorldGenerator {
             this.controller.addWeaponToPlayer(
                     playerId, misil.assetId, misil.size,
                     misil.firingSpeed, misil.acc, misil.accTime,
-                    -body.size*0.75, misil.burstSize, misil.fireRate);
+                    -body.size * 0.5, misil.burstSize, misil.fireRate);
 
             this.controller.addWeaponToPlayer(
                     playerId, misil.assetId, misil.size,
                     misil.firingSpeed, misil.acc, misil.accTime,
-                    body.size*0.75, misil.burstSize, misil.fireRate);
+                    body.size * 0.5, misil.burstSize, misil.fireRate);
         }
 
         if (playerId != null) {
@@ -85,16 +87,5 @@ public class WorldGenerator {
 
     private double randomAngularSpeed(double maxAngularSpeed) {
         return this.rnd.nextFloat() * maxAngularSpeed;
-    }
-
-
-    private DoubleVector randomPosition() {
-        double x, y;
-
-        // Recuperar tamaño del mundo establecido en el modelo
-        x = this.rnd.nextFloat() * this.controller.getWorldDimension().width;
-        y = this.rnd.nextFloat() * this.controller.getWorldDimension().height;
-
-        return new DoubleVector(x, y);
     }
 }

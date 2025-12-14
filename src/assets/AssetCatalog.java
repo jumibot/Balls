@@ -35,6 +35,17 @@ public class AssetCatalog {
     }
 
 
+    public void register(AssetInfoDTO assetInfo) {
+        this.assetsById.put(
+                assetInfo.assetId,
+                new AssetInfoDTO(
+                        assetInfo.assetId,
+                        assetInfo.fileName,
+                        assetInfo.type,
+                        assetInfo.intensity));
+    }
+
+
     public AssetInfoDTO get(String assetId) {
         AssetInfoDTO aInfo = assetsById.get(assetId);
         return aInfo;
@@ -66,8 +77,7 @@ public class AssetCatalog {
         }
 
         if (filtered.isEmpty()) {
-            throw new IllegalStateException("No hay assets del tipo " + type
-                    + " en el catálogo: " + path);
+            throw new IllegalStateException("There isn't any asset <" + type + ">");
         }
 
         return filtered.get(rnd.nextInt(filtered.size()));

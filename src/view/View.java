@@ -5,6 +5,7 @@ import view.renderables.DBodyInfoDTO;
 import _images.Images;
 import assets.AssetCatalog;
 import assets.AssetInfoDTO;
+import assets.AssetType;
 import assets.ProjectAssets;
 import controller.Controller;
 import controller.EngineState;
@@ -124,18 +125,8 @@ public class View extends JFrame implements KeyListener {
             throw new IllegalArgumentException("View dimensions not setted");
         }
 
-        if (this.background == null) {
-            throw new IllegalArgumentException("Background image not setted");
-        }
-
-        if (this.images.getSize() <= 0) {
-            throw new IllegalArgumentException("Dynamic body images no setted");
-        }
-
         this.renderer.SetViewDimension(this.worldDimension);
-
         this.renderer.setImages(this.background, this.images);
-
         this.renderer.activate();
         this.pack();
     }
@@ -146,42 +137,17 @@ public class View extends JFrame implements KeyListener {
     }
 
 
-    public void loadAssets(ProjectAssets assets, WorldDefinition world) {
-        this.loadBackground(assets.catalog, world.backgroundDef);
-
-        this.loadImages(assets.catalog, world.asteroidsDef);
-        this.loadImages(assets.catalog, world.bullets);
-        this.loadImages(assets.catalog, world.spaceshipsDef);
-        this.loadImages(assets.catalog, world.gravityBodiesDef);
-        this.loadImages(assets.catalog, world.bombsDef);
-        this.loadImages(assets.catalog, world.spaceDecoratorsDef);
-    }
-
-
-    public void loadBackground(AssetCatalog backs, BackgroundDto backDef) {
-        this.background = Images.loadBufferedImage(
-                backs.getPath(), backs.get(backDef.assetId).fileName);
-    }
-
-
-    public void loadImages(AssetCatalog catalog, List bodyDef) {
+    public void loadAssets(AssetCatalog assets) {
         String fileName;
-        String assetId; 
-        String path = catalog.getPath();
-        AssetInfoDTO assetInfo;
+        String path = assets.getPath();
+        String backgroundId = assets.randomId(AssetType.BACKGROUND);
 
-        for (Object body : bodyDef) {
-            assetId = ((VItemDto)body).assetId;
-            assetInfo = catalog.get(assetId);
-
-            if (assetInfo == null) {
-                System.out.println("Resource info <" + assetId + "> not found in catalog");
-            } else {
-
-                fileName = catalog.get(assetId).fileName;
-                this.images.add(assetId, path + fileName);
-            }
+        for (String assetId : assets.getAssetIds()) {
+            fileName = assets.get(assetId).fileName;
+            this.images.add(assetId, path + fileName);
         }
+
+        this.background = this.images.getImage(backgroundId).image;
     }
 
 
@@ -353,6 +319,6 @@ public class View extends JFrame implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // No usado
+        // Nothing to do
     }
 }

@@ -1,7 +1,7 @@
 package controller;
 
 
-import assets.ProjectAssets;
+import assets.AssetCatalog;
 import java.awt.Dimension;
 import view.renderables.DBodyInfoDTO;
 import view.View;
@@ -16,9 +16,7 @@ import model.ActionExecutor;
 import model.ActionPriority;
 import model.EventDTO;
 import model.entities.AbstractEntity;
-import model.weapons.WeaponDto;
 import view.renderables.EntityInfoDTO;
-import world.WorldDefinition;
 
 
 /**
@@ -87,26 +85,23 @@ import world.WorldDefinition;
  */
 public class Controller {
 
-    private ProjectAssets assets;
     private volatile EngineState engineState;
     private int maxDBody;
     private Model model;
     private View view;
-    private WorldDefinition world;
     private Dimension worldDimension;
 
 
-    public Controller() {
+    public Controller(int worldWidth, int worldHigh, int maxDBodies,
+            View view, Model model, AssetCatalog assets) {
+
         this.engineState = EngineState.STARTING;
-    }
-
-
-    public Controller(View view, Model model, ProjectAssets assets) {
-        this.engineState = EngineState.STARTING;
-        this.assets = assets;
-
+        this.setWorldDimension(worldWidth, worldHigh);
+        this.setMaxDBody(maxDBodies);
         this.setModel(model);
         this.setView(view);
+
+        this.view.loadAssets(assets);
     }
 
 
@@ -116,14 +111,6 @@ public class Controller {
     public void activate() {
         if (this.worldDimension == null) {
             throw new IllegalArgumentException("Null world dimension");
-        }
-
-        if (this.assets == null) {
-            throw new IllegalArgumentException("Assets are not setted");
-        }
-
-        if (this.world == null) {
-            throw new IllegalArgumentException("World definition not setted");
         }
 
         if (this.maxDBody <= 0) {
@@ -138,7 +125,6 @@ public class Controller {
             throw new IllegalArgumentException("No model injected");
         }
 
-        this.view.loadAssets(this.assets, this.world);
         this.view.setDimension(this.worldDimension);
         this.view.activate();
 
@@ -157,7 +143,6 @@ public class Controller {
         this.model.addDBody(
                 assetId, size, posX, posY, speedX, speedY, accX, accY,
                 angle, angularSpeed, angularAcc, thrust);
-
     }
 
 
@@ -168,7 +153,6 @@ public class Controller {
         return this.model.addPlayer(
                 assetId, size, posX, posY, speedX, speedY, accX, accY,
                 angle, angularSpeed, angularAcc, thrust);
-
     }
 
 
@@ -176,7 +160,6 @@ public class Controller {
             String assetId, double size, double posX, double posY, double angle) {
 
         this.model.addSBody(assetId, size, posX, posY, angle);
-
         ArrayList<EntityInfoDTO> bodiesInfo = this.getSBodyInfo();
         this.view.updateSBodyInfo(bodiesInfo);
     }
@@ -222,8 +205,7 @@ public class Controller {
     }
 
 
-    private List<ActionDTO> applyGameRules(
-            AbstractEntity entity, EventDTO event) {
+    private List<ActionDTO> applyGameRules(AbstractEntity entity, EventDTO event) {
 
         List<ActionDTO> actions = new ArrayList<>(2);
 
@@ -256,6 +238,16 @@ public class Controller {
     }
 
 
+    public void engineStop() {
+        this.engineState = EngineState.STOPPED;
+    }
+
+
+    public void enginePause() {
+        this.engineState = EngineState.PAUSED;
+    }
+
+
     public EngineState getEngineState() {
         return this.engineState;
     }
@@ -278,6 +270,11 @@ public class Controller {
 
     public Dimension getWorldDimension() {
         return this.worldDimension;
+    }
+
+
+    public void loadAssets(AssetCatalog assets) {
+        this.view.loadAssets(assets);
     }
 
 
@@ -319,10 +316,6 @@ public class Controller {
     public void selectNextWeapon(String playerId) {
         this.model.selectNextWeapon(playerId);
     }
-    
-    public void setAssets(ProjectAssets assets) {
-        this.assets = assets;
-    }
 
 
     public void setLocalPlayer(String playerId) {
@@ -342,11 +335,6 @@ public class Controller {
     }
 
 
-    public void setWorld(WorldDefinition world) {
-        this.world = world;
-    }
-
-
     public void setWorldDimension(int width, int height) {
         this.worldDimension = new Dimension(width, height);
     }
@@ -354,16 +342,6 @@ public class Controller {
 
     public void setMaxDBody(int maxDBody) {
         this.maxDBody = maxDBody;
-    }
-
-
-    public void engineStop() {
-        this.engineState = EngineState.STOPPED;
-    }
-
-
-    public void enginePause() {
-        this.engineState = EngineState.PAUSED;
     }
 
 
