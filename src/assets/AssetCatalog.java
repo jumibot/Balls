@@ -11,7 +11,7 @@ import java.util.Random;
 public class AssetCatalog {
 
     private final String path;
-    private final Map<String, AssetInfo> assetsById = new HashMap<>();
+    private final Map<String, AssetInfoDTO> assetsById = new HashMap<>();
     private Random rnd = new Random();
 
 
@@ -31,12 +31,12 @@ public class AssetCatalog {
 
         this.assetsById.put(
                 assetId,
-                new AssetInfo(assetId, fileName, type, intensity));
+                new AssetInfoDTO(assetId, fileName, type, intensity));
     }
 
 
-    public AssetInfo get(String assetId) {
-        AssetInfo aInfo = assetsById.get(assetId);
+    public AssetInfoDTO get(String assetId) {
+        AssetInfoDTO aInfo = assetsById.get(assetId);
         return aInfo;
     }
 
@@ -59,7 +59,7 @@ public class AssetCatalog {
         // Filtrar solo los ids del tipo solicitado
         List<String> filtered = new ArrayList<>();
 
-        for (Map.Entry<String, AssetInfo> entry : assetsById.entrySet()) {
+        for (Map.Entry<String, AssetInfoDTO> entry : assetsById.entrySet()) {
             if (entry.getValue().type == type) {
                 filtered.add(entry.getKey());
             }
@@ -81,7 +81,7 @@ public class AssetCatalog {
 
         List<String> filtered = new ArrayList<>();
 
-        for (AssetInfo info : assetsById.values()) {
+        for (AssetInfoDTO info : assetsById.values()) {
             if (info.type == type && info.intensity == intensity) {
                 filtered.add(info.assetId);
             }

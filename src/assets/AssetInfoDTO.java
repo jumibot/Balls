@@ -1,7 +1,7 @@
 package assets;
 
 
-public class AssetInfo {
+public class AssetInfoDTO {
 
     public final String assetId;
     public final String fileName; 
@@ -9,7 +9,7 @@ public class AssetInfo {
     public final AssetIntensity intensity;
 
 
-    public AssetInfo(String assetId, String fileName, 
+    public AssetInfoDTO(String assetId, String fileName, 
             AssetType type, AssetIntensity intensity) {
         
         this.assetId = assetId;

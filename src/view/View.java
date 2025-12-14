@@ -4,7 +4,7 @@ package view;
 import view.renderables.DBodyInfoDTO;
 import _images.Images;
 import assets.AssetCatalog;
-import assets.AssetInfo;
+import assets.AssetInfoDTO;
 import assets.ProjectAssets;
 import controller.Controller;
 import controller.EngineState;
@@ -168,7 +168,7 @@ public class View extends JFrame implements KeyListener {
         String fileName;
         String assetId; 
         String path = catalog.getPath();
-        AssetInfo assetInfo;
+        AssetInfoDTO assetInfo;
 
         for (Object body : bodyDef) {
             assetId = ((VItemDto)body).assetId;
