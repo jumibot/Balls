@@ -28,92 +28,72 @@ import java.util.HashMap;
 import java.util.Map;
 import view.renderables.EntityInfoDTO;
 
+
 /**
- * Renderer
- * --------
+ * Renderer --------
  *
- * Active rendering loop responsible for drawing the current frame to the screen.
- * This class owns the rendering thread and performs all drawing using a
+ * Active rendering loop responsible for drawing the current frame to the
+ * screen. This class owns the rendering thread and performs all drawing using a
  * BufferStrategy-based back buffer.
  *
- * Architectural role
- * ------------------
- * The Renderer is a pull-based consumer of visual snapshots provided by the View.
- * It never queries or mutates the model directly.
+ * Architectural role ------------------ The Renderer is a pull-based consumer
+ * of visual snapshots provided by the View. It never queries or mutates the
+ * model directly.
  *
  * Rendering is decoupled from simulation through immutable snapshot DTOs
  * (EntityInfoDTO / DBodyInfoDTO), ensuring that rendering remains deterministic
  * and free of model-side race conditions.
  *
- * Threading model
- * ---------------
- * - A dedicated render thread drives the render loop (Runnable).
- * - Rendering is active only while the engine state is ALIVE.
+ * Threading model --------------- - A dedicated render thread drives the render
+ * loop (Runnable). - Rendering is active only while the engine state is ALIVE.
  * - The loop terminates cleanly when the engine reaches STOPPED.
  *
- * Data access patterns
- * --------------------
- * Three different renderable collections are used, each with a consciously
- * chosen concurrency strategy based on update frequency and thread ownership:
+ * Data access patterns -------------------- Three different renderable
+ * collections are used, each with a consciously chosen concurrency strategy
+ * based on update frequency and thread ownership:
  *
- * 1) Dynamic bodies (DBodies)
- *    - Stored in a plain HashMap.
- *    - Updated and rendered exclusively by the render thread.
- *    - No concurrent access → no synchronization required.
+ * 1) Dynamic bodies (DBodies) - Stored in a plain HashMap. - Updated and
+ * rendered exclusively by the render thread. - No concurrent access → no
+ * synchronization required.
  *
- * 2) Static bodies (SBodies)
- *    - Rarely updated, potentially from non-render threads
- *      (model → controller → view).
- *    - Stored using a copy-on-write strategy:
- *        * Updates create a new Map instance.
- *        * The reference is swapped atomically via a volatile field.
- *    - The render thread only reads stable snapshots.
+ * 2) Static bodies (SBodies) - Rarely updated, potentially from non-render
+ * threads (model → controller → view). - Stored using a copy-on-write strategy:
+ * * Updates create a new Map instance. * The reference is swapped atomically
+ * via a volatile field. - The render thread only reads stable snapshots.
  *
- * 3) Decorators
- *    - Same access pattern as static bodies.
- *    - Uses the same copy-on-write + atomic swap strategy.
+ * 3) Decorators - Same access pattern as static bodies. - Uses the same
+ * copy-on-write + atomic swap strategy.
  *
- * This design avoids locks, minimizes contention, and guarantees that the render
- * thread always iterates over a fully consistent snapshot.
+ * This design avoids locks, minimizes contention, and guarantees that the
+ * render thread always iterates over a fully consistent snapshot.
  *
- * Frame tracking
- * --------------
- * A monotonically increasing frame counter (currentFrame) is used to:
- * - Track renderable liveness.
- * - Remove obsolete renderables deterministically.
+ * Frame tracking -------------- A monotonically increasing frame counter
+ * (currentFrame) is used to: - Track renderable liveness. - Remove obsolete
+ * renderables deterministically.
  *
  * Each update method captures a local frame snapshot to ensure internal
  * consistency, even if the global frame counter advances later.
  *
- * Rendering pipeline
- * ------------------
- * Per frame:
- * 1) Background is rendered to a VolatileImage for fast blitting.
- * 2) Decorators are drawn.
- * 3) Static bodies are drawn.
- * 4) Dynamic bodies are updated and drawn.
- * 5) HUD elements (FPS) are rendered last.
+ * Rendering pipeline ------------------ Per frame: 1) Background is rendered to
+ * a VolatileImage for fast blitting. 2) Decorators are drawn. 3) Static bodies
+ * are drawn. 4) Dynamic bodies are updated and drawn. 5) HUD elements (FPS) are
+ * rendered last.
  *
  * Alpha compositing is used to separate opaque background rendering from
  * transparent entities.
  *
- * Performance considerations
- * --------------------------
- * - Triple buffering via BufferStrategy.
- * - VolatileImage used for background caching.
- * - Target frame rate ~60 FPS (16 ms delay).
- * - FPS is measured using a rolling one-second window.
+ * Performance considerations -------------------------- - Triple buffering via
+ * BufferStrategy. - VolatileImage used for background caching. - Target frame
+ * rate ~60 FPS (16 ms delay). - FPS is measured using a rolling one-second
+ * window.
  *
- * Design goals
- * ------------
- * - Deterministic rendering.
- * - Zero blocking in the render loop.
- * - Clear ownership of mutable state.
- * - Explicit, documented concurrency decisions.
+ * Design goals ------------ - Deterministic rendering. - Zero blocking in the
+ * render loop. - Clear ownership of mutable state. - Explicit, documented
+ * concurrency decisions.
  *
  * This class is intended to behave as a low-level rendering component suitable
  * for a small game engine rather than a UI-centric Swing renderer.
- * 
+ *
  */
 public class Renderer extends Canvas implements Runnable {
 
@@ -128,13 +108,8 @@ public class Renderer extends Canvas implements Runnable {
     private Thread thread;
 
     private BufferedImage background;
-    private Images dBodyImage;
-    private Images sBodyImage;
-    private Images decoratorImage;
-
-    private ImageCache dBodyCache;
-    private ImageCache sBodyCache;
-    private ImageCache decoratorCache;
+    private Images images;
+    private ImageCache imagesCache;
     private VolatileImage viBackground;
 
     private final Map<Integer, DBodyRenderable> dBodyRenderables = new HashMap<>();
@@ -167,21 +142,12 @@ public class Renderer extends Canvas implements Runnable {
     }
 
 
-    public void setImages(
-            BufferedImage background, Images dBody,
-            Images sBody, Images sDecorator) {
-
+    public void setImages(BufferedImage background, Images images) {
         this.background = background;
         this.viBackground = null;
 
-        this.dBodyImage = dBody;
-        this.dBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.dBodyImage);
-
-        this.sBodyImage = sBody;
-        this.sBodyCache = new ImageCache(this.getGraphicsConfSafe(), this.sBodyImage);
-
-        this.decoratorImage = sDecorator;
-        this.decoratorCache = new ImageCache(this.getGraphicsConfSafe(), this.decoratorImage);
+        this.images = images;
+        this.imagesCache = new ImageCache(this.getGraphicsConfSafe(), this.images);
     }
 
 
@@ -206,7 +172,7 @@ public class Renderer extends Canvas implements Runnable {
         BufferStrategy bs = getBufferStrategy();
 
         if (this.viewDimension == null) {
-            throw new IllegalArgumentException("View dimensions not setteds");
+            throw new IllegalArgumentException("View dimensions not setted");
         }
 
         if ((this.viewDimension.width <= 0) || (this.viewDimension.height
@@ -256,7 +222,7 @@ public class Renderer extends Canvas implements Runnable {
             int id = decoInfo.entityId;
             EntityRenderable renderable = next.get(id);
             if (renderable == null) {
-                next.put(id, new EntityRenderable(decoInfo, this.decoratorCache, cFrame));
+                next.put(id, new EntityRenderable(decoInfo, this.imagesCache, cFrame));
             } else {
                 renderable.update(decoInfo, cFrame);
             }
@@ -288,7 +254,7 @@ public class Renderer extends Canvas implements Runnable {
             int id = bodyInfo.entityId;
             EntityRenderable renderable = next.get(id);
             if (renderable == null) {
-                next.put(id, new EntityRenderable(bodyInfo, this.sBodyCache, cFrame));
+                next.put(id, new EntityRenderable(bodyInfo, this.imagesCache, cFrame));
             } else {
                 renderable.update(bodyInfo, cFrame);
             }
@@ -326,6 +292,7 @@ public class Renderer extends Canvas implements Runnable {
 
         g.setColor(Color.YELLOW);
         g.drawString("FPS: " + fps, 12, 20);
+        
         g.setColor(old);
     }
 
@@ -436,7 +403,7 @@ public class Renderer extends Canvas implements Runnable {
             DBodyRenderable renderable = this.dBodyRenderables.get(id);
             if (renderable == null) {
                 // First time this VObject appears → create a cached renderable
-                renderable = new DBodyRenderable(bodyInfo, this.dBodyCache, cFrame);
+                renderable = new DBodyRenderable(bodyInfo, this.imagesCache, cFrame);
                 this.dBodyRenderables.put(id, renderable);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed

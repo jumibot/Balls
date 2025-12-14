@@ -92,6 +92,15 @@ public class Model {
     }
 
 
+    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
+        DecoEntity deco = new DecoEntity(assetId, size, posX, posY, angle);
+
+        deco.setModel(this);
+        deco.activate();
+        this.decorators.put(deco.getEntityId(), deco);
+    }
+
+
     public String addPlayer(String assetId, double size,
             double posX, double posY, double speedX, double speedY,
             double accX, double accY,
@@ -108,21 +117,6 @@ public class Model {
 
         PlayerBody pBody
                 = new PlayerBody(assetId, size, new BasicPhysicsEngine(phyVals));
-
-        // Add Weapon
-        WeaponDto cfg = new WeaponDto(
-                "projectile_basic",
-                4.0, // Size
-                600.0, // firingSpeed
-                0.0, // acceleration 
-                0.0, // acceleration time
-                0, // shootingOffeset 
-                0, // burstSize (single shot)
-                6.0 // fireRatePerSec 
-        );
-
-        BasicWeapon weapon = new BasicWeapon(cfg);
-        pBody.addWeapon(weapon);
 
         pBody.setModel(this);
         pBody.activate();
@@ -144,12 +138,22 @@ public class Model {
     }
 
 
-    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
-        DecoEntity deco = new DecoEntity(assetId, size, posX, posY, angle);
+    public void addWeaponToPlayer(
+            String playerId, String projectileAssetId, double projectileSize,
+            double firingSpeed, double acceleration, double accelerationTime,
+            double shootingOffset, int burstSize, double fireRate) {
 
-        deco.setModel(this);
-        deco.activate();
-        this.decorators.put(deco.getEntityId(), deco);
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody == null) {
+            return; // ========= Player not found =========>
+        }
+
+        Weapon weapon = new BasicWeapon(
+                projectileAssetId, projectileSize,
+                firingSpeed, acceleration, accelerationTime,
+                shootingOffset, burstSize, fireRate);
+
+        pBody.addWeapon(weapon);
     }
 
 
@@ -310,6 +314,16 @@ public class Model {
                 dBodyToCheck.setState(EntityState.ALIVE);
             }
         }
+    }
+
+
+    public void selectNextWeapon(String playerId) {
+        PlayerBody pBody = this.pBodies.get(playerId);
+        if (pBody == null) {
+            return;
+        }
+        
+        pBody.selectNextWeapon();
     }
 
 
@@ -499,8 +513,8 @@ public class Model {
             return;
         }
 
-        WeaponDto cfg = activeWeapon.getWeaponConfig();
-        if (cfg == null) {
+        WeaponDto weaponConfig = activeWeapon.getWeaponConfig();
+        if (weaponConfig == null) {
             return;
         }
 
@@ -510,17 +524,18 @@ public class Model {
         double dirX = Math.cos(angleRad);
         double dirY = Math.sin(angleRad);
 
-        double spawnX = shooterNewPhy.posX + cfg.shootingOffeset * dirX;
-        double spawnY = shooterNewPhy.posY + cfg.shootingOffeset * dirY;
+        double angleInRads = Math.toRadians(shooterNewPhy.angle - 90);
+        double spawnX = shooterNewPhy.posX + Math.cos(angleInRads) * weaponConfig.shootingOffeset;
+        double spawnY = shooterNewPhy.posY + Math.sin(angleInRads) * weaponConfig.shootingOffeset;
 
-        double projSpeedX = shooterNewPhy.speedX + cfg.firingSpeed * dirX;
-        double projSpeedY = shooterNewPhy.speedY + cfg.firingSpeed * dirY;
+        double projSpeedX = shooterNewPhy.speedX + weaponConfig.firingSpeed * dirX;
+        double projSpeedY = shooterNewPhy.speedY + weaponConfig.firingSpeed * dirY;
 
-        double accX = cfg.acceleration * dirX;
-        double accY = cfg.acceleration * dirY;
+        double accX = weaponConfig.acceleration * dirX;
+        double accY = weaponConfig.acceleration * dirY;
 
         this.addDBody(
-                cfg.projectileAssetId, cfg.projectileSize,
+                weaponConfig.projectileAssetId, weaponConfig.projectileSize,
                 spawnX, spawnY, projSpeedX, projSpeedY,
                 accX, accY, angleDeg, 0d, 0d, 0d);
     }

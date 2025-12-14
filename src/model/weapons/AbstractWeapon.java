@@ -87,26 +87,39 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class AbstractWeapon implements Weapon {
 
     private final String id;
-    private final WeaponDto weaponConfig;
+    private final String projectileAssetId;
+    private final double projectileSize;
+    private final double firingSpeed;
+    private final double acceleration;
+    private final double accelerationTime;
+    private final double shootingOffset;
+    private final int burstSize;
+    private final double fireRate; // shoot x seconds^-1
     private final AtomicLong lastFireRequest = new AtomicLong(0L);
     protected long lastHandledRequest = 0L;
 
 
-    protected AbstractWeapon(WeaponDto config) {
-        if (config == null) {
-            throw new IllegalArgumentException("WeaponDto cannot be null. Weapon not created");
-        }
-        if (config.fireRate <= 0) {
+    public AbstractWeapon(String projectileAssetId, double projectileSize,
+            double firingSpeed, double acceleration, double accelerationTime,
+            double shootingOffset, int burstSize, double fireRate) {
+
+        if (fireRate <= 0) {
             throw new IllegalArgumentException(
                     "fireRatePerSec must be > 0. Weapon not created");
         }
 
         this.id = UUID.randomUUID().toString();
-        this.weaponConfig = config;
+        this.projectileAssetId = projectileAssetId;
+        this.projectileSize = projectileSize;
+        this.firingSpeed = firingSpeed;
+        this.acceleration = acceleration;
+        this.accelerationTime = accelerationTime;
+        this.shootingOffset = shootingOffset;
+        this.burstSize = burstSize;
+        this.fireRate = fireRate;
     }
 
 
-    @Override
     public String getId() {
         return this.id;
     }
@@ -114,7 +127,17 @@ public abstract class AbstractWeapon implements Weapon {
 
     @Override
     public WeaponDto getWeaponConfig() {
-        return this.weaponConfig;
+        WeaponDto weaponConfig = new WeaponDto(
+                this.projectileAssetId,
+                this.projectileSize,
+                this.firingSpeed,
+                this.acceleration,
+                this.accelerationTime,
+                this.shootingOffset,
+                this.burstSize,
+                this.fireRate);
+
+        return weaponConfig;
     }
 
 

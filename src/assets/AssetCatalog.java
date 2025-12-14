@@ -11,7 +11,7 @@ import java.util.Random;
 public class AssetCatalog {
 
     private final String path;
-    private final Map<String, AssetInfo> assetsById = new HashMap<>();
+    private final Map<String, AssetInfoDTO> assetsById = new HashMap<>();
     private Random rnd = new Random();
 
 
@@ -31,12 +31,23 @@ public class AssetCatalog {
 
         this.assetsById.put(
                 assetId,
-                new AssetInfo(assetId, fileName, type, intensity));
+                new AssetInfoDTO(assetId, fileName, type, intensity));
     }
 
 
-    public AssetInfo get(String assetId) {
-        AssetInfo aInfo = assetsById.get(assetId);
+    public void register(AssetInfoDTO assetInfo) {
+        this.assetsById.put(
+                assetInfo.assetId,
+                new AssetInfoDTO(
+                        assetInfo.assetId,
+                        assetInfo.fileName,
+                        assetInfo.type,
+                        assetInfo.intensity));
+    }
+
+
+    public AssetInfoDTO get(String assetId) {
+        AssetInfoDTO aInfo = assetsById.get(assetId);
         return aInfo;
     }
 
@@ -52,19 +63,21 @@ public class AssetCatalog {
 
 
     public String randomId(AssetType type) {
+        if (type == null) {
+            throw new IllegalStateException("Asset type is null!");
+        }
 
         // Filtrar solo los ids del tipo solicitado
         List<String> filtered = new ArrayList<>();
 
-        for (Map.Entry<String, AssetInfo> entry : assetsById.entrySet()) {
-            if (type == null || entry.getValue().type == type) {
+        for (Map.Entry<String, AssetInfoDTO> entry : assetsById.entrySet()) {
+            if (entry.getValue().type == type) {
                 filtered.add(entry.getKey());
             }
         }
 
         if (filtered.isEmpty()) {
-            throw new IllegalStateException("No hay assets del tipo " + type
-                    + " en el catálogo: " + path);
+            throw new IllegalStateException("There isn't any asset <" + type + ">");
         }
 
         return filtered.get(rnd.nextInt(filtered.size()));
@@ -72,10 +85,13 @@ public class AssetCatalog {
 
 
     public String randomId(AssetType type, AssetIntensity intensity) {
+        if (type == null) {
+            throw new IllegalStateException("Asset type is null!");
+        }
 
         List<String> filtered = new ArrayList<>();
 
-        for (AssetInfo info : assetsById.values()) {
+        for (AssetInfoDTO info : assetsById.values()) {
             if (info.type == type && info.intensity == intensity) {
                 filtered.add(info.assetId);
             }

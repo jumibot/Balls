@@ -2,7 +2,6 @@ package assets;
 
 
 public enum AssetType {
-    SPACE_BACKGROUND,
     BLACK_HOLE,
     MOON,
     PLANET,
@@ -23,8 +22,9 @@ public enum AssetType {
     STARS,
     ROCKET,
     SPACESHIP,
-    SIGN,
+    UI_SIGN,
     BULLET,
     BOMB,
-    MISIL
+    MISIL,
+    BACKGROUND
 }
