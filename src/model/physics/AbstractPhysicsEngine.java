@@ -47,6 +47,118 @@ public abstract class AbstractPhysicsEngine {
     }
 
 
+    public void reboundInEast(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+            double worldDim_x, double worldDim_y) {
+
+        // New speed: horizontal component flipped, vertical preserved
+        double speedX = -newPhyVals.speedX;
+        double speedY = newPhyVals.speedY;
+
+        // New position: snapped to the east boundary (slightly inside)
+        double posX = 0.0001;
+        double posY = newPhyVals.posY;
+
+        // Acceleration is preserved
+        double accX = newPhyVals.accX;
+        double accY = newPhyVals.accY;
+
+        PhysicsValues reboundPhyVals = new PhysicsValues(
+                newPhyVals.timeStamp,
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                oldPhyVals.angle,
+                oldPhyVals.angularSpeed, oldPhyVals.angularSpeed,
+                oldPhyVals.thrust);
+
+        this.setPhysicsValues(reboundPhyVals);
+    }
+
+
+    public void reboundInWest(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+            double worldDim_x, double worldDim_y) {
+
+        // New speed: horizontal component flipped, vertical preserved
+        double speedX = -newPhyVals.speedX;
+        double speedY = newPhyVals.speedY;
+
+        // New position: snapped to the east boundary (slightly inside)
+        double posX = worldDim_x - 0.0001;
+        double posY = newPhyVals.posY;
+
+        // Acceleration is preserved
+        double accX = newPhyVals.accX;
+        double accY = newPhyVals.accY;
+
+        PhysicsValues reboundPhyVals = new PhysicsValues(
+                newPhyVals.timeStamp,
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                oldPhyVals.angle,
+                oldPhyVals.angularSpeed, oldPhyVals.angularSpeed,
+                oldPhyVals.thrust);
+
+        this.setPhysicsValues(reboundPhyVals);
+    }
+
+
+    public void reboundInNorth(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+            double worldDim_x, double worldDim_y) {
+
+        // New speed: horizontal component flipped, vertical preserved
+        double speedX = newPhyVals.speedX;
+        double speedY = -newPhyVals.speedY;
+
+        // New position: snapped to the east boundary (slightly inside)
+        double posX = newPhyVals.posX;
+        double posY = 0.0001;
+
+        // Acceleration is preserved
+        double accX = newPhyVals.accX;
+        double accY = newPhyVals.accY;
+
+        PhysicsValues reboundPhyVals = new PhysicsValues(
+                newPhyVals.timeStamp,
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                oldPhyVals.angle,
+                oldPhyVals.angularSpeed, oldPhyVals.angularSpeed,
+                oldPhyVals.thrust);
+
+        this.setPhysicsValues(reboundPhyVals);
+    }
+
+
+    public void reboundInSouth(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+            double worldDim_x, double worldDim_y) {
+
+        // New speed: horizontal component flipped, vertical preserved
+        double speedX = newPhyVals.speedX;
+        double speedY = -newPhyVals.speedY;
+
+        // New position: snapped to the east boundary (slightly inside)
+        double posX = newPhyVals.posX;
+        double posY = worldDim_y - 0.0001;
+
+        // Acceleration is preserved
+        double accX = newPhyVals.accX;
+        double accY = newPhyVals.accY;
+
+        PhysicsValues reboundPhyVals = new PhysicsValues(
+                newPhyVals.timeStamp,
+                posX, posY,
+                speedX, speedY,
+                accX, accY,
+                oldPhyVals.angle,
+                oldPhyVals.angularSpeed, oldPhyVals.angularSpeed,
+                oldPhyVals.thrust);
+
+        this.setPhysicsValues(reboundPhyVals);
+    }
+
+
     public void resetAcceleration() {
         PhysicsValues old = this.getPhysicsValues();
         this.setPhysicsValues(new PhysicsValues(
