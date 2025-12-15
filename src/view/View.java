@@ -4,9 +4,7 @@ package view;
 import view.renderables.DBodyInfoDTO;
 import _images.Images;
 import assets.AssetCatalog;
-import assets.AssetInfoDTO;
 import assets.AssetType;
-import assets.ProjectAssets;
 import controller.Controller;
 import controller.EngineState;
 import java.awt.Container;
@@ -17,13 +15,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import view.renderables.EntityInfoDTO;
-import world.BackgroundDto;
-import world.VItemDto;
-import world.WorldDefinition;
 
 
 /**
@@ -92,15 +86,13 @@ import world.WorldDefinition;
  */
 public class View extends JFrame implements KeyListener {
 
-    private Controller controller = null;
-    private ControlPanel controlPanel;
-    private Renderer renderer;
-    private Dimension worldDimension;
-
     private BufferedImage background;
-    private Images images = new Images("");
-
+    private Controller controller;
+    private final ControlPanel controlPanel;
+    private final Images images;
     private String localPlayerId;
+    private final Renderer renderer;
+    private Dimension viewDimension;
 
     private boolean fireKeyDown = false;
 
@@ -109,10 +101,9 @@ public class View extends JFrame implements KeyListener {
      * CONSTRUCTOR
      */
     public View() {
+        this.images = new Images("");
         this.controlPanel = new ControlPanel(this);
-
         this.renderer = new Renderer(this);
-
         this.createFrame();
     }
 
@@ -121,11 +112,11 @@ public class View extends JFrame implements KeyListener {
      * PUBLIC
      */
     public void activate() {
-        if (this.worldDimension == null) {
+        if (this.viewDimension == null) {
             throw new IllegalArgumentException("View dimensions not setted");
         }
 
-        this.renderer.SetViewDimension(this.worldDimension);
+        this.renderer.SetViewDimension(this.viewDimension);
         this.renderer.setImages(this.background, this.images);
         this.renderer.activate();
         this.pack();
@@ -140,13 +131,14 @@ public class View extends JFrame implements KeyListener {
     public void loadAssets(AssetCatalog assets) {
         String fileName;
         String path = assets.getPath();
-        String backgroundId = assets.randomId(AssetType.BACKGROUND);
 
         for (String assetId : assets.getAssetIds()) {
             fileName = assets.get(assetId).fileName;
             this.images.add(assetId, path + fileName);
         }
 
+        // Setting background
+        String backgroundId = assets.randomId(AssetType.BACKGROUND);
         this.background = this.images.getImage(backgroundId).image;
     }
 
@@ -157,7 +149,7 @@ public class View extends JFrame implements KeyListener {
 
 
     public void setDimension(Dimension worldDim) {
-        this.worldDimension = worldDim;
+        this.viewDimension = worldDim;
     }
 
 
@@ -166,13 +158,8 @@ public class View extends JFrame implements KeyListener {
     }
 
 
-    public void updateSBodyInfo(ArrayList<EntityInfoDTO> bodiesInfo) {
-        this.renderer.updateSBodyRenderables(bodiesInfo);
-    }
-
-
-    public void updateDecoratorsInfo(ArrayList<EntityInfoDTO> decosInfo) {
-        this.renderer.updateDecoratosRenderables(decosInfo);
+    public void updateStaticRenderables(ArrayList<EntityInfoDTO> bodiesInfo) {
+        this.renderer.updateStaticRenderables(bodiesInfo);
     }
 
 
@@ -185,15 +172,6 @@ public class View extends JFrame implements KeyListener {
         }
 
         return this.controller.getDBodyInfo();
-    }
-
-
-    protected ArrayList<EntityInfoDTO> getSBodyInfo() {
-        if (this.controller == null) {
-            throw new IllegalArgumentException("Controller not setted");
-        }
-
-        return this.controller.getSBodyInfo();
     }
 
 

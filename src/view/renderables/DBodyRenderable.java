@@ -18,9 +18,6 @@ public class DBodyRenderable extends EntityRenderable {
     }
 
 
-    /**
-     * PUBLICS
-     */
     @Override
     public void paint(Graphics2D g) {
         DBodyInfoDTO bodyInfo = (DBodyInfoDTO) this.getEntityInfo();
@@ -49,12 +46,3 @@ public class DBodyRenderable extends EntityRenderable {
         }
     }
 }
-
-// Arrow end -> to be debugged
-// double angle = Math.atan2(y2 - y, x2 - x);
-//            AffineTransform old = g.getTransform();
-//            g.translate(x + (int) (bodyInfo.speedX) / 10, y + (int) (bodyInfo.speedY) / 10 + 5);
-//            g.rotate(angle);
-//            g.setFont(g.getFont().deriveFont(10f));
-//            g.drawString("►", 0, 0);
-//            g.setTransform(old);

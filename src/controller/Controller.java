@@ -98,9 +98,10 @@ public class Controller {
         this.engineState = EngineState.STARTING;
         this.setWorldDimension(worldWidth, worldHigh);
         this.setMaxDBody(maxDBodies);
-        this.setModel(model);
-        this.setView(view);
 
+        this.setModel(model);
+
+        this.setView(view);
         this.view.loadAssets(assets);
     }
 
@@ -146,6 +147,13 @@ public class Controller {
     }
 
 
+    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
+        this.model.addDecorator(assetId, size, posX, posY, angle);
+        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();    
+        this.view.updateStaticRenderables(staticsInfo);
+    }
+
+
     public String addPlayer(String assetId, double size, double posX, double posY,
             double speedX, double speedY, double accX, double accY,
             double angle, double angularSpeed, double angularAcc, double thrust) {
@@ -160,16 +168,8 @@ public class Controller {
             String assetId, double size, double posX, double posY, double angle) {
 
         this.model.addSBody(assetId, size, posX, posY, angle);
-        ArrayList<EntityInfoDTO> bodiesInfo = this.getSBodyInfo();
-        this.view.updateSBodyInfo(bodiesInfo);
-    }
-
-
-    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
-        this.model.addDecorator(assetId, size, posX, posY, angle);
-
-        ArrayList<EntityInfoDTO> decosInfo = this.getDecoratorInfo();
-        this.view.updateDecoratorsInfo(decosInfo);
+        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();    
+        this.view.updateStaticRenderables(staticsInfo);
     }
 
 
@@ -182,26 +182,6 @@ public class Controller {
                 playerId, projectileAssetId, projectileSize,
                 firingSpeed, acceleration, accelerationTime,
                 shootingOffset, burstSize, fireRate);
-    }
-
-
-    public List<ActionDTO> decideActions(AbstractEntity entity, List<EventDTO> events) {
-        List<ActionDTO> actions = new ArrayList<>();
-
-        if (events != null) {
-            for (EventDTO event : events) {
-                if (event != null && event.eventType != null && event.eventType != EventType.NONE) {
-                    actions.addAll(applyGameRules(entity, event));
-                }
-            }
-        }
-
-        if (!containsDeathLikeAction(actions)) {
-            actions.add(new ActionDTO(
-                    ActionType.MOVE, ActionExecutor.BODY, ActionPriority.NORMAL));
-        }
-
-        return actions;
     }
 
 
@@ -233,18 +213,38 @@ public class Controller {
     }
 
 
+    public List<ActionDTO> decideActions(AbstractEntity entity, List<EventDTO> events) {
+        List<ActionDTO> actions = new ArrayList<>();
+
+        if (events != null) {
+            for (EventDTO event : events) {
+                if (event != null && event.eventType != null && event.eventType != EventType.NONE) {
+                    actions.addAll(applyGameRules(entity, event));
+                }
+            }
+        }
+
+        if (!containsDeathLikeAction(actions)) {
+            actions.add(new ActionDTO(
+                    ActionType.MOVE, ActionExecutor.BODY, ActionPriority.NORMAL));
+        }
+
+        return actions;
+    }
+
+
     public List<ActionDTO> decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 
-    public void engineStop() {
-        this.engineState = EngineState.STOPPED;
+    public void enginePause() {
+        this.engineState = EngineState.PAUSED;
     }
 
 
-    public void enginePause() {
-        this.engineState = EngineState.PAUSED;
+    public void engineStop() {
+        this.engineState = EngineState.STOPPED;
     }
 
 
@@ -258,14 +258,6 @@ public class Controller {
     }
 
 
-    private ArrayList<EntityInfoDTO> getDecoratorInfo() {
-        return this.model.getDecoratorsInfo();
-    }
-
-
-    public ArrayList<EntityInfoDTO> getSBodyInfo() {
-        return this.model.getSBodyInfo();
-    }
 
 
     public Dimension getWorldDimension() {

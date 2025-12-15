@@ -177,34 +177,41 @@ public class Model {
     }
 
 
-    public ArrayList<EntityInfoDTO> getDecoratorsInfo() {
-        ArrayList<EntityInfoDTO> decoInfoList
+    public ArrayList<EntityInfoDTO> getStaticsInfo() {
+        ArrayList<EntityInfoDTO> staticsInfo
                 = new ArrayList(StaticBody.getAliveQuantity() * 2);
 
         this.decorators.forEach((id, deco) -> {
             EntityInfoDTO entityInfo = deco.buildEntityInfo();
             if (entityInfo != null) {
-                decoInfoList.add(entityInfo);
+                staticsInfo.add(entityInfo);
             }
         });
-
-        return decoInfoList;
-    }
-
-
-    public ArrayList<EntityInfoDTO> getSBodyInfo() {
-        ArrayList<EntityInfoDTO> bodyInfoList
-                = new ArrayList(StaticBody.getAliveQuantity() * 2);
 
         this.sBodies.forEach((id, sBody) -> {
             EntityInfoDTO bodyInfo = sBody.buildEntityInfo();
             if (bodyInfo != null) {
-                bodyInfoList.add(bodyInfo);
+                staticsInfo.add(bodyInfo);
             }
         });
 
-        return bodyInfoList;
+        return staticsInfo;
     }
+
+//
+//    public ArrayList<EntityInfoDTO> getSBodyInfo() {
+//        ArrayList<EntityInfoDTO> staticsInfo
+//                = new ArrayList(StaticBody.getAliveQuantity() * 2);
+//
+//        this.sBodies.forEach((id, sBody) -> {
+//            EntityInfoDTO bodyInfo = sBody.buildEntityInfo();
+//            if (bodyInfo != null) {
+//                staticsInfo.add(bodyInfo);
+//            }
+//        });
+//
+//        return staticsInfo;
+//    }
 
 
     public ModelState getState() {
