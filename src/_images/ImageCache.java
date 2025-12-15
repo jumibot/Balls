@@ -30,7 +30,7 @@ public class ImageCache {
 
     private GraphicsConfiguration gc;
     private Images baseImages;
-    private final Map<CachedImageKeyDTO, BufferedImage> cache = new HashMap<>(2048);
+    private final Map<ImageCacheKeyDTO, BufferedImage> cache = new HashMap<>(2048);
 
 
     public ImageCache(GraphicsConfiguration gc, Images baseImages) {
@@ -43,7 +43,7 @@ public class ImageCache {
      * PUBLICS
      */
     public BufferedImage getImage(double angle, String assetId, int size) {
-        CachedImageKeyDTO key = new CachedImageKeyDTO(angle, assetId, size);
+        ImageCacheKeyDTO key = new ImageCacheKeyDTO(angle, assetId, size);
         BufferedImage image = this.cache.get(key);
 
         if (image == null) {
