@@ -160,6 +160,8 @@ This package structure follows a clear architectural separation, making it easy 
 
 ## Documentation
 
+### Architecture Documentation
+
 For detailed architectural documentation of the main classes, including design patterns, threading models, and implementation guidelines, see:
 
 **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive documentation extracted from source code headers covering:
@@ -169,24 +171,29 @@ For detailed architectural documentation of the main classes, including design p
 
 This documentation provides in-depth explanations of concurrency strategies, lifecycle management, and design philosophies used throughout the codebase.
 
-### Glossary
+### Design Patterns Documentation
 
-For detailed definitions of concepts, technical terms, and system components, see:
+Learn about the architectural patterns and design patterns used in this project:
 
-**[GLOSSARY_EN.md](GLOSSARY_EN.md)** - Complete glossary in English covering:
-- Architecture and Design Patterns
-- Entities
-- Physics Engine
-- Events and Actions System
-- System States
-- World and Generation
-- Weapon System
-- Assets and Rendering
-- Utilities
-- Physics Concepts
-- Concurrent Programming
+#### English Documentation
+- **[Introduction to MVC](docs/en/MVC.md)** - General introduction to the Model-View-Controller pattern
+- **[MVC Pattern Implementation](docs/en/MVC-Pattern.md)** - How MVC is implemented in this project, what it provides, common mistakes, and best practices
+- **[Factory Pattern](docs/en/Factory-Pattern.md)** - How the Factory pattern is used for object creation, benefits, implementation details, and common pitfalls
+- **[Strategy Pattern](docs/en/Strategy-Pattern.md)** - How the Strategy pattern enables interchangeable algorithms (physics engines), usage examples, and anti-patterns
+- **[DTO Pattern](docs/en/DTO-Pattern.md)** - Data Transfer Objects for safe data transfer between layers, thread safety, and implementation guidelines
 
-Also available in Spanish: **[GLOSSARY.md](GLOSSARY.md)**
+#### Documentación en Español
+- **[Introducción a MVC](docs/es/MVC.md)** - Introducción general al patrón Modelo-Vista-Controlador
+- **[Implementación del Patrón MVC](docs/es/MVC-Pattern.md)** - Cómo se implementa MVC en este proyecto, qué aporta, errores comunes y mejores prácticas
+- **[Patrón Factory](docs/es/Factory-Pattern.md)** - Cómo se usa el patrón Factory para creación de objetos, beneficios, detalles de implementación y errores comunes
+- **[Patrón Strategy](docs/es/Strategy-Pattern.md)** - Cómo el patrón Strategy permite algoritmos intercambiables (motores físicos), ejemplos de uso y anti-patrones
+- **[Patrón DTO](docs/es/DTO-Pattern.md)** - Objetos de Transferencia de Datos para transferencia segura entre capas, seguridad de hilos y guías de implementación
+
+Each pattern document explains:
+- **What it provides**: The benefits and advantages of using the pattern
+- **How it's implemented**: Concrete implementation details from this codebase
+- **Common mistakes**: Anti-patterns and errors to avoid when implementing the pattern
+- **Best practices**: Guidelines for proper implementation and usage
 
 ## Getting Started
 
