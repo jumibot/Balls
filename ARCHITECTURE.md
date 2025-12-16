@@ -1,5 +1,7 @@
 # Balls - Architecture Documentation
 
+**English** | **[Español](ARCHITECTURE_ES.md)**
+
 This document provides detailed architectural documentation for the main classes in the Balls game engine. These descriptions are extracted from the header comments in the source code and serve as a reference for understanding the design patterns, threading models, and responsibilities of each component.
 
 ## Table of Contents
@@ -547,6 +549,12 @@ When modifying any of these classes, please ensure that:
 4. **Concurrency models** are respected
 
 To update this documentation, regenerate it from the source headers or manually update both the source files and this document.
+
+## Related Documentation
+
+For detailed definitions of concepts, technical terms, and system components, see:
+
+**[GLOSSARY_EN.md](GLOSSARY_EN.md)** - Complete glossary in English
 
 ## Version
 

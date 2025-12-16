@@ -162,7 +162,7 @@ Esta estructura de paquetes sigue una separación arquitectónica clara, facilit
 
 Para documentación arquitectónica detallada de las clases principales, incluyendo patrones de diseño, modelos de hilos y directrices de implementación, consulta:
 
-**[ARCHITECTURE.md](ARCHITECTURE.md)** - Documentación integral extraída de encabezados de código fuente cubriendo:
+**[ARCHITECTURE_ES.md](ARCHITECTURE_ES.md)** - Documentación integral extraída de encabezados de código fuente cubriendo:
 - Componentes MVC Principales (Controller, Model, View, Renderer)
 - Sistema de Entidades (DynamicBody, StaticBody)
 - Sistema de Armas (AbstractWeapon)
