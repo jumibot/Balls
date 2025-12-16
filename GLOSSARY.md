@@ -1,5 +1,7 @@
 # Glosario de Conceptos - Balls
 
+**[English](GLOSSARY_EN.md)** | **Español**
+
 Este documento proporciona un glosario de los conceptos más importantes utilizados en el proyecto Balls, un motor de física 2D en tiempo real implementado en Java.
 
 ## Arquitectura y Patrones de Diseño
