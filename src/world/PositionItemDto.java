@@ -1,14 +1,14 @@
 package world;
 
 
-public class PositionVItemDto extends VItemDto {
+public class PositionItemDto extends ItemDto {
 
     // Geometry
     public final double posX;
     public final double posY;
 
 
-    public PositionVItemDto(
+    public PositionItemDto(
             String assetId, double size, double angle, 
             double posX, double posY) {
 

@@ -10,7 +10,7 @@ package world;
  *
  * @author juanm
  */
-public class VItemDto {
+public class ItemDto {
 
     public final String assetId;
 
@@ -19,7 +19,7 @@ public class VItemDto {
     public final double angle;
 
 
-    public VItemDto(String assetId, double size, double angle) {
+    public ItemDto(String assetId, double size, double angle) {
         this.assetId = assetId;
         this.size = size;
         this.angle = angle;

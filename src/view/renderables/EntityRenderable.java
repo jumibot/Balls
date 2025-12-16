@@ -63,7 +63,7 @@ public class EntityRenderable {
                 this.entityInfo.posX, this.entityInfo.posY);
 
         g.setTransform(mainRotation);
-        
+
         g.drawImage(
                 this.image,
                 (int) (this.entityInfo.posX - this.entityInfo.size / 2),
@@ -84,10 +84,12 @@ public class EntityRenderable {
                 || this.entityInfo == null
                 || !this.entityInfo.assetId.equals(assetId)
                 || this.entityInfo.size != size
-                || this.entityInfo.angle != angle;
+                || (int) this.entityInfo.angle != (int) angle;
 
         if (imageNeedsUpdate) {
-            this.image = this.cache.getImage(angle, assetId, size);
+            int normalizedAngle = angle > 0 ? (int) angle : (int) (angle + 360);
+            this.image = this.cache.getImage(normalizedAngle, assetId, size);
+            
             return true;
         }
 

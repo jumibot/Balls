@@ -31,6 +31,8 @@ public class ImageCache {
     private GraphicsConfiguration gc;
     private Images baseImages;
     private final Map<ImageCacheKeyDTO, BufferedImage> cache = new HashMap<>(2048);
+    private volatile long hits = 0;
+    private volatile long fails = 0;
 
 
     public ImageCache(GraphicsConfiguration gc, Images baseImages) {
@@ -42,15 +44,44 @@ public class ImageCache {
     /**
      * PUBLICS
      */
-    public BufferedImage getImage(double angle, String assetId, int size) {
+    public BufferedImage getImage(int angle, String assetId, int size) {
         ImageCacheKeyDTO key = new ImageCacheKeyDTO(angle, assetId, size);
         BufferedImage image = this.cache.get(key);
 
         if (image == null) {
+            this.fails++;
             image = this.putInCache(angle, assetId, size);
             this.cache.put(key, image);
+        } else {
+            this.hits++;
         }
+
         return image;
+    }
+
+
+    public long getHits() {
+        return this.hits;
+    }
+
+
+    public double getHitsPercentage() {
+        if (this.hits == 0) {
+            return 1d;
+        }
+
+        double hitsPctg = (double) this.hits / (double) (this.hits + this.fails);
+        return hitsPctg * 100d;
+    }
+
+
+    public long getFails() {
+        return this.fails;
+    }
+
+
+    public int size() {
+        return this.cache.size();
     }
 
 
@@ -62,7 +93,7 @@ public class ImageCache {
     /**
      * PRIVATES
      */
-    private BufferedImage putInCache(double angle, String assetId, int size) {
+    private BufferedImage putInCache(int angle, String assetId, int size) {
         if (this.gc == null) {
             System.err.println("Graphics configuration is null · ImageCache");
             return null;  // =================================================>

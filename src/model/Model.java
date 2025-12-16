@@ -198,24 +198,24 @@ public class Model {
         return staticsInfo;
     }
 
-//
-//    public ArrayList<EntityInfoDTO> getSBodyInfo() {
-//        ArrayList<EntityInfoDTO> staticsInfo
-//                = new ArrayList(StaticBody.getAliveQuantity() * 2);
-//
-//        this.sBodies.forEach((id, sBody) -> {
-//            EntityInfoDTO bodyInfo = sBody.buildEntityInfo();
-//            if (bodyInfo != null) {
-//                staticsInfo.add(bodyInfo);
-//            }
-//        });
-//
-//        return staticsInfo;
-//    }
-
 
     public ModelState getState() {
         return this.state;
+    }
+
+
+    public int getCreatedQuantity() {
+        return AbstractEntity.getCreatedQuantity();
+    }
+
+
+    public int getAliveQuantity() {
+        return AbstractEntity.getAliveQuantity();
+    }
+
+
+    public int getDeadQuantity() {
+        return AbstractEntity.getDeadQuantity();
     }
 
 
@@ -329,7 +329,7 @@ public class Model {
         if (pBody == null) {
             return;
         }
-        
+
         pBody.selectNextWeapon();
     }
 

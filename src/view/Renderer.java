@@ -92,13 +92,15 @@ import view.renderables.EntityInfoDTO;
  */
 public class Renderer extends Canvas implements Runnable {
 
-    private long fpsLastTime = System.nanoTime();
+    private long lastTimeMonitoring = System.nanoTime();
     private int fpsFrames = 0;
     private volatile int fps = 0;
+    private volatile double renderTimeInMs = 0;
+    private volatile double initDrawTimeStamp;
 
     private Dimension viewDimension;
     private View view;
-    private int delayInMillis = 16;
+    private int delayInMillis = 5;
     private long currentFrame = 0;
     private Thread thread;
 
@@ -125,8 +127,26 @@ public class Renderer extends Canvas implements Runnable {
      * PUBLICS
      */
     public boolean activate() {
-        this.setPreferredSize(this.viewDimension);
+        // Be sure all is ready to begin render!
+        if (this.viewDimension == null) {
+            throw new IllegalArgumentException("View dimensions not setted");
+        }
 
+        if ((this.viewDimension.width <= 0) || (this.viewDimension.height
+                <= 0)) {
+            throw new IllegalArgumentException("Canvas size error: ("
+                    + this.viewDimension.width + "," + this.viewDimension.height + ")");
+        }
+
+        while (!this.isDisplayable()) {
+            try {
+                Thread.sleep(this.delayInMillis);
+            } catch (InterruptedException e) {
+                throw new IllegalArgumentException(e.getMessage());
+            }
+        }
+
+        this.setPreferredSize(this.viewDimension);
         this.thread = new Thread(this);
         this.thread.setName("RENDERER");
         this.thread.setPriority(Thread.NORM_PRIORITY + 2);
@@ -153,28 +173,8 @@ public class Renderer extends Canvas implements Runnable {
 
     @Override
     public void run() {
-        while (!this.isDisplayable()) {
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-
         this.createBufferStrategy(3);
         BufferStrategy bs = getBufferStrategy();
-
-        if (this.viewDimension == null) {
-            throw new IllegalArgumentException("View dimensions not setted");
-        }
-
-        if ((this.viewDimension.width <= 0) || (this.viewDimension.height
-                <= 0)) {
-            System.out.println("Canvas size error: ("
-                    + this.viewDimension.width + "," + this.viewDimension.height + ")");
-            return; // ========================================================>
-        }
 
         while (true) {
             EngineState engineState = view.getEngineState();
@@ -185,8 +185,9 @@ public class Renderer extends Canvas implements Runnable {
             if (engineState == EngineState.ALIVE) { // TO-DO Pause condition
                 this.currentFrame++;
 
-                this.fpsCompute();
+                this.initDrawTimeStamp = System.nanoTime();
                 this.drawScene(bs);
+                this.monitoring();
             }
 
             try {
@@ -232,9 +233,10 @@ public class Renderer extends Canvas implements Runnable {
     /**
      * PRIVATES
      */
-    private void drawDBodies(Graphics2D g) {
-        ArrayList<DBodyInfoDTO> dBodyRenderInfo = this.view.getDBodyInfo();
-        this.updateDynamicRenderables(dBodyRenderInfo);
+    private void drawDynamicRenderable(Graphics2D g) {
+        ArrayList<DBodyInfoDTO> dynamicInfo = this.view.getDBodyInfo();
+
+        this.updateDynamicRenderables(dynamicInfo);
 
         Map<Integer, DBodyRenderable> renderables = this.dynamicRenderables;
         for (DBodyRenderable renderable : renderables.values()) {
@@ -247,7 +249,16 @@ public class Renderer extends Canvas implements Runnable {
         Color old = g.getColor();
 
         g.setColor(Color.YELLOW);
-        g.drawString("FPS: " + fps, 12, 20);
+        g.drawString("FPS: " + this.fps, 12, 20);
+        g.setColor(Color.ORANGE);
+        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 35);
+        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 50);
+        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
+                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
+                     12, 65);
+        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 80);
+        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 95);
+        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 110);
 
         g.setColor(old);
     }
@@ -272,7 +283,7 @@ public class Renderer extends Canvas implements Runnable {
 
                 gg.setComposite(AlphaComposite.SrcOver); // With transparency
                 this.drawStaticRenderables(gg);
-                this.drawDBodies(gg);
+                this.drawDynamicRenderable(gg);
                 this.drawHUD(gg);
 
             } finally {
@@ -281,19 +292,6 @@ public class Renderer extends Canvas implements Runnable {
 
             bs.show();
         } while (bs.contentsLost());
-    }
-
-
-    private void fpsCompute() {
-        this.fpsFrames++;
-        long now = System.nanoTime();
-        long elapsed = now - this.fpsLastTime;
-
-        if (elapsed >= 1_000_000_000L) { // 1 segundo
-            this.fps = (int) Math.round(fpsFrames * (1_000_000_000.0 / elapsed));
-            this.fpsFrames = 0;
-            this.fpsLastTime = now;
-        }
     }
 
 
@@ -340,6 +338,23 @@ public class Renderer extends Canvas implements Runnable {
         } while (vi.contentsLost());
 
         return vi;
+    }
+
+
+    private void monitoring() {
+        this.fpsFrames++;
+        long now = System.nanoTime();
+        long elapsed = now - this.lastTimeMonitoring;
+
+        if (elapsed >= 500_000_000L) { // 1 second
+            this.fps = (int) Math.round(fpsFrames * (1_000_000_000.0 / elapsed));
+            this.fpsFrames = 0;
+            this.lastTimeMonitoring = now;
+
+            this.renderTimeInMs
+                    = (System.nanoTime() - this.initDrawTimeStamp) / 1_000_000;
+
+        }
     }
 
 
