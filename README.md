@@ -1,5 +1,7 @@
 # Balls
 
+**English** | **[Español](README_ES.md)**
+
 An educational Java project that demonstrates real-time 2D physics simulation through a dynamic bouncing balls environment with interactive gameplay elements. 
 
 This project serves as a comprehensive learning platform for understanding software architecture patterns, concurrent programming, game engine fundamentals, and object-oriented design principles.
@@ -166,6 +168,25 @@ For detailed architectural documentation of the main classes, including design p
 - Weapon System (AbstractWeapon)
 
 This documentation provides in-depth explanations of concurrency strategies, lifecycle management, and design philosophies used throughout the codebase.
+
+### Glossary
+
+For detailed definitions of concepts, technical terms, and system components, see:
+
+**[GLOSSARY_EN.md](GLOSSARY_EN.md)** - Complete glossary in English covering:
+- Architecture and Design Patterns
+- Entities
+- Physics Engine
+- Events and Actions System
+- System States
+- World and Generation
+- Weapon System
+- Assets and Rendering
+- Utilities
+- Physics Concepts
+- Concurrent Programming
+
+Also available in Spanish: **[GLOSSARY.md](GLOSSARY.md)**
 
 ## Getting Started
 
