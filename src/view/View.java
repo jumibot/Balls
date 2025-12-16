@@ -123,11 +123,6 @@ public class View extends JFrame implements KeyListener {
     }
 
 
-    public EngineState getEngineState() {
-        return this.controller.getEngineState();
-    }
-
-
     public void loadAssets(AssetCatalog assets) {
         String fileName;
         String path = assets.getPath();
@@ -172,6 +167,26 @@ public class View extends JFrame implements KeyListener {
         }
 
         return this.controller.getDBodyInfo();
+    }
+
+
+    protected EngineState getEngineState() {
+        return this.controller.getEngineState();
+    }
+
+
+    protected int getEntityCreatedQuantity() {
+        return this.controller.getEntityCreatedQuantity();
+    }
+
+
+    protected int getEntityAliveQuantity() {
+        return this.controller.getEntityAliveQuantity();
+    }
+
+
+    protected int getEntityDeadQuantity() {
+        return this.controller.getEntityDeadQuantity();
     }
 
 

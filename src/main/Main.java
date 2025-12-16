@@ -2,9 +2,14 @@ package main;
 
 
 /**
- * TO-DO ===== 0) Include all the assets in the same Images instance 1) More
- * weapon types like missils and shoot in burts 2) Colision detection 3) Basic
- * Fx 4) Create a new physic engine with a gravitational field 5) Game rules
+ * TO-DO 
+ * ===== 
+ * 1) More weapon types like missils and shoot in burts 
+ * 2) Colision detection 
+ * 3) Basic Fx 
+ * 4) Create a new physic engine with a gravitational field 
+ * 5) Game rules
+ * 6) Comms
  * =====
  */
 import assets.ProjectAssets;
@@ -31,7 +36,7 @@ public class Main {
 
         Controller controller = new Controller(
                 1150, 650, // World dimensions
-                500, // Max dynamic bodies
+                5000, // Max dynamic bodies
                 new View(), new Model(),
                 worldDef.gameAssets);
 
@@ -39,7 +44,7 @@ public class Main {
 
         WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
         LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroidsDef, 1500, 11, 3, 1000, 10, 175, 0);
+                controller, worldDef.asteroidsDef, 150, 11, 3, 1000, 10, 175, 0);
 
         lifeGenerator.activate();
     }

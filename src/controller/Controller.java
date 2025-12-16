@@ -149,7 +149,7 @@ public class Controller {
 
     public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
         this.model.addDecorator(assetId, size, posX, posY, angle);
-        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();    
+        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();
         this.view.updateStaticRenderables(staticsInfo);
     }
 
@@ -168,7 +168,7 @@ public class Controller {
             String assetId, double size, double posX, double posY, double angle) {
 
         this.model.addSBody(assetId, size, posX, posY, angle);
-        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();    
+        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();
         this.view.updateStaticRenderables(staticsInfo);
     }
 
@@ -257,7 +257,19 @@ public class Controller {
         return this.model.getDBodyInfo();
     }
 
+    public int getEntityCreatedQuantity() {
+        return this.model.getCreatedQuantity();
+    }
 
+
+    public int getEntityAliveQuantity() {
+        return this.model.getAliveQuantity();
+    }
+
+
+    public int getEntityDeadQuantity() {
+        return this.model.getDeadQuantity();
+    }
 
 
     public Dimension getWorldDimension() {

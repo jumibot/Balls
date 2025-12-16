@@ -1,7 +1,7 @@
 package world;
 
 
-public class WeaponVItemDto extends VItemDto {
+public class WeaponItemDto extends ItemDto {
 
     public final double firingSpeed;
     public final double acc;
@@ -10,7 +10,7 @@ public class WeaponVItemDto extends VItemDto {
     public final int fireRate;
 
 
-    public WeaponVItemDto(String assetId, double size, double firingSpeed,
+    public WeaponItemDto(String assetId, double size, double firingSpeed,
             double acc, double accTime, int bustSize, int fireRate) {
 
         super(assetId, size, 0);

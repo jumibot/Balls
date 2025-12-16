@@ -12,13 +12,13 @@ public class WorldDefinition {
 
     public final AssetCatalog gameAssets;
     public final BackgroundDto backgroundDef;
-    public final ArrayList<PositionVItemDto> spaceDecoratorsDef;
-    public final ArrayList<PositionVItemDto> gravityBodiesDef;
-    public final ArrayList<VItemDto> asteroidsDef;
-    public final ArrayList<WeaponVItemDto> bullets;
-    public final ArrayList<WeaponVItemDto> misilsDef;
-    public ArrayList<PositionVItemDto> bombsDef;
-    public ArrayList<VItemDto> spaceshipsDef;
+    public final ArrayList<PositionItemDto> spaceDecoratorsDef;
+    public final ArrayList<PositionItemDto> gravityBodiesDef;
+    public final ArrayList<ItemDto> asteroidsDef;
+    public final ArrayList<WeaponItemDto> bullets;
+    public final ArrayList<WeaponItemDto> misilsDef;
+    public ArrayList<PositionItemDto> bombsDef;
+    public ArrayList<ItemDto> spaceshipsDef;
 
 
     public WorldDefinition(
@@ -26,13 +26,13 @@ public class WorldDefinition {
             int worldHeight,
             AssetCatalog gameAssets,
             BackgroundDto background,
-            ArrayList<PositionVItemDto> spaceDecorators,
-            ArrayList<PositionVItemDto> gravityBodies,
-            ArrayList<VItemDto> asteroids,
-            ArrayList<WeaponVItemDto> bullets,
-            ArrayList<WeaponVItemDto> misils,
-            ArrayList<PositionVItemDto> bombs,
-            ArrayList<VItemDto> spaceships) {
+            ArrayList<PositionItemDto> spaceDecorators,
+            ArrayList<PositionItemDto> gravityBodies,
+            ArrayList<ItemDto> asteroids,
+            ArrayList<WeaponItemDto> bullets,
+            ArrayList<WeaponItemDto> misils,
+            ArrayList<PositionItemDto> bombs,
+            ArrayList<ItemDto> spaceships) {
 
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
