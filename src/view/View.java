@@ -21,68 +21,85 @@ import view.renderables.EntityInfoDTO;
 
 
 /**
- * View ----
+ * View
+ * ----
  *
  * Swing top-level window that represents the presentation layer of the engine.
- * This class wires together: - The rendering surface (Renderer) - Asset loading
- * and image catalogs (Images) - User input (KeyListener) and command dispatch
- * to the Controller
+ * This class wires together:
+ *   - The rendering surface (Renderer)
+ *   - Asset loading and image catalogs (Images)
+ *   - User input (KeyListener) and command dispatch to the Controller
  *
- * Architectural role ------------------ View is a thin façade over rendering +
- * input: - It does not simulate anything. - It does not own world state. - It
- * communicates with the model exclusively through the Controller.
+ * Architectural role
+ * ------------------
+ * View is a thin façade over rendering + input:
+ *   - It does not simulate anything.
+ *   - It does not own world state.
+ *   - It communicates with the model exclusively through the Controller.
  *
  * The Renderer pulls dynamic snapshots every frame (via View -> Controller),
  * while static/decorator snapshots are pushed into the View/Renderer only when
  * they change (to avoid redundant per-frame updates for entities that do not
  * move).
  *
- * Lifecycle --------- Construction: - Creates the ControlPanel (UI controls, if
- * any). - Creates the Renderer (Canvas). - Builds the JFrame layout and
- * attaches the key listener.
+ * Lifecycle
+ * ---------
+ * Construction:
+ *   - Creates the ControlPanel (UI controls, if any).
+ *   - Creates the Renderer (Canvas).
+ *   - Builds the JFrame layout and attaches the key listener.
  *
- * Activation (activate()): - Validates mandatory dependencies (dimensions,
- * background, image catalogs). - Injects view dimensions and images into the
- * Renderer. - Starts the Renderer thread (active rendering loop).
+ * Activation (activate()):
+ *   - Validates mandatory dependencies (dimensions, background, image catalogs).
+ *   - Injects view dimensions and images into the Renderer.
+ *   - Starts the Renderer thread (active rendering loop).
  *
- * Asset management --------------- loadAssets(...) loads and registers all
- * visual resources required by the world: - Background image (single
- * BufferedImage). - Dynamic body sprites (ships, asteroids, missiles, etc.). -
- * Static body sprites (gravity bodies, bombs, etc.). - Decorator sprites
- * (parallax / space decor).
+ * Asset management
+ * ----------------
+ * loadAssets(...) loads and registers all visual resources required by the world:
+ *   - Background image (single BufferedImage).
+ *   - Dynamic body sprites (ships, asteroids, missiles, etc.).
+ *   - Static body sprites (gravity bodies, bombs, etc.).
+ *   - Decorator sprites (parallax / space decor).
  *
  * The View stores catalogs as Images collections, which are later converted
  * into GPU/compatible caches inside the Renderer (ImageCache).
  *
- * Engine state delegation ----------------------- View exposes getEngineState()
- * as a convenience bridge for the Renderer. The render loop can stop or pause
- * based on Controller-owned engine state.
+ * Engine state delegation
+ * -----------------------
+ * View exposes getEngineState() as a convenience bridge for the Renderer.
+ * The render loop can stop or pause based on Controller-owned engine state.
  *
- * Input handling -------------- Keyboard input is captured at the rendering
- * Canvas level (Renderer is focusable and receives the KeyListener) and
- * translated into high-level Controller commands: - Thrust on/off (forward uses
- * positive thrust; reverse thrust is handled as negative thrust, and both are
- * stopped via the same thrustOff command). - Rotation left/right and rotation
- * off. - Fire: handled as an edge-triggered action using fireKeyDown to prevent
- * key repeat from generating continuous shots while SPACE is held.
+ * Input handling
+ * --------------
+ * Keyboard input is captured at the rendering Canvas level (Renderer is
+ * focusable and receives the KeyListener) and translated into high-level
+ * Controller commands:
+ *   - Thrust on/off (forward uses positive thrust; reverse thrust is handled
+ *     as negative thrust, and both are stopped via the same thrustOff command).
+ *   - Rotation left/right and rotation off.
+ *   - Fire: handled as an edge-triggered action using fireKeyDown to prevent
+ *     key repeat from generating continuous shots while SPACE is held.
  *
- * Focus and Swing considerations ------------------------------
- *
+ * Focus and Swing considerations
+ * -------------------------------
  * The Renderer is the focus owner for input. Focus is requested after the frame
  * becomes visible using SwingUtilities.invokeLater(...) to improve reliability
- * with Swing’s event dispatch timing.
+ * with Swing's event dispatch timing.
  *
- * Threading considerations ------------------------ Swing is single-threaded
- * (EDT), while rendering runs on its own thread. This class keeps its
- * responsibilities minimal: - It only pushes static/decorator updates when
- * needed. - Dynamic snapshot pulling is done inside the Renderer thread through
- * View -> Controller getters.
+ * Threading considerations
+ * ------------------------
+ * Swing is single-threaded (EDT), while rendering runs on its own thread.
+ * This class keeps its responsibilities minimal:
+ *   - It only pushes static/decorator updates when needed.
+ *   - Dynamic snapshot pulling is done inside the Renderer thread through
+ *     View -> Controller getters.
  *
- * Design goals ------------ - Keep the View as a coordinator, not a state
- * holder. - Keep rendering independent and real-time (active rendering). -
- * Translate user input into controller commands cleanly and predictably.
- *
- *
+ * Design goals
+ * ------------
+ *   - Keep the View as a coordinator, not a state holder.
+ *   - Keep rendering independent and real-time (active rendering).
+ *   - Translate user input into controller commands cleanly and predictably.
  */
 public class View extends JFrame implements KeyListener {
 

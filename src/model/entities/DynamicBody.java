@@ -9,31 +9,37 @@ import model.physics.PhysicsEngine;
 
 
 /**
- * BodyEntity
+ * DynamicBody
+ * -----------
  *
- * Represents a single entity in the simulation model. Each BodyEntity
- * maintains: • A unique identifier, visual attributes (imageId, radius, color)
- * • Its own PhysicsEngine instance, which stores and updates the immutable
- * PhysicsValues snapshot (position, speed, acceleration, angle, etc.) • A
- * dedicated thread responsible for advancing its physics state over time
+ * Represents a single dynamic entity in the simulation model.
  *
- * VObjects interact exclusively with the Model, reporting physics updates and
- * requesting event processing (collisions, rebounds, etc.). The view layer
- * never reads mutable state directly; instead, VObject produces a RenderInfoDTO
- * snapshot encapsulating all visual and physical data required for rendering.
+ * Each DynamicBody maintains:
+ *   - A unique identifier and visual attributes (assetId, size)
+ *   - Its own PhysicsEngine instance, which stores and updates the immutable
+ *     PhysicsValues snapshot (position, speed, acceleration, angle, etc.)
+ *   - A dedicated thread responsible for advancing its physics state over time
+ *
+ * Dynamic bodies interact exclusively with the Model, reporting physics updates
+ * and requesting event processing (collisions, rebounds, etc.). The view layer
+ * never reads mutable state directly; instead, DynamicBody produces a
+ * DBodyInfoDTO snapshot encapsulating all visual and physical data required
+ * for rendering.
  *
  * Lifecycle control (STARTING → ALIVE → DEAD) is managed internally, and static
- * counters track global quantities of created, active and dead VObjects.
+ * counters (inherited from AbstractEntity) track global quantities of created,
+ * active and dead entities.
  *
- * The goal of this class is to isolate per-object behavior and physics
- * evolution while keeping the simulation thread-safe through immutable
- * snapshots and a clearly separated rendering pipeline.
+ * Threading model
+ * ---------------
+ * Each DynamicBody runs on its own thread (implements Runnable). The physics
+ * engine is updated continuously in the run() loop, with the entity checking
+ * for events and processing actions based on game rules determined by the
+ * Controller.
  *
- * Static counters (createdQuantity, aliveQuantity, deadQuantity) track global
- * VObject lifecycle metrics. Although simple, these counters enable
- * instrumentation and debugging of the simulation, providing a quick overview
- * of object churn. They are updated in synchronized methods, ensuring
- * thread-safe increments even under heavy concurrency.
+ * The goal of this class is to isolate per-object behavior and physics evolution
+ * while keeping the simulation thread-safe through immutable snapshots and a
+ * clearly separated rendering pipeline.
  */
 public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable {
 

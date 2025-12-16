@@ -156,6 +156,17 @@ The codebase is organized into well-defined packages, each with clear responsibi
 
 This package structure follows a clear architectural separation, making it easy to locate functionality and understand the system's organization.
 
+## Documentation
+
+For detailed architectural documentation of the main classes, including design patterns, threading models, and implementation guidelines, see:
+
+**[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive documentation extracted from source code headers covering:
+- MVC Core Components (Controller, Model, View, Renderer)
+- Entity System (DynamicBody, StaticBody)
+- Weapon System (AbstractWeapon)
+
+This documentation provides in-depth explanations of concurrency strategies, lifecycle management, and design philosophies used throughout the codebase.
+
 ## Getting Started
 
 To run the simulation:
