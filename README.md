@@ -1,5 +1,7 @@
 # Balls
 
+**English** | **[Español](README_ES.md)**
+
 An educational Java project that demonstrates real-time 2D physics simulation through a dynamic bouncing balls environment with interactive gameplay elements. 
 
 This project serves as a comprehensive learning platform for understanding software architecture patterns, concurrent programming, game engine fundamentals, and object-oriented design principles.
