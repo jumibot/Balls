@@ -33,11 +33,13 @@ public class Model {
     private Controller controller = null;
     private volatile ModelState state = ModelState.STARTING;
 
-    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(10000);
-    private final Map<String, PlayerBody> pBodies = new ConcurrentHashMap<>(10);
-    private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
-    private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
+    private final int MAX_ENTITIES = 5000;
+    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(MAX_ENTITIES);
     private final Map<Integer, DecoEntity> decorators = new ConcurrentHashMap<>(100);
+    private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
+    private final Map<String, PlayerBody> pBodies = new ConcurrentHashMap<>(10);
+    private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
+    
 
 
     /**
@@ -229,7 +231,7 @@ public class Model {
     }
 
 
-    synchronized public void killDBody(DynamicBody dBody) {
+    public void killDBody(DynamicBody dBody) {
         this.dBodies.remove(dBody.getEntityId());
         dBody.die();
     }
@@ -513,6 +515,9 @@ public class Model {
 
 
     private void spawnProjectileFrom(DynamicBody shooter, PhysicsValues shooterNewPhy) {
+        if (!(shooter instanceof PlayerBody)) {
+            return;
+        }
         PlayerBody pBody = (PlayerBody) shooter;
 
         Weapon activeWeapon = pBody.getActiveWeapon();

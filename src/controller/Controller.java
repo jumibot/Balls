@@ -63,7 +63,7 @@ import view.renderables.EntityInfoDTO;
  * is appended by default. This creates a deterministic baseline: entities
  * always move unless explicitly killed/exploded.
  *
- * Engine state ------------ controllerState is volatile and represents the
+ * Engine state ------------ engineState is volatile and represents the
  * Controller’s view of the engine lifecycle: - STARTING: initial state after
  * construction - ALIVE: set after activate() finishes successfully - PAUSED:
  * set via enginePause() - STOPPED: set via engineStop()
@@ -86,7 +86,7 @@ import view.renderables.EntityInfoDTO;
 public class Controller {
 
     private volatile EngineState engineState;
-    private int maxDBody;
+    private int maxEntities;
     private Model model;
     private View view;
     private Dimension worldDimension;
@@ -97,7 +97,7 @@ public class Controller {
 
         this.engineState = EngineState.STARTING;
         this.setWorldDimension(worldWidth, worldHigh);
-        this.setMaxDBody(maxDBodies);
+        this.setMaxEntities(maxDBodies);
 
         this.setModel(model);
 
@@ -114,7 +114,7 @@ public class Controller {
             throw new IllegalArgumentException("Null world dimension");
         }
 
-        if (this.maxDBody <= 0) {
+        if (this.maxEntities <= 0) {
             throw new IllegalArgumentException("Max visual objects not setted");
         }
 
@@ -130,7 +130,7 @@ public class Controller {
         this.view.activate();
 
         this.model.setDimension(this.worldDimension);
-        this.model.setMaxDBody(this.maxDBody);
+        this.model.setMaxDBody(this.maxEntities);
         this.model.activate();
 
         this.engineState = EngineState.ALIVE;
@@ -233,11 +233,6 @@ public class Controller {
     }
 
 
-    public List<ActionDTO> decideAction(EventType eventType, ArrayList<DynamicBody> RelatedDBody) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
     public void enginePause() {
         this.engineState = EngineState.PAUSED;
     }
@@ -257,6 +252,7 @@ public class Controller {
         return this.model.getDBodyInfo();
     }
 
+
     public int getEntityCreatedQuantity() {
         return this.model.getCreatedQuantity();
     }
@@ -269,6 +265,11 @@ public class Controller {
 
     public int getEntityDeadQuantity() {
         return this.model.getDeadQuantity();
+    }
+
+
+    public int getMaxEntities() {
+        return this.maxEntities;
     }
 
 
@@ -344,8 +345,8 @@ public class Controller {
     }
 
 
-    public void setMaxDBody(int maxDBody) {
-        this.maxDBody = maxDBody;
+    public void setMaxEntities(int maxEntities) {
+        this.maxEntities = maxEntities;
     }
 
 
