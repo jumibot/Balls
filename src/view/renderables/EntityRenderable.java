@@ -87,9 +87,9 @@ public class EntityRenderable {
                 || (int) this.entityInfo.angle != (int) angle;
 
         if (imageNeedsUpdate) {
-            int normalizedAngle = angle > 0 ? (int) angle : (int) (angle + 360);
+            int normalizedAngle = ((int) angle % 360 + 360) % 360;
             this.image = this.cache.getImage(normalizedAngle, assetId, size);
-            
+
             return true;
         }
 

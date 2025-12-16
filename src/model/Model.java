@@ -53,7 +53,7 @@ public class Model {
      */
     public void activate() {
         if (this.controller == null) {
-            throw new IllegalArgumentException("Controller is not setted");
+            throw new IllegalArgumentException("Controller is not set");
         }
 
         if (this.worldDim == null) {
@@ -61,7 +61,7 @@ public class Model {
         }
 
         if (this.maxDBody <= 0) {
-            throw new IllegalArgumentException("Max visual objects not setted");
+            throw new IllegalArgumentException("Max visual objects not set");
         }
         this.state = ModelState.ALIVE;
     }

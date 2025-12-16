@@ -346,7 +346,7 @@ public class Renderer extends Canvas implements Runnable {
         long now = System.nanoTime();
         long elapsed = now - this.lastTimeMonitoring;
 
-        if (elapsed >= 500_000_000L) { // 1 second
+        if (elapsed >= 500_000_000L) { // 0.5 second
             this.fps = (int) Math.round(fpsFrames * (1_000_000_000.0 / elapsed));
             this.fpsFrames = 0;
             this.lastTimeMonitoring = now;

@@ -67,7 +67,7 @@ public class ImageCache {
 
     public double getHitsPercentage() {
         if (this.hits == 0) {
-            return 1d;
+            return 0d;
         }
 
         double hitsPctg = (double) this.hits / (double) (this.hits + this.fails);
