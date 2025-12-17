@@ -4,7 +4,8 @@ package main;
 /**
  * TO-DO 
  * ===== 
- * 1) More weapon types like missils and shoot in burts 
+ * 1) Implment weapon burts 
+ * 2) Full implemention of Factory pattern for weapons, physics, worlds, entities, ...
  * 2) Colision detection 
  * 3) Basic Fx 
  * 4) Create a new physic engine with a gravitational field 
