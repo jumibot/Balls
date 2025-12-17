@@ -20,68 +20,89 @@ import view.renderables.EntityInfoDTO;
 
 
 /**
- * Controller ----------
+ * Controller
+ * ----------
  *
- * Central coordinator of the MVC triad: - Owns references to Model and View. -
- * Performs engine startup wiring (assets, world definition, dimensions,
- * limits). - Bridges user input (View) into Model commands. - Provides snapshot
- * getters used by the Renderer (via the View).
+ * Central coordinator of the MVC triad:
+ *   - Owns references to Model and View.
+ *   - Performs engine startup wiring (assets, world definition, dimensions, limits).
+ *   - Bridges user input (View) into Model commands.
+ *   - Provides snapshot getters used by the Renderer (via the View).
  *
- * Responsibilities (high level) ----------------------------- 1) Bootstrapping
- * / activation sequence - Validates that all required dependencies are present
- * (assets, world, dimensions, max bodies, model, view). - Loads visual
- * resources into the View (View.loadAssets). - Configures the View and starts
- * the Renderer loop (View.activate). - Configures the Model (dimension, max
- * bodies) and starts simulation (Model.activate). - Switches controller state
- * to ALIVE when everything is ready.
+ * Responsibilities (high level)
+ * -----------------------------
  *
- * 2) World building / entity creation - addDBody / addSBody / addDecorator /
- * addPlayer delegate entity creation to the Model. - Important: static bodies
- * and decorators are "push-updated" into the View: after adding a
- * static/decorator entity, the controller fetches a fresh static/decorator
- * snapshot from the Model and pushes it to the View (View.updateSBodyInfo /
- * View.updateDecoratorsInfo). This matches the design where static/decorator
- * visuals usually do not change every frame, so you avoid unnecessary per-frame
- * updates.
+ * 1) Bootstrapping / activation sequence
+ *    - Validates that all required dependencies are present (assets, world,
+ *      dimensions, max bodies, model, view).
+ *    - Loads visual resources into the View (View.loadAssets).
+ *    - Configures the View and starts the Renderer loop (View.activate).
+ *    - Configures the Model (dimension, max bodies) and starts simulation
+ *      (Model.activate).
+ *    - Switches controller state to ALIVE when everything is ready.
  *
- * 3) Runtime command dispatch - Exposes high-level player commands that the
- * View calls in response to input: playerThrustOn / playerThrustOff /
- * playerReverseThrust playerRotateLeftOn / playerRotateRightOn /
- * playerRotateOff playerFire All of these are simple delegations to the Model,
- * keeping the View free of simulation logic.
+ * 2) World building / entity creation
+ *    - addDBody / addSBody / addDecorator / addPlayer delegate entity creation
+ *      to the Model.
+ *    - Important: static bodies and decorators are "push-updated" into the View:
+ *      after adding a static/decorator entity, the controller fetches a fresh
+ *      static/decorator snapshot from the Model and pushes it to the View
+ *      (View.updateSBodyInfo / View.updateDecoratorsInfo). This matches the design
+ *      where static/decorator visuals usually do not change every frame, so you
+ *      avoid unnecessary per-frame updates.
  *
- * 4) Snapshot access for rendering - getDBodyInfo(): returns dynamic snapshot
- * data from the Model. This is intended to be pulled frequently (typically once
- * per frame by the Renderer thread). - getSBodyInfo() / getDecoratorInfo():
- * used to push snapshots when static/decorator content changes.
+ * 3) Runtime command dispatch
+ *    - Exposes high-level player commands that the View calls in response to input:
+ *      playerThrustOn / playerThrustOff / playerReverseThrust
+ *      playerRotateLeftOn / playerRotateRightOn / playerRotateOff
+ *      playerFire
+ *    - All of these are simple delegations to the Model, keeping the View free
+ *      of simulation logic.
  *
- * 5) Game rules / decision layer (rule-based actions) - decideActions(entity,
- * events) takes Model events (EventDTO) and produces a list of actions
- * (ActionDTO). - applyGameRules(...) maps events -> actions: * World boundary
- * reached => DIE (high priority) * MUST_FIRE => FIRE (high priority) * COLLIDED
- * / NONE => no additional action - If no "death-like" action is present, MOVE
- * is appended by default. This creates a deterministic baseline: entities
- * always move unless explicitly killed/exploded.
+ * 4) Snapshot access for rendering
+ *    - getDBodyInfo(): returns dynamic snapshot data from the Model. This is
+ *      intended to be pulled frequently (typically once per frame by the
+ *      Renderer thread).
+ *    - getSBodyInfo() / getDecoratorInfo(): used to push snapshots when
+ *      static/decorator content changes.
  *
- * Engine state ------------ engineState is volatile and represents the
- * Controller’s view of the engine lifecycle: - STARTING: initial state after
- * construction - ALIVE: set after activate() finishes successfully - PAUSED:
- * set via enginePause() - STOPPED: set via engineStop()
+ * 5) Game rules / decision layer (rule-based actions)
+ *    - decideActions(entity, events) takes Model events (EventDTO) and produces
+ *      a list of actions (ActionDTO).
+ *    - applyGameRules(...) maps events -> actions:
+ *      * World boundary reached => DIE (high priority)
+ *      * MUST_FIRE => FIRE (high priority)
+ *      * COLLIDED / NONE => no additional action
+ *    - If no "death-like" action is present, MOVE is appended by default.
+ *      This creates a deterministic baseline: entities always move unless
+ *      explicitly killed/exploded.
  *
- * Dependency injection rules -------------------------- - setModel(model):
- * stores the model and injects the controller back into the model
- * (model.setController(this)). This enables callbacks / rules decisions if the
- * Model consults the Controller. - setView(view): stores the view and injects
- * the controller into the view (view.setController(this)). This enables the
- * View to send player commands and to pull snapshots.
+ * Engine state
+ * ------------
+ * engineState is volatile and represents the Controller's view of the engine
+ * lifecycle:
+ *   - STARTING: initial state after construction
+ *   - ALIVE: set after activate() finishes successfully
+ *   - PAUSED: set via enginePause()
+ *   - STOPPED: set via engineStop()
  *
- * Threading notes --------------- - The Controller itself mostly acts as a
- * facade. The key concurrency point is snapshot access: Renderer thread pulls
- * getDBodyInfo() frequently. Static/decorator snapshots are pushed occasionally
- * from the "logic side" (model->controller->view). - Keeping Controller methods
- * small and side-effect-light reduces contention and makes it easier to reason
- * about where cross-thread interactions happen.
+ * Dependency injection rules
+ * --------------------------
+ *   - setModel(model): stores the model and injects the controller back into
+ *     the model (model.setController(this)). This enables callbacks / rules
+ *     decisions if the Model consults the Controller.
+ *   - setView(view): stores the view and injects the controller into the view
+ *     (view.setController(this)). This enables the View to send player commands
+ *     and to pull snapshots.
  *
+ * Threading notes
+ * ---------------
+ *   - The Controller itself mostly acts as a facade. The key concurrency point
+ *     is snapshot access: Renderer thread pulls getDBodyInfo() frequently.
+ *     Static/decorator snapshots are pushed occasionally from the "logic side"
+ *     (model->controller->view).
+ *   - Keeping Controller methods small and side-effect-light reduces contention
+ *     and makes it easier to reason about where cross-thread interactions happen.
  */
 public class Controller {
 

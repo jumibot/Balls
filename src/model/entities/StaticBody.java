@@ -8,31 +8,38 @@ import view.renderables.EntityInfoDTO;
 
 
 /**
- * BodyEntity
+ * StaticBody
+ * ----------
  *
- * Represents a single entity in the simulation model. Each BodyEntity
- * maintains: • A unique identifier, visual attributes (imageId, radius, color)
- * • Its own PhysicsEngine instance, which stores and updates the immutable
- * PhysicsValues snapshot (position, speed, acceleration, angle, etc.) • A
- * dedicated thread responsible for advancing its physics state over time
+ * Represents a single static entity in the simulation model.
  *
- * VObjects interact exclusively with the Model, reporting physics updates and
- * requesting event processing (collisions, rebounds, etc.). The view layer
- * never reads mutable state directly; instead, VObject produces a RenderInfoDTO
- * snapshot encapsulating all visual and physical data required for rendering.
+ * Each StaticBody maintains:
+ *   - A unique identifier and visual attributes (assetId, size)
+ *   - A NullPhysicsEngine instance with fixed position and angle
+ *   - No dedicated thread (static bodies do not move or update)
+ *
+ * Static bodies are used for non-moving world elements such as obstacles,
+ * platforms, or decorative elements that have physical presence but no
+ * dynamic behavior.
+ *
+ * The view layer accesses static bodies through EntityInfoDTO snapshots,
+ * following the same pattern as dynamic bodies but without the time-varying
+ * physics data.
  *
  * Lifecycle control (STARTING → ALIVE → DEAD) is managed internally, and static
- * counters track global quantities of created, active and dead VObjects.
+ * counters (inherited from AbstractEntity) track global quantities of created,
+ * active and dead entities.
  *
- * The goal of this class is to isolate per-object behavior and physics
- * evolution while keeping the simulation thread-safe through immutable
- * snapshots and a clearly separated rendering pipeline.
+ * Static vs. Dynamic
+ * ------------------
+ * Unlike DynamicBody, StaticBody:
+ *   - Uses NullPhysicsEngine (no physics updates)
+ *   - Has no thread (no run() loop)
+ *   - Returns EntityInfoDTO instead of DBodyInfoDTO (no velocity/acceleration)
+ *   - Is intended for fixed-position world elements
  *
- * Static counters (createdQuantity, aliveQuantity, deadQuantity) track global
- * VObject lifecycle metrics. Although simple, these counters enable
- * instrumentation and debugging of the simulation, providing a quick overview
- * of object churn. They are updated in synchronized methods, ensuring
- * thread-safe increments even under heavy concurrency.
+ * This separation keeps the codebase clean and prevents unnecessary overhead
+ * for entities that never move.
  */
 public class StaticBody extends AbstractEntity {
 

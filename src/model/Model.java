@@ -25,6 +25,88 @@ import model.weapons.WeaponDto;
 import view.renderables.EntityInfoDTO;
 
 
+/**
+ * Model
+ * -----
+ *
+ * Core simulation layer of the MVC triad. The Model owns and manages all
+ * entities (dynamic bodies, static bodies, players, decorators) and orchestrates
+ * their lifecycle, physics updates, and interactions.
+ *
+ * Responsibilities
+ * ----------------
+ *   - Entity management: create, activate, and track all simulation entities
+ *   - Provide thread-safe snapshot data (EntityInfoDTO / DBodyInfoDTO) to the
+ *     Controller for rendering
+ *   - Delegate physics updates to individual entity threads
+ *   - Maintain entity collections with appropriate concurrency strategies
+ *   - Enforce world boundaries and entity limits
+ *
+ * Entity types
+ * ------------
+ * The Model manages several distinct entity categories:
+ *
+ * 1) Dynamic Bodies (dBodies)
+ *    - Entities with active physics simulation (ships, asteroids, projectiles)
+ *    - Each runs on its own thread, continuously updating position/velocity
+ *    - Stored in ConcurrentHashMap for thread-safe access
+ *
+ * 2) Player Bodies (pBodies)
+ *    - Special dynamic bodies with player controls and weapons
+ *    - Keyed by player ID string
+ *    - Support thrust, rotation, and firing commands
+ *
+ * 3) Static Bodies (sBodies)
+ *    - Non-moving entities with fixed positions (obstacles, platforms)
+ *    - No physics thread
+ *    - Push-updated to View when created/modified
+ *
+ * 4) Gravity Bodies (gravityBodies)
+ *    - Static bodies that exert gravitational influence
+ *    - Used for planetary bodies or black holes
+ *
+ * 5) Decorators (decorators)
+ *    - Visual-only entities with no gameplay impact (background elements)
+ *    - Push-updated to View when created/modified
+ *
+ * Lifecycle
+ * ---------
+ * Construction:
+ *   - Model is created in STARTING state
+ *   - Entity maps are pre-allocated with expected capacities
+ *
+ * Activation (activate()):
+ *   - Validates that Controller, world dimensions, and max entities are set
+ *   - Transitions to ALIVE state
+ *   - After activation, entities can be created and activated
+ *
+ * Snapshot generation
+ * -------------------
+ * The Model provides snapshot methods that return immutable DTOs:
+ *   - getDBodyInfo(): returns List<DBodyInfoDTO> for all active dynamic bodies
+ *   - getSBodyInfo(): returns List<EntityInfoDTO> for all active static bodies
+ *   - getDecoratorInfo(): returns List<EntityInfoDTO> for all decorators
+ *
+ * These snapshots are pulled by the Controller and pushed to the View/Renderer.
+ * The pattern ensures clean separation: rendering never accesses mutable
+ * entity state directly.
+ *
+ * Concurrency strategy
+ * --------------------
+ *   - All entity maps use ConcurrentHashMap for thread-safe access
+ *   - Individual entities manage their own thread synchronization
+ *   - Model state transitions are protected by volatile fields
+ *   - Snapshot methods create independent DTO lists to avoid concurrent
+ *     modification during rendering
+ *
+ * Design goals
+ * ------------
+ *   - Keep simulation logic isolated from view concerns
+ *   - Provide deterministic, thread-safe entity management
+ *   - Support high entity counts (up to MAX_ENTITIES = 5000)
+ *   - Enable efficient parallel physics updates via per-entity threads
+ */
+
 public class Model {
 
     private int maxDBody;
