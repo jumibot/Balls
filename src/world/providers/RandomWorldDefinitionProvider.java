@@ -49,27 +49,27 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
         this.randomDecoratorsDef(this.spaceDecoratorsDef, 1, AssetType.STARS, 200, 150);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.PLANET, 150, 110);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.PLANET, 275, 200);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.MOON, 45, 40);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.MOON, 75, 50);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.SUN, 25, 15);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.SUN, 45, 35);
 
-        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.BLACK_HOLE, 35, 25);
+        this.randomStaticBodiesDef(this.gravityBodiesDef, 1, AssetType.BLACK_HOLE, 55, 45);
 
         this.randomStaticBodiesDef(this.bombsDef, 0, AssetType.BOMB, 30, 20);
 
-        this.randomDBodiesDef(this.asteroidsDef, 6, AssetType.ASTEROID, 15, 15);
+        this.randomDBodiesDef(this.asteroidsDef, 6, AssetType.ASTEROID, 25, 15);
 
-        this.randomWeaponsDef(this.bulletDef, 1, AssetType.BULLET, 5, 5,
+        this.randomWeaponsDef(this.bulletDef, 1, AssetType.BULLET, 12, 12,
                               275d, 0d, 0d, // firingSpeed, acc, accTime 
                               0, 1, 20); // shootingOffset, burstSize, fireRate
 
-        this.randomWeaponsDef(this.misilsDef, 1, AssetType.MISIL, 30, 30,
+        this.randomWeaponsDef(this.misilsDef, 1, AssetType.MISIL, 40, 35,
                               -100, 4000d, 1d, // firingSpeed, acc, accTime 
                               0, 1, 1); // shootingOffset, burstSize, fireRate
 
-        this.randomDBodiesDef(this.spaceshipsDef, 1, AssetType.SPACESHIP, 25, 25);
+        this.randomDBodiesDef(this.spaceshipsDef, 1, AssetType.SPACESHIP, 45, 45);
 
         return new WorldDefinition(
                 this.width, this.height, this.gameAssets,
