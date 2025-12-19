@@ -1,6 +1,5 @@
 package view;
 
-
 import view.renderables.DBodyInfoDTO;
 import view.renderables.EntityRenderable;
 import view.renderables.DBodyRenderable;
@@ -11,6 +10,7 @@ import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import view.renderables.EntityInfoDTO;
 
-
 /**
  * Renderer
  * --------
@@ -34,7 +33,8 @@ import view.renderables.EntityInfoDTO;
  *
  * Architectural role
  * ------------------
- * The Renderer is a pull-based consumer of visual snapshots provided by the View.
+ * The Renderer is a pull-based consumer of visual snapshots provided by the
+ * View.
  * It never queries or mutates the model directly.
  *
  * Rendering is decoupled from simulation through immutable snapshot DTOs
@@ -43,31 +43,32 @@ import view.renderables.EntityInfoDTO;
  *
  * Threading model
  * ---------------
- *   - A dedicated render thread drives the render loop (Runnable).
- *   - Rendering is active only while the engine state is ALIVE.
- *   - The loop terminates cleanly when the engine reaches STOPPED.
+ * - A dedicated render thread drives the render loop (Runnable).
+ * - Rendering is active only while the engine state is ALIVE.
+ * - The loop terminates cleanly when the engine reaches STOPPED.
  *
  * Data access patterns
  * --------------------
- * Three different renderable collections are used, each with a consciously chosen
+ * Three different renderable collections are used, each with a consciously
+ * chosen
  * concurrency strategy based on update frequency and thread ownership:
  *
  * 1) Dynamic bodies (DBodies)
- *    - Stored in a plain HashMap.
- *    - Updated and rendered exclusively by the render thread.
- *    - No concurrent access → no synchronization required.
+ * - Stored in a plain HashMap.
+ * - Updated and rendered exclusively by the render thread.
+ * - No concurrent access → no synchronization required.
  *
  * 2) Static bodies (SBodies)
- *    - Rarely updated, potentially from non-render threads
- *      (model → controller → view).
- *    - Stored using a copy-on-write strategy:
- *      * Updates create a new Map instance.
- *      * The reference is swapped atomically via a volatile field.
- *    - The render thread only reads stable snapshots.
+ * - Rarely updated, potentially from non-render threads
+ * (model → controller → view).
+ * - Stored using a copy-on-write strategy:
+ * * Updates create a new Map instance.
+ * * The reference is swapped atomically via a volatile field.
+ * - The render thread only reads stable snapshots.
  *
  * 3) Decorators
- *    - Same access pattern as static bodies.
- *    - Uses the same copy-on-write + atomic swap strategy.
+ * - Same access pattern as static bodies.
+ * - Uses the same copy-on-write + atomic swap strategy.
  *
  * This design avoids locks, minimizes contention, and guarantees that the
  * render thread always iterates over a fully consistent snapshot.
@@ -75,8 +76,8 @@ import view.renderables.EntityInfoDTO;
  * Frame tracking
  * --------------
  * A monotonically increasing frame counter (currentFrame) is used to:
- *   - Track renderable liveness.
- *   - Remove obsolete renderables deterministically.
+ * - Track renderable liveness.
+ * - Remove obsolete renderables deterministically.
  *
  * Each update method captures a local frame snapshot to ensure internal
  * consistency, even if the global frame counter advances later.
@@ -84,28 +85,28 @@ import view.renderables.EntityInfoDTO;
  * Rendering pipeline
  * ------------------
  * Per frame:
- *   1) Background is rendered to a VolatileImage for fast blitting.
- *   2) Decorators are drawn.
- *   3) Static bodies are drawn.
- *   4) Dynamic bodies are updated and drawn.
- *   5) HUD elements (FPS) are rendered last.
+ * 1) Background is rendered to a VolatileImage for fast blitting.
+ * 2) Decorators are drawn.
+ * 3) Static bodies are drawn.
+ * 4) Dynamic bodies are updated and drawn.
+ * 5) HUD elements (FPS) are rendered last.
  *
  * Alpha compositing is used to separate opaque background rendering from
  * transparent entities.
  *
  * Performance considerations
  * --------------------------
- *   - Triple buffering via BufferStrategy.
- *   - VolatileImage used for background caching.
- *   - Target frame rate ~60 FPS (16 ms delay).
- *   - FPS is measured using a rolling one-second window.
+ * - Triple buffering via BufferStrategy.
+ * - VolatileImage used for background caching.
+ * - Target frame rate ~60 FPS (16 ms delay).
+ * - FPS is measured using a rolling one-second window.
  *
  * Design goals
  * ------------
- *   - Deterministic rendering.
- *   - Zero blocking in the render loop.
- *   - Clear ownership of mutable state.
- *   - Explicit, documented concurrency decisions.
+ * - Deterministic rendering.
+ * - Zero blocking in the render loop.
+ * - Clear ownership of mutable state.
+ * - Explicit, documented concurrency decisions.
  *
  * This class is intended to behave as a low-level rendering component suitable
  * for a small game engine rather than a UI-centric Swing renderer.
@@ -132,7 +133,6 @@ public class Renderer extends Canvas implements Runnable {
     private final Map<Integer, DBodyRenderable> dynamicRenderables = new HashMap<>();
     private volatile Map<Integer, EntityRenderable> staticRenderables = new HashMap<>();
 
-
     /**
      * CONSTRUCTORS
      */
@@ -141,7 +141,6 @@ public class Renderer extends Canvas implements Runnable {
 
         this.setIgnoreRepaint(true);
     }
-
 
     /**
      * PUBLICS
@@ -152,8 +151,7 @@ public class Renderer extends Canvas implements Runnable {
             throw new IllegalArgumentException("View dimensions not setted");
         }
 
-        if ((this.viewDimension.width <= 0) || (this.viewDimension.height
-                <= 0)) {
+        if ((this.viewDimension.width <= 0) || (this.viewDimension.height <= 0)) {
             throw new IllegalArgumentException("Canvas size error: ("
                     + this.viewDimension.width + "," + this.viewDimension.height + ")");
         }
@@ -175,7 +173,6 @@ public class Renderer extends Canvas implements Runnable {
         return true;
     }
 
-
     public void setImages(BufferedImage background, Images images) {
         this.background = background;
         this.viBackground = null;
@@ -184,12 +181,10 @@ public class Renderer extends Canvas implements Runnable {
         this.imagesCache = new ImageCache(this.getGraphicsConfSafe(), this.images);
     }
 
-
     public void SetViewDimension(Dimension viewDim) {
         this.viewDimension = viewDim;
         this.setPreferredSize(this.viewDimension);
     }
-
 
     @Override
     public void run() {
@@ -219,7 +214,6 @@ public class Renderer extends Canvas implements Runnable {
         }
     }
 
-
     public void updateStaticRenderables(ArrayList<EntityInfoDTO> entitiesInfo) {
         if (entitiesInfo == null) {
             return; // ========= Nothing to render by the moment ... =========>>
@@ -228,7 +222,7 @@ public class Renderer extends Canvas implements Runnable {
         Map<Integer, EntityRenderable> newStaticRenderables = new java.util.HashMap<>(this.staticRenderables);
 
         if (entitiesInfo.isEmpty()) {
-            newStaticRenderables.clear(); // 
+            newStaticRenderables.clear(); //
             this.staticRenderables = newStaticRenderables;
             return;
         }
@@ -249,7 +243,6 @@ public class Renderer extends Canvas implements Runnable {
         this.staticRenderables = newStaticRenderables; // atomic swap
     }
 
-
     /**
      * PRIVATES
      */
@@ -264,25 +257,26 @@ public class Renderer extends Canvas implements Runnable {
         }
     }
 
-
     private void drawHUD(Graphics2D g) {
         Color old = g.getColor();
 
+        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
+        g.setFont(font);
         g.setColor(Color.YELLOW);
-        g.drawString("FPS: " + this.fps, 12, 20);
+        g.drawString("FPS: " + this.fps, 12, 30);
+
         g.setColor(Color.ORANGE);
-        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 35);
-        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 50);
+        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
+        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
         g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
                 + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
-                     12, 65);
-        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 80);
-        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 95);
-        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 110);
+                12, 135);
+        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
+        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
+        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
 
         g.setColor(old);
     }
-
 
     private void drawStaticRenderables(Graphics2D g) {
         Map<Integer, EntityRenderable> renderables = this.staticRenderables;
@@ -290,7 +284,6 @@ public class Renderer extends Canvas implements Runnable {
             renderable.paint(g);
         }
     }
-
 
     private void drawScene(BufferStrategy bs) {
         Graphics2D gg;
@@ -314,7 +307,6 @@ public class Renderer extends Canvas implements Runnable {
         } while (bs.contentsLost());
     }
 
-
     private GraphicsConfiguration getGraphicsConfSafe() {
         GraphicsConfiguration gc = getGraphicsConfiguration();
         if (gc == null) {
@@ -326,7 +318,6 @@ public class Renderer extends Canvas implements Runnable {
         return gc;
     }
 
-
     private VolatileImage getVIBackground() {
         this.viBackground = this.getVolatileImage(
                 this.viBackground, this.background, this.viewDimension);
@@ -334,7 +325,6 @@ public class Renderer extends Canvas implements Runnable {
         return this.viBackground;
 
     }
-
 
     private VolatileImage getVolatileImage(
             VolatileImage vi, BufferedImage src, Dimension dim) {
@@ -360,7 +350,6 @@ public class Renderer extends Canvas implements Runnable {
         return vi;
     }
 
-
     private void monitoring() {
         this.fpsFrames++;
         long now = System.nanoTime();
@@ -371,12 +360,10 @@ public class Renderer extends Canvas implements Runnable {
             this.fpsFrames = 0;
             this.lastTimeMonitoring = now;
 
-            this.renderTimeInMs
-                    = (System.nanoTime() - this.initDrawTimeStamp) / 1_000_000;
+            this.renderTimeInMs = (System.nanoTime() - this.initDrawTimeStamp) / 1_000_000;
 
         }
     }
-
 
     private void updateDynamicRenderables(ArrayList<DBodyInfoDTO> bodiesInfo) {
         // If no objects are alive this frame, clear the cache entirely
@@ -402,7 +389,6 @@ public class Renderer extends Canvas implements Runnable {
         }
 
         // Remove renderables not updated this frame (i.e., objects no longer alive)
-        this.dynamicRenderables.entrySet().removeIf(entry
-                -> entry.getValue().getLastFrameSeen() != cFrame);
+        this.dynamicRenderables.entrySet().removeIf(entry -> entry.getValue().getLastFrameSeen() != cFrame);
     }
 }

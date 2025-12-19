@@ -1,11 +1,10 @@
 package main;
 
-
 /**
  * TO-DO 
  * ===== 
- * 1) Implment weapon burts 
- * 2) Full implemention of Factory pattern for weapons, physics, worlds, entities, ...
+ * 1) Implement creation of different weapon types from config in world generator, controller and model
+ * 2) Full implemention of Factory pattern for entities, ...
  * 2) Colision detection 
  * 3) Basic Fx 
  * 4) Create a new physic engine with a gravitational field 
@@ -23,30 +22,47 @@ import world.WorldDefinition;
 import world.WorldDefinitionProvider;
 import world.providers.RandomWorldDefinitionProvider;
 
-
 public class Main {
 
-    public static void main(String[] args) {
+        public static void main(String[] args) {
 
-        ProjectAssets projectAssets = new ProjectAssets();
+                System.setProperty("sun.java2d.uiScale", "1.0");
+                int worldWidth = 2450;
+                int worldHeight = 1450;
 
-        WorldDefinitionProvider world
-                = new RandomWorldDefinitionProvider(1150, 650, projectAssets);
+                ProjectAssets projectAssets = new ProjectAssets();
 
-        WorldDefinition worldDef = world.provide();
+                WorldDefinitionProvider world = new RandomWorldDefinitionProvider(worldWidth, worldHeight,
+                                projectAssets);
 
-        Controller controller = new Controller(
-                1150, 650, // World dimensions
-                5000, // Max dynamic bodies
-                new View(), new Model(),
-                worldDef.gameAssets);
+                WorldDefinition worldDef = world.provide();
 
-        controller.activate();
+                Controller controller = new Controller(
+                                worldWidth, worldHeight, // World dimensions
+                                5000, // Max dynamic bodies
+                                new View(), new Model(),
+                                worldDef.gameAssets);
 
-        WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
-        LifeGenerator lifeGenerator = new LifeGenerator(
-                controller, worldDef.asteroidsDef, 150, 11, 3, 1000, 10, 175, 0);
+                controller.activate();
 
-        lifeGenerator.activate();
-    }
+                WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
+
+                int maxCreationDelay = 500;
+                int maxSize = 20;
+                int minSize = 3;
+                double maxMass = 1000;
+                double minMass = 10;
+                int maxSpeedModule = 175;
+                int maxAccModule = 0;
+
+                LifeGenerator lifeGenerator = new LifeGenerator(
+                                controller,
+                                worldDef.asteroidsDef,
+                                maxCreationDelay,
+                                maxSize, minSize,
+                                maxMass, minMass,
+                                maxSpeedModule, maxAccModule);
+
+                lifeGenerator.activate();
+        }
 }
