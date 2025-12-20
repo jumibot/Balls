@@ -121,7 +121,7 @@ public class Renderer extends Canvas implements Runnable {
 
     private Dimension viewDimension;
     private View view;
-    private int delayInMillis = 5;
+    private int delayInMillis = 1;
     private long currentFrame = 0;
     private Thread thread;
 

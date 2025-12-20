@@ -1,14 +1,14 @@
 package world;
 
 
-public class PositionItemDto extends ItemDto {
+public class WorldDefPositionItemDto extends WorldDefItemDto {
 
     // Geometry
     public final double posX;
     public final double posY;
 
 
-    public PositionItemDto(
+    public WorldDefPositionItemDto(
             String assetId, double size, double angle, 
             double posX, double posY) {
 
