@@ -102,12 +102,12 @@ public final class ProjectAssets {
         this.catalog.register("signs_1", "ui-signs-1.png", AssetType.UI_SIGN, AssetIntensity.HIGH);
 
         this.catalog.register("bullet_1", "bullet-1.png", AssetType.BULLET, AssetIntensity.LOW);
-        this.catalog.register("bomb_1", "grenade-1.png", AssetType.BOMB, AssetIntensity.MEDIUM);
-        this.catalog.register("bomb_2", "grenade-2.png", AssetType.BOMB, AssetIntensity.MEDIUM);
-        this.catalog.register("misil_1", "misil-1-mini.png", AssetType.MISIL, AssetIntensity.HIGH);
-        this.catalog.register("misil_2", "misil-2-mini.png", AssetType.MISIL, AssetIntensity.HIGH);
-        this.catalog.register("misil_3", "misil-3-mini.png", AssetType.MISIL, AssetIntensity.HIGH);
-        this.catalog.register("misil_4", "misil-4.png", AssetType.MISIL, AssetIntensity.HIGH);
-        this.catalog.register("misil_5", "misil-5-mini.png", AssetType.MISIL, AssetIntensity.HIGH);
+        // this.catalog.register("bomb_1", "grenade-1.png", AssetType.MINE, AssetIntensity.MEDIUM);
+        this.catalog.register("bomb_2", "grenade-2.png", AssetType.MINE, AssetIntensity.MEDIUM);
+        this.catalog.register("misil_1", "misil-1-mini.png", AssetType.MISSILE, AssetIntensity.HIGH);
+        this.catalog.register("misil_2", "misil-2-mini.png", AssetType.MISSILE, AssetIntensity.HIGH);
+        this.catalog.register("misil_3", "misil-3-mini.png", AssetType.MISSILE, AssetIntensity.HIGH);
+        this.catalog.register("misil_4", "misil-4.png", AssetType.MISSILE, AssetIntensity.HIGH);
+        this.catalog.register("misil_5", "misil-5-mini.png", AssetType.MISSILE, AssetIntensity.HIGH);
     }
 }

@@ -1,83 +1,31 @@
 package generators;
 
-
 import java.util.Random;
 import _helpers.DoubleVector;
 import controller.Controller;
 import controller.EngineState;
 import java.util.ArrayList;
-import world.ItemDto;
-
+import world.WorldDefItemDto;
 
 public class LifeGenerator implements Runnable {
 
     private final Random rnd = new Random();
-
-    private ArrayList<ItemDto> asteroid;
+    private ArrayList<WorldDefItemDto> items;
     private final Controller controller;
-    private final int maxCreationDelay;
     private Thread thread;
 
-    public final int maxSize, minSize;
-    public final double maxMass, minMass;
-    public final double maxSpeedModule;
-    public final double accMaxModule;
-    public final boolean fixedAcc;
-    public final double acc_x, acc_y;
-    public final boolean fixedSpeed;
-    public final double speed_x, speed_y;
-
+    private final LifeDTO lifeConfig;
 
     /**
      * CONSTRUCTORS
      */
     public LifeGenerator(Controller controller,
-            ArrayList<ItemDto> asteroid, int maxCreationDelay,
-            int maxSize, int minSize, double maxMass, double minMass,
-            double speed_x, double speed_y, double acc_x, double acc_y) {
+            ArrayList<WorldDefItemDto> items, LifeDTO lifeConfig) {
 
-        this.maxCreationDelay = maxCreationDelay;
-        this.asteroid = asteroid;
+        this.items = items;
         this.controller = controller;
-
-        this.maxSize = maxSize;
-        this.minSize = minSize;
-        this.maxMass = maxMass;
-        this.minMass = minMass;
-        this.maxSpeedModule = 0;
-        this.accMaxModule = 0;
-        this.fixedSpeed = true;
-        this.fixedAcc = true;
-        this.speed_x = speed_x;
-        this.speed_y = speed_y;
-        this.acc_x = acc_x;
-        this.acc_y = acc_y;
+        this.lifeConfig = lifeConfig;
     }
-
-
-    public LifeGenerator(Controller controller,
-            ArrayList<ItemDto> asteroid, int maxCreationDelay,
-            int maxSize, int minSize, double maxMass, double minMass,
-            double maxSpeedModule, double maxAccModule) {
-
-        this.maxCreationDelay = maxCreationDelay;
-        this.asteroid = asteroid;
-        this.controller = controller;
-
-        this.maxSize = maxSize;
-        this.minSize = minSize;
-        this.maxMass = maxMass;
-        this.minMass = minMass;
-        this.maxSpeedModule = maxSpeedModule;
-        this.accMaxModule = maxAccModule;
-        this.fixedAcc = false;
-        this.fixedSpeed = false;
-        this.acc_x = 0d;
-        this.acc_y = 0d;
-        this.speed_x = 0d;
-        this.speed_y = 0d;
-    }
-
 
     /**
      * PUBLIC
@@ -90,85 +38,72 @@ public class LifeGenerator implements Runnable {
         System.out.println("Life generator activated! · RandomWorld");
     }
 
-
     /**
      * PRIVATE
      */
-    //++
+    // ++
     private void addRandomDynamicBody() {
-        DoubleVector acc, speed;
-
-        if (this.fixedSpeed) {
-            speed = new DoubleVector(this.speed_x, this.speed_y);
-        } else {
-            speed = this.randomSpeed();
+        DoubleVector speed = this.randomSpeed();
+        if (this.lifeConfig.fixedSpeed) {
+            speed = new DoubleVector(this.lifeConfig.speedX, this.lifeConfig.speedY);
         }
 
-        if (this.fixedAcc) {
-            acc = new DoubleVector(this.acc_x, this.acc_y);
-        } else {
-            acc = this.randomAcceleration();
+        DoubleVector acc = this.randomAcceleration();
+        if (this.lifeConfig.fixedAcc) {
+            acc = new DoubleVector(this.lifeConfig.accX, this.lifeConfig.accY);
         }
 
         DoubleVector pos = this.randomPosition();
         this.controller.addDBody(
                 this.randomAsset(), this.randomSize(),
-//                this.randomAsset(), 20,
                 pos.x, pos.y, speed.x, speed.y, acc.x, acc.y,
                 0d, this.randomAngularSpeed(460d), 0d, 0d);
     }
-
 
     private DoubleVector randomAcceleration() {
 
         DoubleVector newAcceleration = new DoubleVector(
                 this.rnd.nextGaussian(),
                 this.rnd.nextGaussian(),
-                this.rnd.nextFloat() * this.accMaxModule);
+                this.rnd.nextFloat() * this.lifeConfig.maxAccModule);
 
         return newAcceleration;
     }
 
-
-    //*+
+    // *+
     private String randomAsset() {
-        int index = this.rnd.nextInt(this.asteroid.size());
-        return this.asteroid.get(index).assetId;
+        int index = this.rnd.nextInt(this.items.size());
+        return this.items.get(index).assetId;
     }
-
 
     private DoubleVector randomPosition() {
         double x, y;
 
-        // Recuperar tamaño del mundo establecido en el modelo
+        // Random position within world limits
         x = this.rnd.nextFloat() * this.controller.getWorldDimension().width;
         y = this.rnd.nextFloat() * this.controller.getWorldDimension().height;
 
         return new DoubleVector(x, y);
     }
 
-
     private int randomSize() {
-        return (int) (this.minSize
+        return (int) (this.lifeConfig.minSize
                 + (this.rnd.nextFloat()
-                * (this.maxSize - this.minSize)));
+                        * (this.lifeConfig.maxSize - this.lifeConfig.minSize)));
     }
-
 
     private DoubleVector randomSpeed() {
         DoubleVector speed = new DoubleVector(
                 this.rnd.nextGaussian(),
                 this.rnd.nextGaussian(),
-                this.rnd.nextFloat() * this.maxSpeedModule);
+                this.rnd.nextFloat() * this.lifeConfig.maxSpeedModule);
 
         return speed;
     }
 
-
     private double randomAngularSpeed(double maxAngularSpeed) {
         return this.rnd.nextFloat() * maxAngularSpeed - maxAngularSpeed / 2;
     }
-
 
     /**
      * OVERRIDES
@@ -182,7 +117,7 @@ public class LifeGenerator implements Runnable {
             }
 
             try {
-                Thread.sleep(this.rnd.nextInt(this.maxCreationDelay));
+                Thread.sleep(this.rnd.nextInt(this.lifeConfig.maxCreationDelay));
             } catch (InterruptedException ex) {
             }
         }

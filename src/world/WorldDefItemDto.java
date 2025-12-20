@@ -5,7 +5,7 @@ package world;
  *
  * @author juanm
  */
-public class ItemDto {
+public class WorldDefItemDto {
 
     public final String assetId;
 
@@ -14,7 +14,7 @@ public class ItemDto {
     public final double angle;
 
 
-    public ItemDto(String assetId, double size, double angle) {
+    public WorldDefItemDto(String assetId, double size, double angle) {
         this.assetId = assetId;
         this.size = size;
         this.angle = angle;

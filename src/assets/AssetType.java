@@ -24,7 +24,7 @@ public enum AssetType {
     SPACESHIP,
     UI_SIGN,
     BULLET,
-    BOMB,
-    MISIL,
+    MINE,
+    MISSILE,
     BACKGROUND
 }

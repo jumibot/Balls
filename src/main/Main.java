@@ -14,6 +14,7 @@ package main;
  */
 import assets.ProjectAssets;
 import controller.Controller;
+import generators.LifeDTO;
 import generators.LifeGenerator;
 import generators.WorldGenerator;
 import model.Model;
@@ -39,7 +40,7 @@ public class Main {
 
                 Controller controller = new Controller(
                                 worldWidth, worldHeight, // World dimensions
-                                5000, // Max dynamic bodies
+                                2000, // Max dynamic bodies
                                 new View(), new Model(),
                                 worldDef.gameAssets);
 
@@ -47,21 +48,18 @@ public class Main {
 
                 WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
 
-                int maxCreationDelay = 500;
-                int maxSize = 20;
-                int minSize = 3;
-                double maxMass = 1000;
-                double minMass = 10;
-                int maxSpeedModule = 175;
-                int maxAccModule = 0;
+
+                LifeDTO lifeConfig = new LifeDTO(
+                                500, // maxCreationDelay
+                                15, 3, // maxSize, minSize
+                                1000, 10, // maxMass, minMass
+                                175, // maxSpeedModule
+                                0); // maxAccModule
 
                 LifeGenerator lifeGenerator = new LifeGenerator(
                                 controller,
                                 worldDef.asteroidsDef,
-                                maxCreationDelay,
-                                maxSize, minSize,
-                                maxMass, minMass,
-                                maxSpeedModule, maxAccModule);
+                                lifeConfig);
 
                 lifeGenerator.activate();
         }
