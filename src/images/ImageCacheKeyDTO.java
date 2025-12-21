@@ -1,7 +1,6 @@
-package _images;
+package images;
 
 
-import java.awt.Color;
 import java.util.Objects;
 
 

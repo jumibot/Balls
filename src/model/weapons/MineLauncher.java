@@ -1,10 +1,9 @@
 package model.weapons;
 
-public class BasicWeapon extends AbstractWeapon {
-
+public class MineLauncher extends AbstractWeapon {
     private double cooldown = 0.0; // seconds
 
-    public BasicWeapon(WeaponDto weaponConfig) {
+    public MineLauncher(WeaponDto weaponConfig) {
         super(weaponConfig);
     }
 

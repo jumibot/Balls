@@ -5,12 +5,8 @@ public class BurstWeapon extends AbstractWeapon {
     private double cooldown = 0.0; // seconds
     private int shotsRemaining = 0;
 
-    public BurstWeapon(String projectileAssetId, double projectileSize,
-            double firingSpeed, double shootingOffset, int burstSize, double fireRate) {
-
-        super(projectileAssetId, projectileSize, firingSpeed,
-                0, 0,
-                shootingOffset, burstSize, fireRate);
+    public BurstWeapon(WeaponDto weaponConfig) {
+        super(weaponConfig);
     }
 
     @Override

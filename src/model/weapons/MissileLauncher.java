@@ -1,15 +1,10 @@
 package model.weapons;
 
-public class MissileWeapon extends AbstractWeapon {
+public class MissileLauncher extends AbstractWeapon {
     private double cooldown = 0.0; // seconds
 
-    public MissileWeapon(String projectileAssetId, double projectileSize,
-            double acceleration, double accelerationTime,
-            double shootingOffset, double fireRate) {
-
-        super(projectileAssetId, projectileSize, 0,
-                acceleration, accelerationTime,
-                shootingOffset, 1, fireRate);
+    public MissileLauncher(WeaponDto weaponConfig) {
+        super(weaponConfig);
     }
 
     @Override

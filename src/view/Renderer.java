@@ -3,9 +3,10 @@ package view;
 import view.renderables.DBodyInfoDTO;
 import view.renderables.EntityRenderable;
 import view.renderables.DBodyRenderable;
-import _images.Images;
-import _images.ImageCache;
 import controller.EngineState;
+import images.ImageCache;
+import images.Images;
+
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Color;

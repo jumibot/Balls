@@ -58,7 +58,7 @@ public class Main {
 
                 LifeGenerator lifeGenerator = new LifeGenerator(
                                 controller,
-                                worldDef.asteroidsDef,
+                                worldDef.asteroids,
                                 lifeConfig);
 
                 lifeGenerator.activate();
