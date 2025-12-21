@@ -1,10 +1,11 @@
 package view.renderables;
 
 
-import _images.ImageCache;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+
+import images.ImageCache;
 
 
 public class DBodyRenderable extends EntityRenderable {

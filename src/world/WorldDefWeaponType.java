@@ -1,6 +1,6 @@
-package model.weapons;
+package world;
 
-public enum WeaponType {
+public enum WorldDefWeaponType {
     PRIMARY_WEAPON,
     SECONDARY_WEAPON,
     MINE_LAUNCHER,

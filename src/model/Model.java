@@ -21,6 +21,7 @@ import model.physics.BasicPhysicsEngine;
 import model.weapons.BasicWeapon;
 import model.weapons.Weapon;
 import model.weapons.WeaponDto;
+import model.weapons.WeaponFactory;
 import view.renderables.EntityInfoDTO;
 
 /**
@@ -146,7 +147,7 @@ public class Model {
         this.state = ModelState.ALIVE;
     }
 
-    public boolean addDBody(String assetId, double size,
+    public boolean addDynamicBody(String assetId, double size,
             double posX, double posY, double speedX, double speedY,
             double accX, double accY,
             double angle, double angularSpeed, double angularAcc,
@@ -212,17 +213,14 @@ public class Model {
     }
 
     public void addWeaponToPlayer(
-            String playerId, String projectileAssetId, double projectileSize,
-            double firingSpeed, double acceleration, double accelerationTime,
-            double shootingOffset, int burstSize, double fireRate) {
+            String playerId, WeaponDto weaponConfig) {
 
         PlayerBody pBody = this.pBodies.get(playerId);
         if (pBody == null) {
             return; // ========= Player not found =========>
         }
 
-        Weapon weapon = new BasicWeapon(projectileAssetId, projectileSize,
-                firingSpeed, shootingOffset, fireRate);
+        Weapon weapon = WeaponFactory.create(weaponConfig);
 
         pBody.addWeapon(weapon);
     }
@@ -231,7 +229,7 @@ public class Model {
         return this.maxDBody;
     }
 
-    public ArrayList<DBodyInfoDTO> getDBodyInfo() {
+    public ArrayList<DBodyInfoDTO> getDynamicBodyInfo() {
         ArrayList<DBodyInfoDTO> dBodyInfoList = new ArrayList(DynamicBody.getAliveQuantity() * 2);
 
         this.dBodies.forEach((id, dBody) -> {
@@ -574,16 +572,18 @@ public class Model {
         double dirY = Math.sin(angleRad);
 
         double angleInRads = Math.toRadians(shooterNewPhy.angle - 90);
-        double spawnX = shooterNewPhy.posX + Math.cos(angleInRads) * weaponConfig.shootingOffeset;
-        double spawnY = shooterNewPhy.posY + Math.sin(angleInRads) * weaponConfig.shootingOffeset;
+        double spawnX = shooterNewPhy.posX + Math.cos(angleInRads) * weaponConfig.shootingOffset;
+        double spawnY = shooterNewPhy.posY + Math.sin(angleInRads) * weaponConfig.shootingOffset;
 
+        // double projSpeedX = weaponConfig.firingSpeed * dirX;
+        // double projSpeedY = weaponConfig.firingSpeed * dirY;
         double projSpeedX = shooterNewPhy.speedX + weaponConfig.firingSpeed * dirX;
         double projSpeedY = shooterNewPhy.speedY + weaponConfig.firingSpeed * dirY;
 
         double accX = weaponConfig.acceleration * dirX;
         double accY = weaponConfig.acceleration * dirY;
 
-        this.addDBody(
+        this.addDynamicBody(
                 weaponConfig.projectileAssetId, weaponConfig.projectileSize,
                 spawnX, spawnY, projSpeedX, projSpeedY,
                 accX, accY, angleDeg, 0d, 0d, 0d);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import world.WorldDefItemDto;
 import world.WorldDefPositionItemDto;
-import world.WorldDefWeaponDto;
 import world.WorldDefinition;
 
 public class WorldGenerator {
@@ -25,25 +24,29 @@ public class WorldGenerator {
     private void createWorld() {
         this.controller.loadAssets(this.worldDefinition.gameAssets);
 
-        this.createSpaceDecorators(this.worldDefinition.spaceDecoratorsDef);
-        this.createSBodies(this.worldDefinition.gravityBodiesDef);
-        this.createPlayers(this.worldDefinition.spaceshipsDef);
+        this.createSpaceDecorators();
+        this.createSBodies();
+        this.createPlayers();
     }
 
-    private void createSBodies(ArrayList<WorldDefPositionItemDto> sBodies) {
+    private void createSBodies() {
+        ArrayList<WorldDefPositionItemDto> sBodies = this.worldDefinition.gravityBodies;
+
         for (WorldDefPositionItemDto body : sBodies) {
             this.controller.addSBody(body.assetId, body.size, body.posX, body.posY, body.angle);
         }
     }
 
-    private void createSpaceDecorators(ArrayList<WorldDefPositionItemDto> decorators) {
+    private void createSpaceDecorators() {
+        ArrayList<WorldDefPositionItemDto> decorators = this.worldDefinition.spaceDecorators;
 
         for (WorldDefPositionItemDto deco : decorators) {
             this.controller.addDecorator(deco.assetId, deco.size, deco.posX, deco.posY, deco.angle);
         }
     }
 
-    private void createPlayers(ArrayList<WorldDefItemDto> dBodies) {
+    private void createPlayers() {
+        ArrayList<WorldDefItemDto> dBodies = this.worldDefinition.spaceshipsDef;
         String playerId = null;
 
         for (WorldDefItemDto body : dBodies) {
@@ -51,34 +54,23 @@ public class WorldGenerator {
                     body.assetId, body.size, 500, 200, 0, 0, 0, 0, 0,
                     this.randomAngularSpeed(270), 0, 0);
 
-            
-            WorldDefWeaponDto gun = this.worldDefinition.gunsDef.get(0);
             this.controller.addWeaponToPlayer(
-                    playerId, gun.assetId, gun.size,
-                    gun.firingSpeed, gun.acc, gun.accTime,
-                    0, gun.burstSize, gun.fireRate);
+                playerId, this.worldDefinition.primaryWeapon.get(0), 0);
 
-            WorldDefWeaponDto machineGun = this.worldDefinition.machineGunsDef.get(0);
             this.controller.addWeaponToPlayer(
-                    playerId, machineGun.assetId, machineGun.size,
-                    machineGun.firingSpeed, machineGun.acc, machineGun.accTime,
-                    0, machineGun.burstSize, machineGun.fireRate);
+                playerId, this.worldDefinition.secondaryWeapon.get(0), 0);
 
-            WorldDefWeaponDto missilLauncher = this.worldDefinition.missilLaunchersDef.get(0);
             this.controller.addWeaponToPlayer(
-                    playerId, missilLauncher.assetId, missilLauncher.size,
-                    missilLauncher.firingSpeed, missilLauncher.acc, missilLauncher.accTime,
-                    -body.size * 0.5, missilLauncher.burstSize, missilLauncher.fireRate);
+                playerId, this.worldDefinition.missilLaunchers.get(0), -10);
 
-            WorldDefWeaponDto mineLauncher = this.worldDefinition.mineLaunchersDef.get(0);
             this.controller.addWeaponToPlayer(
-                    playerId, mineLauncher.assetId, mineLauncher.size,
-                    mineLauncher.firingSpeed, mineLauncher.acc, mineLauncher.accTime,
-                    body.size * 0.5, mineLauncher.burstSize, mineLauncher.fireRate);
+                playerId, this.worldDefinition.mineLaunchers.get(0), 10);
         }
 
         if (playerId != null) {
             this.controller.setLocalPlayer(playerId);
+        } else {
+            System.err.println("[DEBUG] No valid playerId to set as local player.");
         }
     }
 

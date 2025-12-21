@@ -2,11 +2,12 @@ package view;
 
 
 import view.renderables.DBodyInfoDTO;
-import _images.Images;
 import assets.AssetCatalog;
 import assets.AssetType;
 import controller.Controller;
 import controller.EngineState;
+import images.Images;
+
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;

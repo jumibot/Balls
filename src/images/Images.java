@@ -1,4 +1,4 @@
-package _images;
+package images;
 
 
 import _helpers.RandomArrayList;
