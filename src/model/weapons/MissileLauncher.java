@@ -16,6 +16,15 @@ public class MissileLauncher extends AbstractWeapon {
             return false; // =================>
         }
 
+        if (this.currentAmmo <= 0) {
+            // No ammunition: reload, set time to reload and discard requests
+            this.markAllRequestsHandled();
+            cooldown = this.getWeaponConfig().reloadTime;
+            this.currentAmmo = this.getWeaponConfig().maxAmmo;
+            return false;
+        }
+
+
         if (!this.hasRequest()) {
             // Nothing to do
             this.cooldown = 0;
@@ -24,6 +33,7 @@ public class MissileLauncher extends AbstractWeapon {
 
         // Fire
         this.markAllRequestsHandled();
+        this.currentAmmo--;
         cooldown = 1.0 / this.getWeaponConfig().fireRate;
         return true;
     }

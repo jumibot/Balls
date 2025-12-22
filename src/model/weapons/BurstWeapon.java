@@ -19,10 +19,13 @@ public class BurstWeapon extends AbstractWeapon {
             return false; // ======== Weapon is overheated =========>
         }
 
-        // No ammo => cannot fire (avoid negative ammo gameplay bugs)
         if (this.currentAmmo <= 0) {
+            // No ammunition: set time to reload, reload and discard requests
+
             this.markAllRequestsHandled();
             this.shotsRemainingInBurst = 0; // cancel any ongoing burst
+            cooldown = this.getWeaponConfig().reloadTime;
+            this.currentAmmo = this.getWeaponConfig().maxAmmo;
             return false;
         }
 
