@@ -62,15 +62,16 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
         this.dynamicBodies(this.spaceshipsDef, 1, AssetType.SPACESHIP, 40, 40);
 
         this.primaryWeapon(this.primaryWeapon, 1, AssetType.BULLET,
-                12, 12, 300d, 10);
+                17, 17, 300d, 10);
 
         this.secondaryWeapon(this.secondaryWeaponDef, 1, AssetType.BULLET,
-                12, 12, 400d, 8, 20);
+                7, 7, 500d, 8, 
+                25, 2);
 
         this.mineLaunchers(this.mineLaunchersDef, 1, AssetType.MINE, 35, 35, 150);
 
         this.missilLaunchers(this.missilLaunchersDef, 1, AssetType.MISSILE,
-                35, 35, 4000d, 1d, 1);
+                42, 42, 4000d, 1d, 1);
 
         WorldDefinition worlDef = new WorldDefinition(this.width, this.height, this.gameAssets,
                 background, decoratorsDef, gravityBodiesDef, asteroidsDef, spaceshipsDef,
@@ -173,13 +174,13 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.MINE_LAUNCHER,
                     0, 0, 0,
-                    1, fireRate, 10, 20,
+                    1, 0, fireRate, 10, 20,
                     10000,20));
         }
     }
 
     private void primaryWeapon(ArrayList<WorldDefWeaponDto> weapons, int num, AssetType type,
-            int maxSize, int minSize, double firingSpeed, int fireRate) {
+            int maxSize, int minSize, double firingSpeed, int fireRate ) {
 
         String randomAssetId;
         AssetInfoDTO assetInfo;
@@ -193,7 +194,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomAssetId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.PRIMARY_WEAPON,
                     firingSpeed, 0, 0,
-                    1, fireRate, 1000, 2,
+                    1, 0, fireRate, 10, 2,
                     10, 2));
         }
     }
@@ -201,7 +202,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
     private void secondaryWeapon(ArrayList<WorldDefWeaponDto> weapons,
             int num, AssetType type,
             int maxSize, int minSize, double firingSpeed,
-            int burstSize, int fireRate) {
+            int burstSize, int burstFireRate, int fireRate) {
 
         String randomAssetId;
         AssetInfoDTO assetInfo;
@@ -216,7 +217,8 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.SECONDARY_WEAPON,
                     firingSpeed, 0, 0,
-                    burstSize, fireRate, 500, 4,
+                    burstSize, burstFireRate, fireRate, 
+                    10, 4,
                     100,2));
         }
     }
@@ -238,7 +240,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.MISSILE_LAUNCHER,
                     0, acceleration, accelerationDuration,
-                    1, fireRate, 500, 4,
+                    1, 0, fireRate, 500, 4,
                     1000, 4));
 
         }

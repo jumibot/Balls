@@ -8,6 +8,7 @@ public class WorldDefWeaponDto extends WorldDefItemDto {
     public final double accelerationDuration; // Time during which the acceleration applies
     public final int burstSize; // Number of shots per burst
     public final int fireRate; // Fire rate (shots per second)
+    public final int burstFireRate; // Fire rate within a burst (shots per second)
     public final int maxAmmo; // Maximum ammunition capacity
     public final double reloadTime; // Reload time (seconds)
     public final double projectileMass; // Mass of the projectile (kilograms)
@@ -15,7 +16,7 @@ public class WorldDefWeaponDto extends WorldDefItemDto {
 
     public WorldDefWeaponDto(String assetId, double size, WorldDefWeaponType type,
             double firingSpeed, double acceleration, double accelerationDuration,
-            int burstSize, int fireRate, int maxAmmo, double reloadTime, 
+            int burstSize, int burstFireRate,int fireRate, int maxAmmo, double reloadTime, 
             double projectileMass, double maxlifeTime) {
 
         super(assetId, size, 0);
@@ -25,6 +26,7 @@ public class WorldDefWeaponDto extends WorldDefItemDto {
         this.acceleration = acceleration;
         this.accelerationDuration = accelerationDuration;
         this.burstSize = burstSize;
+        this.burstFireRate = burstFireRate;
         this.fireRate = fireRate;
         this.maxAmmo = maxAmmo;
         this.reloadTime = reloadTime;

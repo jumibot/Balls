@@ -14,7 +14,7 @@ public class WeaponFactory {
                 return new BurstWeapon(weaponConfig);
 
             case MISSILE_LAUNCHER:
-                return new MineLauncher(weaponConfig);
+                return new MissileLauncher(weaponConfig);
 
             case MINE_LAUNCHER:
                 return new MineLauncher(weaponConfig);

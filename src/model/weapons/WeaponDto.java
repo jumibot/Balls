@@ -84,6 +84,7 @@ public class WeaponDto {
     public final double accelerationTime;
     public final double shootingOffset;
     public final int burstSize;
+    public final int burstFireRate;
     public final double fireRate; // shoots per seconds
     public final int maxAmmo;
     public final double reloadTime;
@@ -98,6 +99,7 @@ public class WeaponDto {
             double acceleration,
             double accelerationDuration,
             int burstSize,
+            int burstFireRate,
             double fireRatePerSec,
             int maxAmmo,
             double reloadTime,
@@ -113,6 +115,7 @@ public class WeaponDto {
         this.accelerationTime = accelerationDuration;
         this.shootingOffset = shootingOffset;
         this.burstSize = burstSize;
+        this.burstFireRate = burstFireRate;
         this.fireRate = fireRatePerSec;
         this.maxAmmo = maxAmmo;
         this.reloadTime = reloadTime;
@@ -132,6 +135,7 @@ public class WeaponDto {
         this.accelerationTime = weaponConfig.accelerationTime;
         this.shootingOffset = weaponConfig.shootingOffset;
         this.burstSize = weaponConfig.burstSize;
+        this.burstFireRate = weaponConfig.burstFireRate;
         this.fireRate = weaponConfig.fireRate;
         this.maxAmmo = weaponConfig.maxAmmo;
         this.reloadTime = weaponConfig.reloadTime;

@@ -1,12 +1,13 @@
 package controller;
 
 import assets.AssetCatalog;
+import controller.mappers.WeaponMapper;
+
 import java.awt.Dimension;
 import view.renderables.DBodyInfoDTO;
 import view.View;
 import model.Model;
 import model.entities.DynamicBody;
-import model.mappers.WeaponMapper;
 import model.weapons.WeaponDto;
 import model.ActionType;
 import model.EventType;

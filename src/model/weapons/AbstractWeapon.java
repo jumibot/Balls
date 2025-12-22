@@ -93,6 +93,7 @@ public abstract class AbstractWeapon implements Weapon {
     private final WeaponDto weaponConfig;
     private final AtomicLong lastFireRequest = new AtomicLong(0L);
     protected long lastHandledRequest = 0L;
+    protected int currentAmmo;
 
     public AbstractWeapon(WeaponDto weaponConfig) {
 
@@ -103,6 +104,7 @@ public abstract class AbstractWeapon implements Weapon {
 
         this.id = UUID.randomUUID().toString();
         this.weaponConfig = weaponConfig;
+        this.currentAmmo = weaponConfig.maxAmmo;
     }
 
     public String getId() {

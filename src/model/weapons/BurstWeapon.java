@@ -2,8 +2,8 @@ package model.weapons;
 
 public class BurstWeapon extends AbstractWeapon {
 
-    private double cooldown = 0.0; // seconds
-    private int shotsRemaining = 0;
+    private double cooldown = 0.0d; // seconds until next shot is allowed
+    private int shotsRemainingInBurst = 0;
 
     public BurstWeapon(WeaponDto weaponConfig) {
         super(weaponConfig);
@@ -12,35 +12,58 @@ public class BurstWeapon extends AbstractWeapon {
     @Override
     public boolean mustFireNow(double dtSeconds) {
         if (this.cooldown > 0) {
-            // Cool down weapon. Any pending requests or shot are discarded.
+            // Cool down weapon between shots or between bursts.
+            // Any pending requests.
             this.cooldown -= dtSeconds;
             this.markAllRequestsHandled();
-            return false; // =================>
+            return false; // ======== Weapon is overheated =========>
         }
 
-        if (this.shotsRemaining > 0) {
+        // No ammo => cannot fire (avoid negative ammo gameplay bugs)
+        if (this.currentAmmo <= 0) {
+            this.markAllRequestsHandled();
+            this.shotsRemainingInBurst = 0; // cancel any ongoing burst
+            return false;
+        }
+
+        if (this.shotsRemainingInBurst > 0) {
             // Burst mode ongoing...
             // Discard any pending requests while in burst mode
             this.markAllRequestsHandled();
 
-            this.shotsRemaining--;
-            this.cooldown = 1.0 / this.getWeaponConfig().fireRate;
-            // Requesting shot
-            return true;
+            this.shotsRemainingInBurst--;
+            this.currentAmmo--;
+
+            if (this.shotsRemainingInBurst == 0) {
+                // Burst finished. Cooldown between bursts
+                this.cooldown = 1.0 / this.getWeaponConfig().fireRate;
+            } else {
+                // More shots to fire in this burst. Cooldown between shots
+                this.cooldown = 1.0 / this.getWeaponConfig().burstFireRate;
+            }
+
+            return true; // ======== Requesting shot ======>
         }
 
         if (!this.hasRequest()) {
-            // No burst to start
-            this.cooldown = 0;
-            return false; // ==================>
+            return false; // ===== No burst to start ======>
         }
 
-        // Start new burst
+        // Consume request and start new burst
         this.markAllRequestsHandled();
 
-        int burstSize = this.getWeaponConfig().burstSize;
-        this.shotsRemaining = Math.max(1, burstSize)-1; // One shot now
-        this.cooldown = 1.0 / this.getWeaponConfig().fireRate;
-        return true;
+        int burstSize = Math.max(1, getWeaponConfig().burstSize);
+
+        this.shotsRemainingInBurst = burstSize - 1; // One shot now
+        this.currentAmmo--;
+
+        // Cooldown depends on whether burst continues
+        if (this.shotsRemainingInBurst == 0) {
+            this.cooldown = 1.0 / this.getWeaponConfig().fireRate; // between bursts
+        } else {
+            this.cooldown = 1.0 / this.getWeaponConfig().burstFireRate; // between burst shots
+        }
+        
+        return true; // ====== Requesting first shot ======>
     }
 }

@@ -61,10 +61,10 @@ public class WorldGenerator {
                 playerId, this.worldDefinition.secondaryWeapon.get(0), 0);
 
             this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.missilLaunchers.get(0), -10);
+                playerId, this.worldDefinition.missilLaunchers.get(0), -15);
 
             this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.mineLaunchers.get(0), 10);
+                playerId, this.worldDefinition.mineLaunchers.get(0), 15);
         }
 
         if (playerId != null) {

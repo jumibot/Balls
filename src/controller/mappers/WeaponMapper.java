@@ -1,4 +1,4 @@
-package model.mappers;
+package controller.mappers;
 
 import world.WorldDefWeaponDto;
 import model.weapons.WeaponDto;
@@ -18,6 +18,7 @@ public class WeaponMapper {
                 weaponDef.acceleration,
                 weaponDef.accelerationDuration,
                 weaponDef.burstSize,
+                weaponDef.burstFireRate,
                 weaponDef.fireRate,
                 weaponDef.maxAmmo,
                 weaponDef.reloadTime,
