@@ -33,7 +33,7 @@ public class WorldGenerator {
         ArrayList<WorldDefPositionItemDto> sBodies = this.worldDefinition.gravityBodies;
 
         for (WorldDefPositionItemDto body : sBodies) {
-            this.controller.addSBody(body.assetId, body.size, body.posX, body.posY, body.angle);
+            this.controller.addStaticBody(body.assetId, body.size, body.posX, body.posY, body.angle);
         }
     }
 

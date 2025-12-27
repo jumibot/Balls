@@ -1,4 +1,4 @@
-package model.entities;
+package model.bodies;
 
 
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.io.Serializable;
  *
  * @author juanm
  */
-public enum EntityState implements Serializable {
+public enum BodyState implements Serializable {
     STARTING,
     ALIVE,
     PAUSED,

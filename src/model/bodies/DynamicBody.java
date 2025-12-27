@@ -1,12 +1,9 @@
-package model.entities;
-
+package model.bodies;
 
 import model.physics.BasicPhysicsEngine;
-import model.physics.PhysicsValues;
-import view.renderables.DBodyInfoDTO;
+import model.physics.PhysicsValuesDTO;
 import model.ModelState;
 import model.physics.PhysicsEngine;
-
 
 /**
  * DynamicBody
@@ -15,10 +12,10 @@ import model.physics.PhysicsEngine;
  * Represents a single dynamic entity in the simulation model.
  *
  * Each DynamicBody maintains:
- *   - A unique identifier and visual attributes (assetId, size)
- *   - Its own PhysicsEngine instance, which stores and updates the immutable
- *     PhysicsValues snapshot (position, speed, acceleration, angle, etc.)
- *   - A dedicated thread responsible for advancing its physics state over time
+ * - A unique identifier and visual attributes (assetId, size)
+ * - Its own PhysicsEngine instance, which stores and updates the immutable
+ * PhysicsValues snapshot (position, speed, acceleration, angle, etc.)
+ * - A dedicated thread responsible for advancing its physics state over time
  *
  * Dynamic bodies interact exclusively with the Model, reporting physics updates
  * and requesting event processing (collisions, rebounds, etc.). The view layer
@@ -37,26 +34,24 @@ import model.physics.PhysicsEngine;
  * for events and processing actions based on game rules determined by the
  * Controller.
  *
- * The goal of this class is to isolate per-object behavior and physics evolution
+ * The goal of this class is to isolate per-object behavior and physics
+ * evolution
  * while keeping the simulation thread-safe through immutable snapshots and a
  * clearly separated rendering pipeline.
  */
-public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable {
+public class DynamicBody extends AbstractBody implements PhysicsBody, Runnable {
 
     private Thread thread;
-
-    private final BasicPhysicsEngine phyEngine; // Convert to Atomic Reference
-
+    private final BasicPhysicsEngine phyEngine; 
 
     /**
      * CONSTRUCTORS
      */
-    public DynamicBody(String assetId, double size, BasicPhysicsEngine phyEngine) {
-        super(assetId, size);
+    public DynamicBody(BasicPhysicsEngine phyEngine) {
+        super(phyEngine);
 
         this.phyEngine = phyEngine;
     }
-
 
     /**
      * PUBLICS
@@ -69,56 +64,29 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         this.thread.setName("Body " + this.getEntityId());
         this.thread.setPriority(Thread.NORM_PRIORITY - 1);
         this.thread.start();
-        this.setState(EntityState.ALIVE);
+        this.setState(BodyState.ALIVE);
     }
-
 
     public void addAngularAcceleration(double angularSpeed) {
         this.phyEngine.addAngularAcceleration(angularSpeed);
     }
 
-
-    @Override
-    public DBodyInfoDTO buildEntityInfo() {
-        if (this.getState() == EntityState.DEAD || this.getState() == EntityState.STARTING) {
-            return null;
-        }
-
-        PhysicsValues phyValues = this.phyEngine.getPhysicsValues();
-
-        return new DBodyInfoDTO(
-                this.getEntityId(), this.assetId, this.size,
-                phyValues.timeStamp,
-                phyValues.posX, phyValues.posY,
-                phyValues.speedX, phyValues.speedY,
-                phyValues.accX, phyValues.accY,
-                phyValues.angle);
-    }
-
-
-    public double getAngularSpeed() {
-        return this.phyEngine.getAngularSpeed();
-    }
-
-
     public PhysicsEngine getPhysicsEngine() {
         return this.phyEngine;
     }
-
 
     public void resetAcceleration() {
         this.phyEngine.resetAcceleration();
     }
 
-
     @Override
     public void run() {
-        PhysicsValues newPhyValues;
+        PhysicsValuesDTO newPhyValues;
 
-        while ((this.getState() != EntityState.DEAD)
+        while ((this.getState() != BodyState.DEAD)
                 && (this.getModel().getState() != ModelState.STOPPED)) {
 
-            if ((this.getState() == EntityState.ALIVE)
+            if ((this.getState() == BodyState.ALIVE)
                     && (this.getModel().getState() == ModelState.ALIVE)) {
 
                 newPhyValues = this.phyEngine.calcNewPhysicsValues();
@@ -133,26 +101,15 @@ public class DynamicBody extends AbstractEntity implements PhysicsBody, Runnable
         }
     }
 
-
     public void setAngularAcceleration(double angularAcc) {
         this.phyEngine.setAngularAcceleration(angularAcc);
     }
-
 
     public void setAngularSpeed(double angularSpeed) {
         this.phyEngine.setAngularSpeed(angularSpeed);
     }
 
-
     public void setThrust(double thrust) {
         this.phyEngine.setThrust(thrust);
-    }
-
-
-    @Override
-    public String toString() {
-        return "Body <" + this.getEntityId()
-                + "> p (" + this.phyEngine.getPhysicsValues().posX + "," + this.phyEngine.getPhysicsValues().posX + ") "
-                + " s (" + this.phyEngine.getPhysicsValues().speedX + "," + this.phyEngine.getPhysicsValues().speedX + ")";
     }
 }

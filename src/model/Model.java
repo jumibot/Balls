@@ -1,28 +1,27 @@
 package model;
 
-import model.entities.EntityState;
-import model.entities.DynamicBody;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import controller.Controller;
-import model.physics.PhysicsValues;
-import view.renderables.DBodyInfoDTO;
+import model.physics.PhysicsValuesDTO;
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import java.util.Comparator;
 import java.util.List;
-import model.entities.AbstractEntity;
-import model.entities.DecoEntity;
-import model.entities.PlayerBody;
-import model.entities.StaticBody;
+
+import model.bodies.AbstractBody;
+import model.bodies.BodyDTO;
+import model.bodies.DecoBody;
+import model.bodies.DynamicBody;
+import model.bodies.BodyState;
+import model.bodies.PlayerBody;
+import model.bodies.StaticBody;
 import model.physics.BasicPhysicsEngine;
-import model.weapons.BasicWeapon;
 import model.weapons.Weapon;
 import model.weapons.WeaponDto;
 import model.weapons.WeaponFactory;
-import view.renderables.EntityInfoDTO;
 
 /**
  * Model
@@ -116,11 +115,11 @@ public class Model {
     private volatile ModelState state = ModelState.STARTING;
 
     private static final int MAX_ENTITIES = 5000;
-    private final Map<Integer, DynamicBody> dBodies = new ConcurrentHashMap<>(MAX_ENTITIES);
-    private final Map<Integer, DecoEntity> decorators = new ConcurrentHashMap<>(100);
-    private final Map<Integer, StaticBody> gravityBodies = new ConcurrentHashMap<>(50);
-    private final Map<String, PlayerBody> pBodies = new ConcurrentHashMap<>(10);
-    private final Map<Integer, StaticBody> sBodies = new ConcurrentHashMap<>(100);
+    private final Map<String, AbstractBody> dynamicBodies = new ConcurrentHashMap<>(MAX_ENTITIES);
+    private final Map<String, AbstractBody> decorators = new ConcurrentHashMap<>(100);
+    private final Map<String, AbstractBody> gravityBodies = new ConcurrentHashMap<>(50);
+    private final Map<String, AbstractBody> playerBodies = new ConcurrentHashMap<>(10);
+    private final Map<String, AbstractBody> staticBodies = new ConcurrentHashMap<>(100);
 
     /**
      * CONSTRUCTORS
@@ -147,75 +146,78 @@ public class Model {
         this.state = ModelState.ALIVE;
     }
 
-    public boolean addDynamicBody(String assetId, double size,
-            double posX, double posY, double speedX, double speedY,
-            double accX, double accY,
-            double angle, double angularSpeed, double angularAcc,
-            double thrust) {
+    public String addDynamicBody(double size, double posX, double posY,
+            double speedX, double speedY, double accX, double accY,
+            double angle, double angularSpeed, double angularAcc, double thrust) {
 
-        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
-            return false; // ========= Max vObject quantity reached ==========>>
+        if (AbstractBody.getAliveQuantity() >= this.maxDBody) {
+            return null; // ========= Max vObject quantity reached ==========>>
         }
 
-        PhysicsValues phyVals = new PhysicsValues(
-                nanoTime(), posX, posY, speedX, speedY,
-                accX, accY, angle, angularSpeed, angularAcc, thrust);
+        PhysicsValuesDTO phyVals = new PhysicsValuesDTO(nanoTime(), posX, posY, angle, size,
+                speedX, speedY, accX, accY, angularSpeed, angularAcc, thrust);
 
-        DynamicBody dBody = new DynamicBody(assetId, size, new BasicPhysicsEngine(phyVals));
+        DynamicBody dBody = new DynamicBody(new BasicPhysicsEngine(phyVals));
 
         dBody.setModel(this);
         dBody.activate();
-        this.dBodies.put(dBody.getEntityId(), dBody);
+        this.dynamicBodies.put(dBody.getEntityId(), dBody);
 
-        return true;
+        return dBody.getEntityId();
     }
 
-    public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
-        DecoEntity deco = new DecoEntity(assetId, size, posX, posY, angle);
+    public String addDecorator(double size, double posX, double posY, double angle) {
+        DecoBody deco = new DecoBody(size, posX, posY, angle);
 
         deco.setModel(this);
         deco.activate();
         this.decorators.put(deco.getEntityId(), deco);
+        
+        return deco.getEntityId();
     }
 
-    public String addPlayer(String assetId, double size,
+    public String addPlayer(double size,
             double posX, double posY, double speedX, double speedY,
             double accX, double accY,
             double angle, double angularSpeed, double angularAcc,
             double thrust) {
 
-        if (AbstractEntity.getAliveQuantity() >= this.maxDBody) {
+        if (AbstractBody.getAliveQuantity() >= this.maxDBody) {
             return null; // ========= Max vObject quantity reached ==========>>
         }
 
-        PhysicsValues phyVals = new PhysicsValues(
-                nanoTime(), posX, posY, speedX, speedY, accX, accY,
-                angle, angularSpeed, angularAcc, thrust);
+        PhysicsValuesDTO phyVals = new PhysicsValuesDTO(
+                nanoTime(), posX, posY, angle, size,
+                speedX, speedY, accX, accY,
+                angularSpeed, angularAcc, thrust);
 
-        PlayerBody pBody = new PlayerBody(assetId, size, new BasicPhysicsEngine(phyVals));
+        PlayerBody pBody = new PlayerBody(new BasicPhysicsEngine(phyVals));
 
         pBody.setModel(this);
         pBody.activate();
-        this.dBodies.put(pBody.getEntityId(), pBody);
-        this.pBodies.put(pBody.getPlayerId(), pBody);
+        String entityId = pBody.getEntityId();
+        this.dynamicBodies.put(entityId, pBody);
+        this.playerBodies.put(entityId, pBody);
 
-        return pBody.getPlayerId();
+        return entityId;
     }
 
-    public void addSBody(String assetId, double size,
+    public String addStaticBody(double size,
             double posX, double posY, double angle) {
 
-        StaticBody sBody = new StaticBody(assetId, size, posX, posY, angle);
+        StaticBody sBody = new StaticBody(size, posX, posY, angle);
 
         sBody.setModel(this);
         sBody.activate();
-        this.sBodies.put(sBody.getEntityId(), sBody);
+        this.staticBodies.put(sBody.getEntityId(), sBody);
+
+        return sBody.getEntityId();
     }
 
     public void addWeaponToPlayer(
             String playerId, WeaponDto weaponConfig) {
 
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody == null) {
             return; // ========= Player not found =========>
         }
@@ -229,37 +231,31 @@ public class Model {
         return this.maxDBody;
     }
 
-    public ArrayList<DBodyInfoDTO> getDynamicBodyInfo() {
-        ArrayList<DBodyInfoDTO> dBodyInfoList = new ArrayList(DynamicBody.getAliveQuantity() * 2);
-
-        this.dBodies.forEach((id, dBody) -> {
-            DBodyInfoDTO bodyInfo = dBody.buildEntityInfo();
-            if (bodyInfo != null) {
-                dBodyInfoList.add(bodyInfo);
-            }
-        });
-
-        return dBodyInfoList;
+    public ArrayList<BodyDTO> getDynamicsData() {
+        return this.getBodyData(this.dynamicBodies);
     }
 
-    public ArrayList<EntityInfoDTO> getStaticsInfo() {
-        ArrayList<EntityInfoDTO> staticsInfo = new ArrayList(StaticBody.getAliveQuantity() * 2);
+    public ArrayList<BodyDTO> getStaticsData() {
+        ArrayList<BodyDTO> staticsInfo;
 
-        this.decorators.forEach((id, deco) -> {
-            EntityInfoDTO entityInfo = deco.buildEntityInfo();
-            if (entityInfo != null) {
-                staticsInfo.add(entityInfo);
-            }
-        });
-
-        this.sBodies.forEach((id, sBody) -> {
-            EntityInfoDTO bodyInfo = sBody.buildEntityInfo();
-            if (bodyInfo != null) {
-                staticsInfo.add(bodyInfo);
-            }
-        });
+        staticsInfo = this.getBodyData(this.decorators);
+        staticsInfo.addAll(this.getBodyData(this.staticBodies));
+        staticsInfo.addAll(this.getBodyData(this.gravityBodies));
 
         return staticsInfo;
+    }
+
+    public ArrayList<BodyDTO> getBodyData(Map<String, AbstractBody> bodies) {
+        ArrayList<BodyDTO> bodyData = new ArrayList<BodyDTO>(bodies.size());
+
+        bodies.forEach((entityId, body) -> {
+            BodyDTO bodyInfo = new BodyDTO(entityId, body.getPhysicsValues());
+            if (bodyInfo != null) {
+                bodyData.add(bodyInfo);
+            }
+        });
+
+        return bodyData;
     }
 
     public ModelState getState() {
@@ -267,15 +263,15 @@ public class Model {
     }
 
     public int getCreatedQuantity() {
-        return AbstractEntity.getCreatedQuantity();
+        return AbstractBody.getCreatedQuantity();
     }
 
     public int getAliveQuantity() {
-        return AbstractEntity.getAliveQuantity();
+        return AbstractBody.getAliveQuantity();
     }
 
     public int getDeadQuantity() {
-        return AbstractEntity.getDeadQuantity();
+        return AbstractBody.getDeadQuantity();
     }
 
     public Dimension getWorldDimension() {
@@ -288,67 +284,67 @@ public class Model {
 
     public void killDBody(DynamicBody dBody) {
         dBody.die();
-        this.dBodies.remove(dBody.getEntityId());
+        this.dynamicBodies.remove(dBody.getEntityId());
     }
 
     public void playerFire(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.requestFire();
         }
     }
 
     public void playerThrustOn(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.thrustOn();
         }
     }
 
     public void playerThrustOff(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.thrustOff();
         }
     }
 
     public void playerReverseThrust(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.reverseThrust();
         }
     }
 
     public void playerRotateLeftOn(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.rotateLeftOn();
         }
     }
 
     public void playerRotateOff(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.rotateOff();
         }
     }
 
     public void playerRotateRightOn(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody != null) {
             pBody.rotateRightOn();
         }
     }
 
     public void processDBodyEvents(DynamicBody dBodyToCheck,
-            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+            PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
         if (!isProcessable(dBodyToCheck)) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
 
-        EntityState previousState = dBodyToCheck.getState();
-        dBodyToCheck.setState(EntityState.HANDS_OFF);
+        BodyState previousState = dBodyToCheck.getState();
+        dBodyToCheck.setState(BodyState.HANDS_OFF);
 
         try {
             List<EventDTO> events = this.detectEvents(
@@ -361,19 +357,19 @@ public class Model {
                     dBodyToCheck, actions, newPhyValues, oldPhyValues);
 
         } catch (Exception e) { // Fallback anti-zombi
-            if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
+            if (dBodyToCheck.getState() == BodyState.HANDS_OFF) {
                 dBodyToCheck.setState(previousState);
             }
 
         } finally { // Getout: off HANDS_OFF ... if leaving
-            if (dBodyToCheck.getState() == EntityState.HANDS_OFF) {
-                dBodyToCheck.setState(EntityState.ALIVE);
+            if (dBodyToCheck.getState() == BodyState.HANDS_OFF) {
+                dBodyToCheck.setState(BodyState.ALIVE);
             }
         }
     }
 
     public void selectNextWeapon(String playerId) {
-        PlayerBody pBody = this.pBodies.get(playerId);
+        PlayerBody pBody = (PlayerBody) this.playerBodies.get(playerId);
         if (pBody == null) {
             return;
         }
@@ -396,7 +392,7 @@ public class Model {
     /**
      * PRIVATE
      */
-    private List<EventDTO> checkLimitEvents(AbstractEntity entity, PhysicsValues phyValues) {
+    private List<EventDTO> checkLimitEvents(AbstractBody entity, PhysicsValuesDTO phyValues) {
         List<EventDTO> limitEvents = new ArrayList<>(4);
 
         if (phyValues.posX < 0) {
@@ -419,7 +415,7 @@ public class Model {
     }
 
     private List<ActionDTO> resolveActionsForEvents(
-            AbstractEntity entity, List<EventDTO> events) {
+            AbstractBody entity, List<EventDTO> events) {
 
         List<ActionDTO> actionsFromController = this.controller.decideActions(entity, events);
 
@@ -438,7 +434,7 @@ public class Model {
     }
 
     private List<EventDTO> detectEvents(DynamicBody body,
-            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+            PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
         List<EventDTO> events = this.checkLimitEvents(body, newPhyValues);
 
@@ -454,7 +450,7 @@ public class Model {
 
     private void doActions(
             DynamicBody body, List<ActionDTO> actions,
-            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+            PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
         if (actions == null || actions.isEmpty()) {
             return;
@@ -480,14 +476,14 @@ public class Model {
                     // Nada
             }
 
-            if (body.getState() == EntityState.DEAD) {
+            if (body.getState() == BodyState.DEAD) {
                 return; // no seguimos con más acciones
             }
         }
     }
 
     private void doDBodyAction(ActionType action, DynamicBody dBody,
-            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+            PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
         switch (action) {
             case MOVE:
@@ -529,7 +525,7 @@ public class Model {
     }
 
     private void doModelAction(ActionType action, DynamicBody dBody,
-            PhysicsValues newPhyValues, PhysicsValues oldPhyValues) {
+            PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
         switch (action) {
             case FIRE:
@@ -543,13 +539,13 @@ public class Model {
         }
     }
 
-    private boolean isProcessable(AbstractEntity entity) {
+    private boolean isProcessable(AbstractBody entity) {
         return entity != null
                 && this.state == ModelState.ALIVE
-                && entity.getState() == EntityState.ALIVE;
+                && entity.getState() == BodyState.ALIVE;
     }
 
-    private void spawnProjectileFrom(DynamicBody shooter, PhysicsValues shooterNewPhy) {
+    private void spawnProjectileFrom(DynamicBody shooter, PhysicsValuesDTO shooterNewPhy) {
         if (!(shooter instanceof PlayerBody)) {
             return;
         }
@@ -572,8 +568,8 @@ public class Model {
         double dirY = Math.sin(angleRad);
 
         double angleInRads = Math.toRadians(shooterNewPhy.angle - 90);
-        double spawnX = shooterNewPhy.posX + Math.cos(angleInRads) * weaponConfig.shootingOffset;
-        double spawnY = shooterNewPhy.posY + Math.sin(angleInRads) * weaponConfig.shootingOffset;
+        double posX = shooterNewPhy.posX + Math.cos(angleInRads) * weaponConfig.shootingOffset;
+        double posY = shooterNewPhy.posY + Math.sin(angleInRads) * weaponConfig.shootingOffset;
 
         // double projSpeedX = weaponConfig.firingSpeed * dirX;
         // double projSpeedY = weaponConfig.firingSpeed * dirY;
@@ -583,9 +579,14 @@ public class Model {
         double accX = weaponConfig.acceleration * dirX;
         double accY = weaponConfig.acceleration * dirY;
 
-        this.addDynamicBody(
-                weaponConfig.projectileAssetId, weaponConfig.projectileSize,
-                spawnX, spawnY, projSpeedX, projSpeedY,
+        String entityId = this.addDynamicBody(weaponConfig.projectileSize,
+                posX, posY, projSpeedX, projSpeedY,
                 accX, accY, angleDeg, 0d, 0d, 0d);
+
+        if (entityId == null|| entityId.isEmpty()) {
+            return; // ======= Max entity quantity reached =======>>
+        }
+        this.controller.notifyNewProjectileFired(
+                entityId, weaponConfig.projectileAssetId);
     }
 }

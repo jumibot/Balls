@@ -3,7 +3,7 @@ package main;
 /**
  * TO-DO 
  * ===== 
- * 1) Implement creation of different weapon types from config in world generator, controller and model
+ * 1) Improve unacopled architecture using mappers
  * 2) Full implemention of Factory pattern for entities, ...
  * 2) Colision detection 
  * 3) Basic Fx 
@@ -40,7 +40,7 @@ public class Main {
 
                 Controller controller = new Controller(
                                 worldWidth, worldHeight, // World dimensions
-                                2000, // Max dynamic bodies
+                                3500 , // Max dynamic bodies
                                 new View(), new Model(),
                                 worldDef.gameAssets);
 
@@ -50,8 +50,8 @@ public class Main {
 
 
                 LifeDTO lifeConfig = new LifeDTO(
-                                500, // maxCreationDelay
-                                15, 3, // maxSize, minSize
+                                5, // maxCreationDelay
+                                12, 5, // maxSize, minSize
                                 1000, 10, // maxMass, minMass
                                 175, // maxSpeedModule
                                 0); // maxAccModule

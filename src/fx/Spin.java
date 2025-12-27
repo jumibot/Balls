@@ -1,7 +1,7 @@
 package fx;
 
 
-import view.renderables.DBodyRenderable;
+import view.renderables.DynamicRenderable;
 
 
 
@@ -34,7 +34,7 @@ public class Spin extends Fx {
 
     @Override
     public void run() {
-        DBodyRenderable renderable = this.getRenderable();
+        DynamicRenderable renderable = this.getRenderable();
         FxImage voImage = this.getVOImage();
 
         if (renderable == null || voImage == null) {

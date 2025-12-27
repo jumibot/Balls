@@ -1,40 +1,22 @@
-package model.entities;
-
+package model.bodies;
 
 import java.util.UUID;
 import model.physics.BasicPhysicsEngine;
-import model.physics.PhysicsValues;
+import model.physics.PhysicsValuesDTO;
 import model.weapons.Weapon;
 import model.weapons.WeaponDto;
 
-
 public class PlayerBody extends DynamicBody {
 
-    private final String playerId;
-
-    // Calibrate is needed
-    private double maxThrustForce = 80;     //
-    private double maxAngularAcc = 1000;       // degrees*s^-2
-    private double angularSpeed = 30;       // degrees*s^-1
-
+    private double maxThrustForce = 80; //
+    private double maxAngularAcc = 1000; // degrees*s^-2
+    private double angularSpeed = 30; // degrees*s^-1
     private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(4);
     private int currentWeaponIndex = -1; // -1 = sin arma
 
-
-    public PlayerBody(String playerId, String assetId,
-            double size, BasicPhysicsEngine physicsEngine) {
-
-        super(assetId, size, physicsEngine);
-        this.playerId = playerId;
+    public PlayerBody(BasicPhysicsEngine physicsEngine) {
+        super(physicsEngine);
     }
-
-
-    public PlayerBody(String assetId, double size,
-            BasicPhysicsEngine physicsEngine) {
-
-        this(UUID.randomUUID().toString(), assetId, size, physicsEngine);
-    }
-
 
     public void addWeapon(Weapon weapon) {
         this.weapons.add(weapon);
@@ -45,7 +27,6 @@ public class PlayerBody extends DynamicBody {
         }
     }
 
-
     public Weapon getActiveWeapon() {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
             return null;
@@ -54,28 +35,19 @@ public class PlayerBody extends DynamicBody {
         return this.weapons.get(this.currentWeaponIndex);
     }
 
-
     public WeaponDto getActiveWeaponConfig() {
         Weapon weapon = getActiveWeapon();
         return (weapon != null) ? weapon.getWeaponConfig() : null;
     }
 
-
-    public String getPlayerId() {
-        return this.playerId;
-    }
-
-
     public void thrustOn() {
         this.setThrust(this.maxThrustForce);
     }
-
 
     public void thrustOff() {
         this.resetAcceleration();
         this.setThrust(0.0d);
     }
-
 
     public void requestFire() {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
@@ -85,36 +57,34 @@ public class PlayerBody extends DynamicBody {
 
         Weapon weapon = this.weapons.get(this.currentWeaponIndex);
         if (weapon == null) {
-            // Weapon is not created
+            // There is no weapon in this slot
             return;
         }
 
         weapon.registerFireRequest();
     }
 
-
     public void reverseThrust() {
         this.setThrust(-this.maxThrustForce);
     }
 
-
     public void rotateLeftOn() {
-        if (this.getAngularSpeed() == 0) {
+        PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        if (phyValues.angularSpeed == 0) {
             this.setAngularSpeed(-this.angularSpeed);
         }
 
         this.addAngularAcceleration(-this.maxAngularAcc);
     }
 
-
     public void rotateRightOn() {
-        if (this.getAngularSpeed() == 0) {
+        PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        if (phyValues.angularSpeed == 0) {
             this.setAngularSpeed(this.angularSpeed);
         }
 
         this.addAngularAcceleration(this.maxAngularAcc);
     }
-
 
     public void rotateOff() {
         this.setAngularAcceleration(0.0d);
@@ -122,13 +92,12 @@ public class PlayerBody extends DynamicBody {
     }
 
     public void selectNextWeapon() {
-        if (this.weapons.size()<=0) {
+        if (this.weapons.size() <= 0) {
             return;
-        }        
-        
-        this.currentWeaponIndex ++;
-        this.currentWeaponIndex = 
-                this.currentWeaponIndex % this.weapons.size();
+        }
+
+        this.currentWeaponIndex++;
+        this.currentWeaponIndex = this.currentWeaponIndex % this.weapons.size();
     }
 
     public void selectWeapon(int weaponIndex) {
@@ -137,19 +106,16 @@ public class PlayerBody extends DynamicBody {
         }
     }
 
-
     public void setMaxThrustForce(double maxThrust) {
         this.maxThrustForce = maxThrust;
     }
-
 
     public void setMaxAngularAcceleration(double maxAngularAcc) {
         this.setAngularSpeed(this.angularSpeed);
         this.maxAngularAcc = maxAngularAcc;
     }
 
-
-    public boolean mustFireNow(PhysicsValues newPhyValues) {
+    public boolean mustFireNow(PhysicsValuesDTO newPhyValues) {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weapons.size()) {
             return false;
         }

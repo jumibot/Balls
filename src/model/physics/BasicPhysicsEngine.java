@@ -1,34 +1,22 @@
 package model.physics;
 
-
 import static java.lang.System.nanoTime;
 
-
-/**
- *
- * @author juanm
- *
- * A SIMPLE PHYSICAL MODEL APPLIED TO DYNAMIC OBJECTS BY DEFAULT
- *
- */
 public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
     /**
      * CONSTRUCTORS
      */
-    public BasicPhysicsEngine(PhysicsValues phyVals) {
+    public BasicPhysicsEngine(PhysicsValuesDTO phyVals) {
         super(phyVals);
     }
 
-
     /**
      * PUBLICS
-     *
-     * @return
      */
     @Override
-    public PhysicsValues calcNewPhysicsValues() {
-        PhysicsValues phyVals = this.getPhysicsValues();
+    public PhysicsValuesDTO calcNewPhysicsValues() {
+        PhysicsValuesDTO phyVals = this.getPhysicsValues();
         long now = nanoTime();
         long elapsedNanos = now - phyVals.timeStamp;
 
@@ -36,11 +24,10 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
         return integrateMRUA(phyVals, dt);
     }
 
-
     /**
      * PRIVATES
      */
-    private PhysicsValues integrateMRUA(PhysicsValues phyVals, double dt) {
+    private PhysicsValuesDTO integrateMRUA(PhysicsValuesDTO phyVals, double dt) {
         // Applying thrust according actual angle
         double newAccX = phyVals.accX;
         double newAccY = phyVals.accY;
@@ -72,14 +59,15 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine implements Physics
                 + phyVals.angularSpeed * dt
                 + 0.5d * newAngularSpeed * dt * dt) % 360;
 
+
         long newTimeStamp = phyVals.timeStamp + (long) (dt * 1_000_000_000.0d);
 
-        return new PhysicsValues(
+        return new PhysicsValuesDTO(
                 newTimeStamp,
-                newPosX, newPosY,
+                newPosX, newPosY, newAngle,
+                phyVals.size,
                 newSpeedX, newSpeedY,
                 newAccX, newAccY,
-                newAngle,
                 newAngularSpeed,
                 phyVals.angularAcc, // keep same angular acc
                 phyVals.thrust // keep same thrust

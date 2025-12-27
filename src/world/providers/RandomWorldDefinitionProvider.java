@@ -47,13 +47,13 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
         this.background = randomBackgroundDef();
 
-        this.decorators(this.decoratorsDef, 2, AssetType.STARS, 150, 75);
+        this.decorators(this.decoratorsDef, 1, AssetType.STARS, 150, 75);
 
-        this.staticBodies(this.gravityBodiesDef, 2, AssetType.PLANET, 200, 50);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.PLANET, 200, 40);
 
-        this.staticBodies(this.gravityBodiesDef, 1, AssetType.MOON, 75, 50);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.MOON, 80, 40);
 
-        this.staticBodies(this.gravityBodiesDef, 1, AssetType.SUN, 45, 25);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.SUN, 40, 20);
 
         this.staticBodies(this.gravityBodiesDef, 1, AssetType.BLACK_HOLE, 55, 45);
 

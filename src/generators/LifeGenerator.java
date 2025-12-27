@@ -54,7 +54,7 @@ public class LifeGenerator implements Runnable {
         }
 
         DoubleVector pos = this.randomPosition();
-        this.controller.addDBody(
+        this.controller.addDynamicBody(
                 this.randomAsset(), this.randomSize(),
                 pos.x, pos.y, speed.x, speed.y, acc.x, acc.y,
                 0d, this.randomAngularSpeed(460d), 0d, 0d);

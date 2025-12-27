@@ -1,8 +1,8 @@
-package model.entities;
+package model.bodies;
 
 
 import model.physics.PhysicsEngine;
-import model.physics.PhysicsValues;
+import model.physics.PhysicsValuesDTO;
 
 
 public interface PhysicsBody {
@@ -10,18 +10,18 @@ public interface PhysicsBody {
     public PhysicsEngine getPhysicsEngine();
 
 
-    default PhysicsValues getPhysicsValues() {
+    default PhysicsValuesDTO getPhysicsValues() {
         return this.getPhysicsEngine().getPhysicsValues();
     }
 
 
-    default void doMovement(PhysicsValues phyValues) {
+    default void doMovement(PhysicsValuesDTO phyValues) {
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.setPhysicsValues(phyValues);
     }
 
 
-    default void reboundInEast(PhysicsValues newVals, PhysicsValues oldVals, 
+    default void reboundInEast(PhysicsValuesDTO newVals, PhysicsValuesDTO oldVals, 
             double worldWidth, double worldHeight) {
         
         PhysicsEngine engine = this.getPhysicsEngine();
@@ -29,7 +29,7 @@ public interface PhysicsBody {
     }
 
 
-    default void reboundInWest(PhysicsValues newVals, PhysicsValues oldVals,
+    default void reboundInWest(PhysicsValuesDTO newVals, PhysicsValuesDTO oldVals,
             double worldWidth, double worldHeight) {
         
         PhysicsEngine engine = this.getPhysicsEngine();
@@ -37,14 +37,14 @@ public interface PhysicsBody {
     }
 
 
-    default void reboundInNorth(PhysicsValues newVals, PhysicsValues oldVals,
+    default void reboundInNorth(PhysicsValuesDTO newVals, PhysicsValuesDTO oldVals,
             double worldWidth, double worldHeight) {
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInNorth(newVals, oldVals, worldWidth, worldHeight);
     }
 
 
-    default void reboundInSouth(PhysicsValues newVals, PhysicsValues oldVals,
+    default void reboundInSouth(PhysicsValuesDTO newVals, PhysicsValuesDTO oldVals,
             double worldWidth, double worldHeight) {
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInSouth(newVals, oldVals, worldWidth, worldHeight);
