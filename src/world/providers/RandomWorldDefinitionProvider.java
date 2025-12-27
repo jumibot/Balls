@@ -47,13 +47,13 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 
         this.background = randomBackgroundDef();
 
-        this.decorators(this.decoratorsDef, 2, AssetType.STARS, 150, 75);
+        this.decorators(this.decoratorsDef, 1, AssetType.STARS, 150, 75);
 
-        this.staticBodies(this.gravityBodiesDef, 2, AssetType.PLANET, 200, 50);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.PLANET, 200, 40);
 
-        this.staticBodies(this.gravityBodiesDef, 1, AssetType.MOON, 75, 50);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.MOON, 80, 40);
 
-        this.staticBodies(this.gravityBodiesDef, 1, AssetType.SUN, 45, 25);
+        this.staticBodies(this.gravityBodiesDef, 1, AssetType.SUN, 40, 20);
 
         this.staticBodies(this.gravityBodiesDef, 1, AssetType.BLACK_HOLE, 55, 45);
 
@@ -62,15 +62,18 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
         this.dynamicBodies(this.spaceshipsDef, 1, AssetType.SPACESHIP, 40, 40);
 
         this.primaryWeapon(this.primaryWeapon, 1, AssetType.BULLET,
-                12, 12, 300d, 10);
+                17, 17, 300d, 8);
 
         this.secondaryWeapon(this.secondaryWeaponDef, 1, AssetType.BULLET,
-                12, 12, 400d, 8, 20);
+                7, 7, 600d, 5,
+                25, 6);
 
-        this.mineLaunchers(this.mineLaunchersDef, 1, AssetType.MINE, 35, 35, 150);
+        this.mineLaunchers(this.mineLaunchersDef, 1, AssetType.MINE,
+                35, 35, 1);
 
         this.missilLaunchers(this.missilLaunchersDef, 1, AssetType.MISSILE,
-                35, 35, 4000d, 1d, 1);
+                42, 42,
+                6000d, 1d, 4);
 
         WorldDefinition worlDef = new WorldDefinition(this.width, this.height, this.gameAssets,
                 background, decoratorsDef, gravityBodiesDef, asteroidsDef, spaceshipsDef,
@@ -173,8 +176,8 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.MINE_LAUNCHER,
                     0, 0, 0,
-                    1, fireRate, 10, 20,
-                    10000,20));
+                    1, 0, fireRate, 2, 10,
+                    10000, 20));
         }
     }
 
@@ -193,15 +196,15 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomAssetId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.PRIMARY_WEAPON,
                     firingSpeed, 0, 0,
-                    1, fireRate, 1000, 2,
-                    10, 2));
+                    1, 0, fireRate, 100, 2,
+                    100, 2));
         }
     }
 
     private void secondaryWeapon(ArrayList<WorldDefWeaponDto> weapons,
             int num, AssetType type,
             int maxSize, int minSize, double firingSpeed,
-            int burstSize, int fireRate) {
+            int burstSize, int burstFireRate, int fireRate) {
 
         String randomAssetId;
         AssetInfoDTO assetInfo;
@@ -212,12 +215,13 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
             this.gameAssets.register(assetInfo);
 
             weapons.add(new WorldDefWeaponDto(
-                    randomAssetId, 
+                    randomAssetId,
                     this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.SECONDARY_WEAPON,
                     firingSpeed, 0, 0,
-                    burstSize, fireRate, 500, 4,
-                    100,2));
+                    burstSize, burstFireRate, fireRate,
+                    100, 4,
+                    10, 2));
         }
     }
 
@@ -238,7 +242,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomId, this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.MISSILE_LAUNCHER,
                     0, acceleration, accelerationDuration,
-                    1, fireRate, 500, 4,
+                    1, 0, fireRate, 4, 4,
                     1000, 4));
 
         }

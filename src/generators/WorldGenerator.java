@@ -33,7 +33,7 @@ public class WorldGenerator {
         ArrayList<WorldDefPositionItemDto> sBodies = this.worldDefinition.gravityBodies;
 
         for (WorldDefPositionItemDto body : sBodies) {
-            this.controller.addSBody(body.assetId, body.size, body.posX, body.posY, body.angle);
+            this.controller.addStaticBody(body.assetId, body.size, body.posX, body.posY, body.angle);
         }
     }
 
@@ -61,10 +61,10 @@ public class WorldGenerator {
                 playerId, this.worldDefinition.secondaryWeapon.get(0), 0);
 
             this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.missilLaunchers.get(0), -10);
+                playerId, this.worldDefinition.missilLaunchers.get(0), -15);
 
             this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.mineLaunchers.get(0), 10);
+                playerId, this.worldDefinition.mineLaunchers.get(0), 15);
         }
 
         if (playerId != null) {

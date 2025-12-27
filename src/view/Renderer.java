@@ -1,8 +1,8 @@
 package view;
 
-import view.renderables.DBodyInfoDTO;
-import view.renderables.EntityRenderable;
-import view.renderables.DBodyRenderable;
+import view.renderables.DynamicRenderDTO;
+import view.renderables.Renderable;
+import view.renderables.DynamicRenderable;
 import controller.EngineState;
 import images.ImageCache;
 import images.Images;
@@ -22,7 +22,9 @@ import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import view.renderables.EntityInfoDTO;
+import java.util.concurrent.ConcurrentHashMap;
+
+import view.renderables.RenderDTO;
 
 /**
  * Renderer
@@ -122,7 +124,7 @@ public class Renderer extends Canvas implements Runnable {
 
     private Dimension viewDimension;
     private View view;
-    private int delayInMillis = 1;
+    private int delayInMillis = 5;
     private long currentFrame = 0;
     private Thread thread;
 
@@ -131,8 +133,8 @@ public class Renderer extends Canvas implements Runnable {
     private ImageCache imagesCache;
     private VolatileImage viBackground;
 
-    private final Map<Integer, DBodyRenderable> dynamicRenderables = new HashMap<>();
-    private volatile Map<Integer, EntityRenderable> staticRenderables = new HashMap<>();
+    private final Map<String, DynamicRenderable> dynamicRenderables = new ConcurrentHashMap<>();
+    private volatile Map<String, Renderable> staticRenderables = new ConcurrentHashMap<>();
 
     /**
      * CONSTRUCTORS
@@ -167,11 +169,21 @@ public class Renderer extends Canvas implements Runnable {
 
         this.setPreferredSize(this.viewDimension);
         this.thread = new Thread(this);
-        this.thread.setName("RENDERER");
+        this.thread.setName("Renderer");
         this.thread.setPriority(Thread.NORM_PRIORITY + 2);
         this.thread.start();
 
         return true;
+    }
+
+    public void addStaticRenderable(String entityId, String assetId) {
+        Renderable renderable = new Renderable(entityId, assetId, this.imagesCache, this.currentFrame);
+        this.staticRenderables.put(entityId, renderable);
+    }
+
+    public void addDynamicRenderable(String entityId, String assetId) {
+        DynamicRenderable renderable = new DynamicRenderable(entityId, assetId, this.imagesCache, this.currentFrame);
+        this.dynamicRenderables.put(entityId, renderable);
     }
 
     public void setImages(BufferedImage background, Images images) {
@@ -215,45 +227,49 @@ public class Renderer extends Canvas implements Runnable {
         }
     }
 
-    public void updateStaticRenderables(ArrayList<EntityInfoDTO> entitiesInfo) {
-        if (entitiesInfo == null) {
+    public void updateStaticRenderables(ArrayList<RenderDTO> renderablesData) {
+        if (renderablesData == null) {
             return; // ========= Nothing to render by the moment ... =========>>
         }
 
-        Map<Integer, EntityRenderable> newStaticRenderables = new java.util.HashMap<>(this.staticRenderables);
+        Map<String, Renderable> newRenderables = new java.util.HashMap<>(this.staticRenderables);
 
-        if (entitiesInfo.isEmpty()) {
-            newStaticRenderables.clear(); //
-            this.staticRenderables = newStaticRenderables;
+        if (renderablesData.isEmpty()) {
+            newRenderables.clear(); //
+            this.staticRenderables = newRenderables;
             return;
         }
 
-        // Update or create a renderable associated with each DBodyRenderInfoDTO
+        // Update a renderable associated with each DBodyRenderInfoDTO
         long cFrame = this.currentFrame;
-        for (EntityInfoDTO bodyInfo : entitiesInfo) {
-            int id = bodyInfo.entityId;
-            EntityRenderable renderable = newStaticRenderables.get(id);
+        for (RenderDTO renderableData : renderablesData) {
+            String entityId = renderableData.entityId;
+            if (entityId == null || entityId.isEmpty()) {
+                continue;
+            }
+
+            Renderable renderable = newRenderables.get(entityId);
             if (renderable == null) {
-                newStaticRenderables.put(id, new EntityRenderable(bodyInfo, this.imagesCache, cFrame));
+                System.err.println("Renderer: Static renderable objet not found " + entityId);
             } else {
-                renderable.update(bodyInfo, cFrame);
+                renderable.update(renderableData, cFrame);
             }
         }
 
-        newStaticRenderables.entrySet().removeIf(e -> e.getValue().getLastFrameSeen() != cFrame);
-        this.staticRenderables = newStaticRenderables; // atomic swap
+        newRenderables.entrySet().removeIf(e -> e.getValue().getLastFrameSeen() != cFrame);
+        this.staticRenderables = newRenderables; // atomic swap
     }
 
     /**
      * PRIVATES
      */
     private void drawDynamicRenderable(Graphics2D g) {
-        ArrayList<DBodyInfoDTO> dynamicInfo = this.view.getDBodyInfo();
+        ArrayList<DynamicRenderDTO> renderablesData = this.view.getDynamicRenderablesData(); // *+
 
-        this.updateDynamicRenderables(dynamicInfo);
+        this.updateDynamicRenderables(renderablesData);
 
-        Map<Integer, DBodyRenderable> renderables = this.dynamicRenderables;
-        for (DBodyRenderable renderable : renderables.values()) {
+        Map<String, DynamicRenderable> renderables = this.dynamicRenderables;
+        for (DynamicRenderable renderable : renderables.values()) {
             renderable.paint(g);
         }
     }
@@ -280,8 +296,9 @@ public class Renderer extends Canvas implements Runnable {
     }
 
     private void drawStaticRenderables(Graphics2D g) {
-        Map<Integer, EntityRenderable> renderables = this.staticRenderables;
-        for (EntityRenderable renderable : renderables.values()) {
+        Map<String, Renderable> renderables = this.staticRenderables;
+
+        for (Renderable renderable : renderables.values()) {
             renderable.paint(g);
         }
     }
@@ -366,26 +383,27 @@ public class Renderer extends Canvas implements Runnable {
         }
     }
 
-    private void updateDynamicRenderables(ArrayList<DBodyInfoDTO> bodiesInfo) {
-        // If no objects are alive this frame, clear the cache entirely
-        if (bodiesInfo == null || bodiesInfo.isEmpty()) {
+    private void updateDynamicRenderables(ArrayList<DynamicRenderDTO> renderablesData) {
+        // If no objects are alive this frame, clear the snapshot entirely
+        if (renderablesData == null || renderablesData.isEmpty()) {
             this.dynamicRenderables.clear();
             return; // ========= Nothing to render by the moment ... =========>>
         }
 
         // Update or create a renderable associated with each DBodyRenderInfoDTO
         long cFrame = this.currentFrame;
-        for (DBodyInfoDTO bodyInfo : bodiesInfo) {
-            int id = bodyInfo.entityId;
+        for (DynamicRenderDTO renderableData : renderablesData) {
+            String entityId = renderableData.entityId;
+            if (entityId == null || entityId.isEmpty()) {
+                continue;
+            }
 
-            DBodyRenderable renderable = this.dynamicRenderables.get(id);
+            DynamicRenderable renderable = this.dynamicRenderables.get(entityId);
             if (renderable == null) {
-                // First time this VObject appears → create a cached renderable
-                renderable = new DBodyRenderable(bodyInfo, this.imagesCache, cFrame);
-                this.dynamicRenderables.put(id, renderable);
+                System.err.println("Renderer: Dynamic renderable objet not found " + entityId);
             } else {
                 // Existing renderable → update its snapshot and sprite if needed
-                renderable.update(bodyInfo, cFrame);
+                renderable.update(renderableData, cFrame);
             }
         }
 

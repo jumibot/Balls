@@ -1,8 +1,7 @@
-package model.mappers;
+package controller.mappers;
 
 import world.WorldDefWeaponDto;
 import model.weapons.WeaponDto;
-import model.weapons.WeaponType;
 
 public class WeaponMapper {
 
@@ -11,13 +10,14 @@ public class WeaponMapper {
             return null;
         }
         return new WeaponDto(
-                WeaponType.valueOf(weaponDef.type.name()),
+            WeaponTypeMapper.fromWorldDef(weaponDef.type),
                 weaponDef.assetId,
                 weaponDef.size,
                 weaponDef.firingSpeed,
                 weaponDef.acceleration,
                 weaponDef.accelerationDuration,
                 weaponDef.burstSize,
+                weaponDef.burstFireRate,
                 weaponDef.fireRate,
                 weaponDef.maxAmmo,
                 weaponDef.reloadTime,
@@ -26,4 +26,4 @@ public class WeaponMapper {
                 shootingOffset
         );   
     }
-}
+} 

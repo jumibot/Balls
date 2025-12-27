@@ -6,42 +6,45 @@ public class NullPhysicsEngine extends AbstractPhysicsEngine implements PhysicsE
     /**
      * CONSTRUCTORS
      */
-    public NullPhysicsEngine(PhysicsValues phyVals) {
+    public NullPhysicsEngine(PhysicsValuesDTO phyVals) {
         super(phyVals);
+    }
+
+    public NullPhysicsEngine(double size, double posX, double posY, double angle) {
+        super(size, posX, posY, angle);
     }
 
 
     /**
      * PUBLICS
      *
-     * @return
      */
     @Override
-    public PhysicsValues calcNewPhysicsValues() {
+    public PhysicsValuesDTO calcNewPhysicsValues() {
         return this.getPhysicsValues();
     }
 
 
     @Override
-    public void reboundInEast(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+    public void reboundInEast(PhysicsValuesDTO newPhyVals, PhysicsValuesDTO oldPhyVals,
             double worldDim_x, double worldDim_y) {
     }
 
 
     @Override
-    public void reboundInWest(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+    public void reboundInWest(PhysicsValuesDTO newPhyVals, PhysicsValuesDTO oldPhyVals,
             double worldDim_x, double worldDim_y) {
     }
 
 
     @Override
-    public void reboundInNorth(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+    public void reboundInNorth(PhysicsValuesDTO newPhyVals, PhysicsValuesDTO oldPhyVals,
             double worldDim_x, double worldDim_y) {
     }
 
 
     @Override
-    public void reboundInSouth(PhysicsValues newPhyVals, PhysicsValues oldPhyVals,
+    public void reboundInSouth(PhysicsValuesDTO newPhyVals, PhysicsValuesDTO oldPhyVals,
             double worldDim_x, double worldDim_y) {
     }
 

@@ -1,12 +1,16 @@
 package controller;
 
 import assets.AssetCatalog;
+import controller.mappers.DynamicRenderableMapper;
+import controller.mappers.RenderableMapper;
+import controller.mappers.WeaponMapper;
+
 import java.awt.Dimension;
-import view.renderables.DBodyInfoDTO;
+import view.renderables.DynamicRenderDTO;
 import view.View;
 import model.Model;
-import model.entities.DynamicBody;
-import model.mappers.WeaponMapper;
+import model.bodies.AbstractBody;
+import model.bodies.BodyDTO;
 import model.weapons.WeaponDto;
 import model.ActionType;
 import model.EventType;
@@ -16,8 +20,7 @@ import model.ActionDTO;
 import model.ActionExecutor;
 import model.ActionPriority;
 import model.EventDTO;
-import model.entities.AbstractEntity;
-import view.renderables.EntityInfoDTO;
+import view.renderables.RenderDTO;
 import world.WorldDefWeaponDto;
 
 /**
@@ -158,36 +161,63 @@ public class Controller {
         this.engineState = EngineState.ALIVE;
     }
 
-    public void addDBody(String assetId, double size, double posX, double posY,
+    public void addDynamicBody(String assetId, double size, double posX, double posY,
             double speedX, double speedY, double accX, double accY,
             double angle, double angularSpeed, double angularAcc, double thrust) {
 
-        this.model.addDynamicBody(
-                assetId, size, posX, posY, speedX, speedY, accX, accY,
-                angle, angularSpeed, angularAcc, thrust);
+        String entityId = this.model.addDynamicBody(size, posX, posY, speedX, speedY,
+                accX, accY, angle, angularSpeed, angularAcc, thrust);
+
+        if (entityId == null || entityId.isEmpty()) {
+            return; // ======= Max entity quantity reached =======>>
+        }
+        this.view.addDynamicRenderable(entityId, assetId);
     }
 
     public void addDecorator(String assetId, double size, double posX, double posY, double angle) {
-        this.model.addDecorator(assetId, size, posX, posY, angle);
-        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();
-        this.view.updateStaticRenderables(staticsInfo);
+        String entityId = this.model.addDecorator(size, posX, posY, angle);
+
+        if (entityId == null || entityId.isEmpty()) {
+            return; // ======= Max entity quantity reached =======>>
+        }
+        this.view.addStaticRenderable(entityId, assetId);
+        ArrayList<BodyDTO> bodiesData = this.model.getStaticsData();
+        ArrayList<RenderDTO> renderablesData = RenderableMapper.fromBodyDTO(bodiesData);       
+
+        this.view.updateStaticRenderables(renderablesData);
+    }
+
+    public void notifyNewProjectileFired(String entityId, String assetId) {
+        this.view.addDynamicRenderable(entityId, assetId);
     }
 
     public String addPlayer(String assetId, double size, double posX, double posY,
             double speedX, double speedY, double accX, double accY,
             double angle, double angularSpeed, double angularAcc, double thrust) {
 
-        return this.model.addPlayer(
-                assetId, size, posX, posY, speedX, speedY, accX, accY,
-                angle, angularSpeed, angularAcc, thrust);
+        String entityId = this.model.addPlayer(size, posX, posY, speedX, speedY,
+                accX, accY, angle, angularSpeed, angularAcc, thrust);
+
+        if (entityId == null) {
+            return null; // ======= Max entity quantity reached =======>>
+        }
+
+        this.view.addDynamicRenderable(entityId, assetId);
+        return entityId;
     }
 
-    public void addSBody(
-            String assetId, double size, double posX, double posY, double angle) {
+    public void addStaticBody(String assetId, double size, double posX, double posY, double angle) {
 
-        this.model.addSBody(assetId, size, posX, posY, angle);
-        ArrayList<EntityInfoDTO> staticsInfo = this.model.getStaticsInfo();
-        this.view.updateStaticRenderables(staticsInfo);
+        String entityId = this.model.addStaticBody(size, posX, posY, angle);
+        ArrayList<BodyDTO> bodiesData = this.model.getStaticsData();
+        ArrayList<RenderDTO> renderablesData = RenderableMapper.fromBodyDTO(bodiesData);
+
+        if (entityId == null || entityId.isEmpty()) {
+            return; // ======= Max entity quantity reached =======>>
+        }
+        this.view.addStaticRenderable(entityId, assetId);
+
+        this.view.updateStaticRenderables(renderablesData);
     }
 
     public void addWeaponToPlayer(String playerId, WorldDefWeaponDto weaponDef, int shootingOffset) {
@@ -197,7 +227,7 @@ public class Controller {
         this.model.addWeaponToPlayer(playerId, weapon);
     }
 
-    private List<ActionDTO> applyGameRules(AbstractEntity entity, EventDTO event) {
+    private List<ActionDTO> applyGameRules(AbstractBody entity, EventDTO event) {
 
         List<ActionDTO> actions = new ArrayList<>(2);
 
@@ -224,7 +254,7 @@ public class Controller {
         return actions;
     }
 
-    public List<ActionDTO> decideActions(AbstractEntity entity, List<EventDTO> events) {
+    public List<ActionDTO> decideActions(AbstractBody entity, List<EventDTO> events) {
         List<ActionDTO> actions = new ArrayList<>();
 
         if (events != null) {
@@ -255,8 +285,16 @@ public class Controller {
         return this.engineState;
     }
 
-    public ArrayList<DBodyInfoDTO> getDBodyInfo() {
-        return this.model.getDynamicBodyInfo();
+    public ArrayList<DynamicRenderDTO> getDynamicRenderablesData() {
+        ArrayList<BodyDTO> bodyData = this.model.getDynamicsData();
+        ArrayList<DynamicRenderDTO> renderables = new ArrayList<>();
+
+        for (BodyDTO bodyDto : bodyData) {
+            DynamicRenderDTO renderable = DynamicRenderableMapper.fromBodyDTO(bodyDto);
+            renderables.add(renderable);
+        }
+
+        return renderables;
     }
 
     public int getEntityCreatedQuantity() {

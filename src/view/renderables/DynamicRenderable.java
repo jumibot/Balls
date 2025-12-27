@@ -1,27 +1,26 @@
 package view.renderables;
 
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
 import images.ImageCache;
 
-
-public class DBodyRenderable extends EntityRenderable {
+public class DynamicRenderable extends Renderable {
 
     private final boolean debugMode = false;
 
-
-    public DBodyRenderable(DBodyInfoDTO bodyInfo, ImageCache cache, long currentFrame) {
-        super(bodyInfo, cache, currentFrame);
-
+    public DynamicRenderable(DynamicRenderDTO renderInfo, String assetId, ImageCache cache, long currentFrame) {
+        super(renderInfo, assetId, cache, currentFrame);
     }
 
+    public DynamicRenderable(String entityId, String assetId, ImageCache cache, long currentFrame) {
+        super(entityId, assetId, cache, currentFrame);
+    }
 
     @Override
     public void paint(Graphics2D g) {
-        DBodyInfoDTO bodyInfo = (DBodyInfoDTO) this.getEntityInfo();
+        DynamicRenderDTO bodyInfo = (DynamicRenderDTO) this.getRenderableValues();
 
         super.paint(g);
 

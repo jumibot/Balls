@@ -14,7 +14,15 @@ public class BasicWeapon extends AbstractWeapon {
             // Cool down weapon. Any pending requests are discarded.
             this.cooldown -= dtSeconds;
             this.markAllRequestsHandled();
-            return false; // =================>
+            return false; // ======== Weapon is overheated =========>
+        }
+
+        if (this.currentAmmo <= 0) {
+            // No ammunition: reload, set time to reload and discard requests
+            this.markAllRequestsHandled();
+            cooldown = this.getWeaponConfig().reloadTime;
+            this.currentAmmo = this.getWeaponConfig().maxAmmo;
+            return false;
         }
 
         if (!this.hasRequest()) {
@@ -25,6 +33,7 @@ public class BasicWeapon extends AbstractWeapon {
 
         // Fire
         this.markAllRequestsHandled();
+        this.currentAmmo--;
         cooldown = 1.0 / this.getWeaponConfig().fireRate;
         return true;
     }

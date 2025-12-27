@@ -1,8 +1,6 @@
 package model.physics;
 
-
 import java.io.Serializable;
-
 
 /**
  * Immutable value object that encapsulates the physical state of a VObject at a
@@ -13,37 +11,53 @@ import java.io.Serializable;
  * beyond data representation. It is used by the simulation model to track and
  * propagate physical values without exposing mutable state.
  */
-public class PhysicsValues implements Serializable {
+public class PhysicsValuesDTO implements Serializable {
 
     public final long timeStamp;
-    public final double posX, posY;
+    public final double posX;
+    public final double posY;
+    public final double angle;
+    public final double size;
     public final double speedX, speedY;
     public final double accX, accY;
-
-    public final double angle;
     public final double angularSpeed;
     public final double angularAcc;
-
     public final double thrust;
 
-
-    public PhysicsValues(long timeStamp,
-            double pos_x, double pos_y,
+    public PhysicsValuesDTO(
+            long timeStamp,
+            double posX, double posY, double angle,
+            double size,
             double speed_x, double speed_y,
             double acc_x, double acc_y,
-            double angle, double angularSpeed, double angularAcc,
+            double angularSpeed, double angularAcc,
             double thrust) {
-        
+
         this.timeStamp = timeStamp;
-        this.posX = pos_x;
-        this.posY = pos_y;
+
+        this.posX = posX;
+        this.posY = posY;
+        this.angle = angle;
+        this.size = size;
         this.speedX = speed_x;
         this.speedY = speed_y;
         this.accX = acc_x;
         this.accY = acc_y;
-        this.angle = angle;
         this.angularSpeed = angularSpeed;
         this.angularAcc = angularAcc;
         this.thrust = thrust;
+
     }
+
+    public PhysicsValuesDTO(double size, double x, double y, double angle) {
+        this(
+                System.currentTimeMillis(),
+                x, y, angle,
+                size,
+                0.0, 0.0,
+                0.0, 0.0,
+                0.0, 0.0,
+                0.0);
+    }
+
 }

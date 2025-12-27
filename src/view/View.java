@@ -1,7 +1,7 @@
 package view;
 
-
-import view.renderables.DBodyInfoDTO;
+import view.renderables.DynamicRenderDTO;
+import view.renderables.DynamicRenderable;
 import assets.AssetCatalog;
 import assets.AssetType;
 import controller.Controller;
@@ -18,8 +18,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import view.renderables.EntityInfoDTO;
-
+import view.renderables.RenderDTO;
+import view.renderables.Renderable;
 
 /**
  * View
@@ -27,16 +27,16 @@ import view.renderables.EntityInfoDTO;
  *
  * Swing top-level window that represents the presentation layer of the engine.
  * This class wires together:
- *   - The rendering surface (Renderer)
- *   - Asset loading and image catalogs (Images)
- *   - User input (KeyListener) and command dispatch to the Controller
+ * - The rendering surface (Renderer)
+ * - Asset loading and image catalogs (Images)
+ * - User input (KeyListener) and command dispatch to the Controller
  *
  * Architectural role
  * ------------------
  * View is a thin façade over rendering + input:
- *   - It does not simulate anything.
- *   - It does not own world state.
- *   - It communicates with the model exclusively through the Controller.
+ * - It does not simulate anything.
+ * - It does not own world state.
+ * - It communicates with the model exclusively through the Controller.
  *
  * The Renderer pulls dynamic snapshots every frame (via View -> Controller),
  * while static/decorator snapshots are pushed into the View/Renderer only when
@@ -46,22 +46,23 @@ import view.renderables.EntityInfoDTO;
  * Lifecycle
  * ---------
  * Construction:
- *   - Creates the ControlPanel (UI controls, if any).
- *   - Creates the Renderer (Canvas).
- *   - Builds the JFrame layout and attaches the key listener.
+ * - Creates the ControlPanel (UI controls, if any).
+ * - Creates the Renderer (Canvas).
+ * - Builds the JFrame layout and attaches the key listener.
  *
  * Activation (activate()):
- *   - Validates mandatory dependencies (dimensions, background, image catalogs).
- *   - Injects view dimensions and images into the Renderer.
- *   - Starts the Renderer thread (active rendering loop).
+ * - Validates mandatory dependencies (dimensions, background, image catalogs).
+ * - Injects view dimensions and images into the Renderer.
+ * - Starts the Renderer thread (active rendering loop).
  *
  * Asset management
  * ----------------
- * loadAssets(...) loads and registers all visual resources required by the world:
- *   - Background image (single BufferedImage).
- *   - Dynamic body sprites (ships, asteroids, missiles, etc.).
- *   - Static body sprites (gravity bodies, bombs, etc.).
- *   - Decorator sprites (parallax / space decor).
+ * loadAssets(...) loads and registers all visual resources required by the
+ * world:
+ * - Background image (single BufferedImage).
+ * - Dynamic body sprites (ships, asteroids, missiles, etc.).
+ * - Static body sprites (gravity bodies, bombs, etc.).
+ * - Decorator sprites (parallax / space decor).
  *
  * The View stores catalogs as Images collections, which are later converted
  * into GPU/compatible caches inside the Renderer (ImageCache).
@@ -76,11 +77,11 @@ import view.renderables.EntityInfoDTO;
  * Keyboard input is captured at the rendering Canvas level (Renderer is
  * focusable and receives the KeyListener) and translated into high-level
  * Controller commands:
- *   - Thrust on/off (forward uses positive thrust; reverse thrust is handled
- *     as negative thrust, and both are stopped via the same thrustOff command).
- *   - Rotation left/right and rotation off.
- *   - Fire: handled as an edge-triggered action using fireKeyDown to prevent
- *     key repeat from generating continuous shots while SPACE is held.
+ * - Thrust on/off (forward uses positive thrust; reverse thrust is handled
+ * as negative thrust, and both are stopped via the same thrustOff command).
+ * - Rotation left/right and rotation off.
+ * - Fire: handled as an edge-triggered action using fireKeyDown to prevent
+ * key repeat from generating continuous shots while SPACE is held.
  *
  * Focus and Swing considerations
  * -------------------------------
@@ -92,15 +93,15 @@ import view.renderables.EntityInfoDTO;
  * ------------------------
  * Swing is single-threaded (EDT), while rendering runs on its own thread.
  * This class keeps its responsibilities minimal:
- *   - It only pushes static/decorator updates when needed.
- *   - Dynamic snapshot pulling is done inside the Renderer thread through
- *     View -> Controller getters.
+ * - It only pushes static/decorator updates when needed.
+ * - Dynamic snapshot pulling is done inside the Renderer thread through
+ * View -> Controller getters.
  *
  * Design goals
  * ------------
- *   - Keep the View as a coordinator, not a state holder.
- *   - Keep rendering independent and real-time (active rendering).
- *   - Translate user input into controller commands cleanly and predictably.
+ * - Keep the View as a coordinator, not a state holder.
+ * - Keep rendering independent and real-time (active rendering).
+ * - Translate user input into controller commands cleanly and predictably.
  */
 public class View extends JFrame implements KeyListener {
 
@@ -111,9 +112,7 @@ public class View extends JFrame implements KeyListener {
     private String localPlayerId;
     private final Renderer renderer;
     private Dimension viewDimension;
-
     private boolean fireKeyDown = false;
-
 
     /**
      * CONSTRUCTOR
@@ -124,7 +123,6 @@ public class View extends JFrame implements KeyListener {
         this.renderer = new Renderer(this);
         this.createFrame();
     }
-
 
     /**
      * PUBLIC
@@ -140,6 +138,13 @@ public class View extends JFrame implements KeyListener {
         this.pack();
     }
 
+    public void addStaticRenderable(String entityId, String assetId) {
+        this.renderer.addStaticRenderable(entityId, assetId);
+    }
+
+    public void addDynamicRenderable(String entityId, String assetId) {
+        this.renderer.addDynamicRenderable(entityId, assetId);
+    }
 
     public void loadAssets(AssetCatalog assets) {
         String fileName;
@@ -155,58 +160,48 @@ public class View extends JFrame implements KeyListener {
         this.background = this.images.getImage(backgroundId).image;
     }
 
-
     public void setController(Controller controller) {
         this.controller = controller;
     }
-
 
     public void setDimension(Dimension worldDim) {
         this.viewDimension = worldDim;
     }
 
-
     public void setLocalPlayer(String localPlayerId) {
         this.localPlayerId = localPlayerId;
     }
 
-
-    public void updateStaticRenderables(ArrayList<EntityInfoDTO> bodiesInfo) {
-        this.renderer.updateStaticRenderables(bodiesInfo);
+    public void updateStaticRenderables(ArrayList<RenderDTO> renderablesData) {
+        this.renderer.updateStaticRenderables(renderablesData);
     }
-
 
     /**
      * PROTECTED
      */
-    protected ArrayList<DBodyInfoDTO> getDBodyInfo() {
+    protected ArrayList<DynamicRenderDTO> getDynamicRenderablesData() {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
 
-        return this.controller.getDBodyInfo();
+        return this.controller.getDynamicRenderablesData();
     }
-
 
     protected EngineState getEngineState() {
         return this.controller.getEngineState();
     }
 
-
     protected int getEntityCreatedQuantity() {
         return this.controller.getEntityCreatedQuantity();
     }
-
 
     protected int getEntityAliveQuantity() {
         return this.controller.getEntityAliveQuantity();
     }
 
-
     protected int getEntityDeadQuantity() {
         return this.controller.getEntityDeadQuantity();
     }
-
 
     /**
      * PRIVATE
@@ -225,7 +220,6 @@ public class View extends JFrame implements KeyListener {
         container.add(this.renderer, c);
     }
 
-
     private void createFrame() {
         Container panel;
 
@@ -242,7 +236,6 @@ public class View extends JFrame implements KeyListener {
         SwingUtilities.invokeLater(() -> this.renderer.requestFocusInWindow());
 
     }
-
 
     /**
      * OVERRIDES
@@ -281,7 +274,7 @@ public class View extends JFrame implements KeyListener {
                 break;
 
             case KeyEvent.VK_SPACE:
-                if (!this.fireKeyDown) {  // Discard autoreptition PRESS
+                if (!this.fireKeyDown) { // Discard autoreptition PRESS
                     this.fireKeyDown = true;
                     this.controller.playerFire(this.localPlayerId);
                 }
@@ -292,7 +285,6 @@ public class View extends JFrame implements KeyListener {
                 break;
         }
     }
-
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -322,11 +314,10 @@ public class View extends JFrame implements KeyListener {
                 this.controller.playerRotateOff(this.localPlayerId);
                 break;
             case KeyEvent.VK_SPACE:
-                fireKeyDown = false;                  // << permite el siguiente disparo
+                fireKeyDown = false; // << permite el siguiente disparo
                 break;
         }
     }
-
 
     @Override
     public void keyTyped(KeyEvent e) {

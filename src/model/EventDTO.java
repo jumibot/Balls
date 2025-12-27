@@ -1,15 +1,15 @@
 package model;
 
 
-import model.entities.AbstractEntity;
+import model.bodies.AbstractBody;
 
 
 public class EventDTO {
 
-    public final AbstractEntity entity;
+    public final AbstractBody entity;
     public final EventType eventType;
     
-    public EventDTO(AbstractEntity entity, EventType eventType){
+    public EventDTO(AbstractBody entity, EventType eventType){
         this.entity = entity;
         this.eventType = eventType;
     }

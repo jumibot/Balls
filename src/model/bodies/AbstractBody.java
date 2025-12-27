@@ -1,15 +1,16 @@
-package model.entities;
+package model.bodies;
 
+import java.util.UUID;
 
 import model.Model;
-import view.renderables.EntityInfoDTO;
-
+import model.physics.PhysicsEngine;
+import model.physics.PhysicsValuesDTO;
 
 /**
  *
  * @author juanm
  */
-public abstract class AbstractEntity {
+public abstract class AbstractBody {
 
     /* TO-DO: Replace individual static counters by one static array of counters */
     private static volatile int aliveQuantity = 0;
@@ -17,21 +18,19 @@ public abstract class AbstractEntity {
     private static volatile int deadQuantity = 0;
 
     private Model model = null;
-    private volatile EntityState state;
+    private volatile BodyState state;
+    private final String entityId;
+    private final PhysicsEngine phyEngine;
 
-    private final int entityId;
-    public final String assetId;
-    public final double size;
+    /**
+     * CONSTRUCTORS
+     */
+    public AbstractBody(PhysicsEngine phyEngine) {
+        this.entityId = UUID.randomUUID().toString();
 
-
-    public AbstractEntity(String assetId, double size) {
-        this.entityId = AbstractEntity.createdQuantity++;
-        this.assetId = assetId;
-        this.size = size;
-
-        this.state = EntityState.STARTING;
+        this.phyEngine = phyEngine;
+        this.state = BodyState.STARTING;
     }
-
 
     public synchronized void activate() {
         if (this.model == null) {
@@ -42,92 +41,80 @@ public abstract class AbstractEntity {
             throw new IllegalArgumentException("Entity activation error due MODEL is not alive!");
         }
 
-        if (this.state != EntityState.STARTING) {
+        if (this.state != BodyState.STARTING) {
             throw new IllegalArgumentException("Entity activation error due is not starting!");
         }
 
-        AbstractEntity.aliveQuantity++;
-        this.state = EntityState.ALIVE;
+        AbstractBody.aliveQuantity++;
+        this.state = BodyState.ALIVE;
     }
-
-
-    public abstract EntityInfoDTO buildEntityInfo();
-
 
     public synchronized void die() {
-        this.state = EntityState.DEAD;
-        AbstractEntity.deadQuantity++;
-        AbstractEntity.aliveQuantity--;
+        this.state = BodyState.DEAD;
+        AbstractBody.deadQuantity++;
+        AbstractBody.aliveQuantity--;
     }
 
-
-    public int getEntityId() {
+    public String getEntityId() {
         return this.entityId;
     }
-
 
     public Model getModel() {
         return this.model;
     }
 
-
-    public EntityState getState() {
-        return this.state;
+    public PhysicsValuesDTO getPhysicsValues() {
+        return this.phyEngine.getPhysicsValues();
     }
 
+    public BodyState getState() {
+        return this.state;
+    }
 
     public void setModel(Model model) {
         this.model = model;
     }
 
-
-    public void setState(EntityState state) {
+    public void setState(BodyState state) {
         this.state = state;
     }
-
 
     /**
      * STATICS
      */
     static public int getCreatedQuantity() {
-        return AbstractEntity.createdQuantity;
+        return AbstractBody.createdQuantity;
     }
-
 
     static public int getAliveQuantity() {
-        return AbstractEntity.aliveQuantity;
+        return AbstractBody.aliveQuantity;
     }
-
 
     static public int getDeadQuantity() {
-        return AbstractEntity.deadQuantity;
+        return AbstractBody.deadQuantity;
     }
-
 
     static protected int incCreatedQuantity() {
-        AbstractEntity.createdQuantity++;
+        AbstractBody.createdQuantity++;
 
-        return AbstractEntity.createdQuantity;
+        return AbstractBody.createdQuantity;
     }
-
 
     static protected int incAliveQuantity() {
-        AbstractEntity.aliveQuantity++;
+        AbstractBody.aliveQuantity++;
 
-        return AbstractEntity.aliveQuantity;
+        return AbstractBody.aliveQuantity;
     }
-
 
     static protected int decAliveQuantity() {
-        AbstractEntity.aliveQuantity--;
+        AbstractBody.aliveQuantity--;
 
-        return AbstractEntity.aliveQuantity;
+        return AbstractBody.aliveQuantity;
     }
 
-
     static protected int incDeadQuantity() {
-        AbstractEntity.deadQuantity++;
+        AbstractBody.deadQuantity++;
 
-        return AbstractEntity.deadQuantity;
+        return AbstractBody.deadQuantity;
     }
 }
