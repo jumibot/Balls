@@ -1,6 +1,6 @@
 package generators;
 
-public class LifeDTO {
+public class LifeConfigDTO {
 
     public final int maxCreationDelay;
     public final int maxSize;
@@ -16,7 +16,7 @@ public class LifeDTO {
     public final double accX;
     public final double accY;
 
-    public LifeDTO(int maxCreationDelay,
+    public LifeConfigDTO(int maxCreationDelay,
             int maxSize, int minSize,
             double maxMass, double minMass,
             int maxSpeedModule, int maxAccModule) {
@@ -38,7 +38,7 @@ public class LifeDTO {
         this.speedY = 0d;
     }
 
-    public LifeDTO(int maxCreationDelay,
+    public LifeConfigDTO(int maxCreationDelay,
             int maxSize, int minSize,
             double maxMass, double minMass,
             double accX, double accY,
