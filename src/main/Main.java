@@ -3,8 +3,8 @@ package main;
 /**
  * TO-DO 
  * ===== 
- * 1) Improve unacopled architecture using mappers
- * 2) Full implemention of Factory pattern for entities, ...
+ * 1) Improve unacopled architecture using Interfaces
+ * 2) Create HUD for player info
  * 2) Colision detection 
  * 3) Basic Fx 
  * 4) Create a new physic engine with a gravitational field 
@@ -14,7 +14,7 @@ package main;
  */
 import assets.ProjectAssets;
 import controller.Controller;
-import generators.LifeDTO;
+import generators.LifeConfigDTO;
 import generators.LifeGenerator;
 import generators.WorldGenerator;
 import model.Model;
@@ -40,7 +40,7 @@ public class Main {
 
                 Controller controller = new Controller(
                                 worldWidth, worldHeight, // World dimensions
-                                3500 , // Max dynamic bodies
+                                3500, // Max dynamic bodies
                                 new View(), new Model(),
                                 worldDef.gameAssets);
 
@@ -48,18 +48,14 @@ public class Main {
 
                 WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
 
-
-                LifeDTO lifeConfig = new LifeDTO(
-                                5, // maxCreationDelay
-                                12, 5, // maxSize, minSize
+                LifeConfigDTO lifeConfig = new LifeConfigDTO(
+                                1500, // maxCreationDelay
+                                12, 6, // maxSize, minSize
                                 1000, 10, // maxMass, minMass
                                 175, // maxSpeedModule
                                 0); // maxAccModule
 
-                LifeGenerator lifeGenerator = new LifeGenerator(
-                                controller,
-                                worldDef.asteroids,
-                                lifeConfig);
+                LifeGenerator lifeGenerator = new LifeGenerator(controller, worldDef, lifeConfig);
 
                 lifeGenerator.activate();
         }

@@ -22,6 +22,8 @@ import model.ActionPriority;
 import model.EventDTO;
 import view.renderables.RenderDTO;
 import world.WorldDefWeaponDto;
+import world.api.WorldEvolver;
+import world.api.WorldInitializer;
 
 /**
  * Controller
@@ -110,7 +112,7 @@ import world.WorldDefWeaponDto;
  * - Keeping Controller methods small and side-effect-light reduces contention
  * and makes it easier to reason about where cross-thread interactions happen.
  */
-public class Controller {
+public class Controller implements WorldEvolver, WorldInitializer {
 
     private volatile EngineState engineState;
     private int maxEntities;

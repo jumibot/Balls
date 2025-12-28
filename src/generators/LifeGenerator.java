@@ -6,23 +6,25 @@ import controller.Controller;
 import controller.EngineState;
 import java.util.ArrayList;
 import world.WorldDefItemDto;
+import world.WorldDefinition;
 
 public class LifeGenerator implements Runnable {
 
     private final Random rnd = new Random();
-    private ArrayList<WorldDefItemDto> items;
+    private final ArrayList<WorldDefItemDto> items;
     private final Controller controller;
     private Thread thread;
-
-    private final LifeDTO lifeConfig;
+    private final WorldDefinition worldDefinition;
+    private final LifeConfigDTO lifeConfig;
 
     /**
      * CONSTRUCTORS
      */
     public LifeGenerator(Controller controller,
-            ArrayList<WorldDefItemDto> items, LifeDTO lifeConfig) {
+            WorldDefinition worldDefinition, LifeConfigDTO lifeConfig) {
 
-        this.items = items;
+        this.worldDefinition = worldDefinition;
+        this.items = this.worldDefinition.asteroids;
         this.controller = controller;
         this.lifeConfig = lifeConfig;
     }
@@ -35,6 +37,7 @@ public class LifeGenerator implements Runnable {
         this.thread.setName("Life generator");
         this.thread.setPriority(Thread.NORM_PRIORITY - 3);
         this.thread.start();
+        this.createPlayers();
         System.out.println("Life generator activated! · RandomWorld");
     }
 
@@ -120,6 +123,35 @@ public class LifeGenerator implements Runnable {
                 Thread.sleep(this.rnd.nextInt(this.lifeConfig.maxCreationDelay));
             } catch (InterruptedException ex) {
             }
+        }
+    }
+
+    private void createPlayers() {
+        ArrayList<WorldDefItemDto> dBodies = this.worldDefinition.spaceshipsDef;
+        String playerId = null;
+
+        for (WorldDefItemDto body : dBodies) {
+            playerId = this.controller.addPlayer(
+                    body.assetId, body.size, 500, 200, 0, 0, 0, 0, 0,
+                    this.randomAngularSpeed(270), 0, 0);
+
+            this.controller.addWeaponToPlayer(
+                    playerId, this.worldDefinition.primaryWeapon.get(0), 0);
+
+            this.controller.addWeaponToPlayer(
+                    playerId, this.worldDefinition.secondaryWeapon.get(0), 0);
+
+            this.controller.addWeaponToPlayer(
+                    playerId, this.worldDefinition.missilLaunchers.get(0), -15);
+
+            this.controller.addWeaponToPlayer(
+                    playerId, this.worldDefinition.mineLaunchers.get(0), 15);
+        }
+
+        if (playerId != null) {
+            this.controller.setLocalPlayer(playerId);
+        } else {
+            System.err.println("[DEBUG] No valid playerId to set as local player.");
         }
     }
 }

@@ -1,21 +1,20 @@
 package generators;
 
-import controller.Controller;
 import java.util.ArrayList;
 import java.util.Random;
-import world.WorldDefItemDto;
 import world.WorldDefPositionItemDto;
 import world.WorldDefinition;
+import world.api.WorldInitializer;
 
 public class WorldGenerator {
 
     private final Random rnd = new Random();
 
-    private final Controller controller;
+    private final WorldInitializer controller;
     WorldDefinition worldDefinition;
 
-    public WorldGenerator(Controller controller, WorldDefinition worldDef) {
-        this.controller = controller;
+    public WorldGenerator(WorldInitializer worldInitializer, WorldDefinition worldDef) {
+        this.controller = worldInitializer;
         this.worldDefinition = worldDef;
 
         this.createWorld();
@@ -26,7 +25,6 @@ public class WorldGenerator {
 
         this.createSpaceDecorators();
         this.createSBodies();
-        this.createPlayers();
     }
 
     private void createSBodies() {
@@ -42,35 +40,6 @@ public class WorldGenerator {
 
         for (WorldDefPositionItemDto deco : decorators) {
             this.controller.addDecorator(deco.assetId, deco.size, deco.posX, deco.posY, deco.angle);
-        }
-    }
-
-    private void createPlayers() {
-        ArrayList<WorldDefItemDto> dBodies = this.worldDefinition.spaceshipsDef;
-        String playerId = null;
-
-        for (WorldDefItemDto body : dBodies) {
-            playerId = this.controller.addPlayer(
-                    body.assetId, body.size, 500, 200, 0, 0, 0, 0, 0,
-                    this.randomAngularSpeed(270), 0, 0);
-
-            this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.primaryWeapon.get(0), 0);
-
-            this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.secondaryWeapon.get(0), 0);
-
-            this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.missilLaunchers.get(0), -15);
-
-            this.controller.addWeaponToPlayer(
-                playerId, this.worldDefinition.mineLaunchers.get(0), 15);
-        }
-
-        if (playerId != null) {
-            this.controller.setLocalPlayer(playerId);
-        } else {
-            System.err.println("[DEBUG] No valid playerId to set as local player.");
         }
     }
 
