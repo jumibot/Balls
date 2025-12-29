@@ -2,8 +2,9 @@ package model.bodies;
 
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValuesDTO;
+import model.physics.ports.PhysicsEngine;
 import model.ModelState;
-import model.physics.PhysicsEngine;
+import model.bodies.ports.PhysicsBody;
 
 /**
  * DynamicBody

@@ -3,8 +3,8 @@ package model.bodies;
 import java.util.UUID;
 
 import model.Model;
-import model.physics.PhysicsEngine;
 import model.physics.PhysicsValuesDTO;
+import model.physics.ports.PhysicsEngine;
 
 /**
  *

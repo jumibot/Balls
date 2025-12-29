@@ -1,5 +1,6 @@
-package model.weapons;
+package model.weapons.ports;
 
+import model.weapons.WeaponDto;
 
 public interface Weapon {
 

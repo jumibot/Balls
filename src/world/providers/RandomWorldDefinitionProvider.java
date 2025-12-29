@@ -13,7 +13,7 @@ import world.WorldDefPositionItemDto;
 import world.WorldDefWeaponDto;
 import world.WorldDefWeaponType;
 import world.WorldDefinition;
-import world.WorldDefinitionProvider;
+import world.providers.ports.WorldDefinitionProvider;
 
 public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
 

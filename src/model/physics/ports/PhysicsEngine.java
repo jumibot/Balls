@@ -1,5 +1,6 @@
-package model.physics;
+package model.physics.ports;
 
+import model.physics.PhysicsValuesDTO;
 
 public interface PhysicsEngine {
 

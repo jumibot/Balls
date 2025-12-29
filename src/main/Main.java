@@ -20,8 +20,8 @@ import generators.WorldGenerator;
 import model.Model;
 import view.View;
 import world.WorldDefinition;
-import world.WorldDefinitionProvider;
 import world.providers.RandomWorldDefinitionProvider;
+import world.providers.ports.WorldDefinitionProvider;
 
 public class Main {
 
