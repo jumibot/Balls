@@ -2,6 +2,8 @@ package model.physics;
 
 import static java.lang.System.nanoTime;
 
+import model.physics.ports.PhysicsEngine;
+
 public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
     /**

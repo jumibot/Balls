@@ -11,6 +11,9 @@ import view.View;
 import model.Model;
 import model.bodies.AbstractBody;
 import model.bodies.BodyDTO;
+import model.ports.DomainEventProcesor;
+import model.ports.WorldEvolver;
+import model.ports.WorldInitializer;
 import model.weapons.WeaponDto;
 import model.ActionType;
 import model.EventType;
@@ -22,8 +25,6 @@ import model.ActionPriority;
 import model.EventDTO;
 import view.renderables.RenderDTO;
 import world.WorldDefWeaponDto;
-import world.api.WorldEvolver;
-import world.api.WorldInitializer;
 
 /**
  * Controller
@@ -112,7 +113,7 @@ import world.api.WorldInitializer;
  * - Keeping Controller methods small and side-effect-light reduces contention
  * and makes it easier to reason about where cross-thread interactions happen.
  */
-public class Controller implements WorldEvolver, WorldInitializer {
+public class Controller implements WorldEvolver, WorldInitializer, DomainEventProcesor {
 
     private volatile EngineState engineState;
     private int maxEntities;
@@ -361,7 +362,7 @@ public class Controller implements WorldEvolver, WorldInitializer {
 
     public void setModel(Model model) {
         this.model = model;
-        this.model.setController(this);
+        this.model.setDomainEventProcessor(this);
     }
 
     public void setView(View view) {

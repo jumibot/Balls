@@ -1,7 +1,6 @@
-package world.api;
+package model.ports;
 
 import assets.AssetCatalog;
-import world.WorldDefItemDto;
 
 public interface WorldInitializer {
 

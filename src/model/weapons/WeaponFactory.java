@@ -1,5 +1,7 @@
 package model.weapons;
 
+import model.weapons.ports.Weapon;
+
 public class WeaponFactory {
 
     /**

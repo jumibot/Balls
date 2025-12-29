@@ -3,6 +3,8 @@ package model.weapons;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import model.weapons.ports.Weapon;
+
 /**
  * AbstractWeapon
  * --------------

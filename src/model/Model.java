@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import controller.Controller;
 import model.physics.PhysicsValuesDTO;
+import model.ports.DomainEventProcesor;
+
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import java.util.Comparator;
@@ -19,9 +20,9 @@ import model.bodies.BodyState;
 import model.bodies.PlayerBody;
 import model.bodies.StaticBody;
 import model.physics.BasicPhysicsEngine;
-import model.weapons.Weapon;
 import model.weapons.WeaponDto;
 import model.weapons.WeaponFactory;
+import model.weapons.ports.Weapon;
 
 /**
  * Model
@@ -111,7 +112,7 @@ public class Model {
     private int maxDBody;
     private Dimension worldDim;
 
-    private Controller controller = null;
+    private DomainEventProcesor domainEventProcessor = null;
     private volatile ModelState state = ModelState.STARTING;
 
     private static final int MAX_ENTITIES = 5000;
@@ -132,7 +133,7 @@ public class Model {
      * PUBLIC
      */
     public void activate() {
-        if (this.controller == null) {
+        if (this.domainEventProcessor == null) {
             throw new IllegalArgumentException("Controller is not set");
         }
 
@@ -377,8 +378,8 @@ public class Model {
         pBody.selectNextWeapon();
     }
 
-    public void setController(Controller controller) {
-        this.controller = controller;
+    public void setDomainEventProcessor(DomainEventProcesor domainEventProcessor) {
+        this.domainEventProcessor = domainEventProcessor;
     }
 
     public void setDimension(Dimension worldDim) {
@@ -417,7 +418,7 @@ public class Model {
     private List<ActionDTO> resolveActionsForEvents(
             AbstractBody entity, List<EventDTO> events) {
 
-        List<ActionDTO> actionsFromController = this.controller.decideActions(entity, events);
+        List<ActionDTO> actionsFromController = this.domainEventProcessor.decideActions(entity, events);
 
         if (actionsFromController == null || actionsFromController.isEmpty()) {
             return java.util.Collections.emptyList();
@@ -586,7 +587,7 @@ public class Model {
         if (entityId == null|| entityId.isEmpty()) {
             return; // ======= Max entity quantity reached =======>>
         }
-        this.controller.notifyNewProjectileFired(
+        this.domainEventProcessor.notifyNewProjectileFired(
                 entityId, weaponConfig.projectileAssetId);
     }
 }

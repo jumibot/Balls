@@ -1,7 +1,6 @@
 package view;
 
 import view.renderables.DynamicRenderDTO;
-import view.renderables.DynamicRenderable;
 import assets.AssetCatalog;
 import assets.AssetType;
 import controller.Controller;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import view.renderables.RenderDTO;
-import view.renderables.Renderable;
 
 /**
  * View

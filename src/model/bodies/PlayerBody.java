@@ -3,8 +3,8 @@ package model.bodies;
 import java.util.UUID;
 import model.physics.BasicPhysicsEngine;
 import model.physics.PhysicsValuesDTO;
-import model.weapons.Weapon;
 import model.weapons.WeaponDto;
+import model.weapons.ports.Weapon;
 
 public class PlayerBody extends DynamicBody {
 

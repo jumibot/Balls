@@ -1,5 +1,6 @@
 package model.physics;
 
+import model.physics.ports.PhysicsEngine;
 
 public class NullPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 
