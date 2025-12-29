@@ -3,7 +3,7 @@ package generators;
 import java.util.ArrayList;
 import java.util.Random;
 
-import model.ports.WorldInitializer;
+import controller.ports.WorldInitializer;
 import world.WorldDefPositionItemDto;
 import world.WorldDefinition;
 

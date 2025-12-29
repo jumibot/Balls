@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import controller.ports.DomainEventProcesor;
 import model.physics.PhysicsValuesDTO;
-import model.ports.DomainEventProcesor;
 
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
