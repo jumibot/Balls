@@ -1,4 +1,4 @@
-package model.ports;
+package controller.ports;
 
 import assets.AssetCatalog;
 
