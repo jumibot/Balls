@@ -230,7 +230,7 @@ Fuerza que se opone al movimiento, reduciendo gradualmente la velocidad de las e
 Colecciones seguras para hilos (como `ConcurrentHashMap`) utilizadas para gestionar entidades en un entorno multihilo.
 
 ### Volatile Variables
-Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `EntityState`).
+Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `BodyState`, `EngineState`). Asegura que todos los hilos vean siempre el valor más reciente.
 
 ### Immutable Objects
 Objetos inmutables como `PhysicsValuesDTO` y otros DTOs que garantizan seguridad en concurrencia al no permitir modificación después de la creación. Esto permite compartirlos entre hilos sin necesidad de sincronización.
