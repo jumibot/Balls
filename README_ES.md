@@ -177,14 +177,6 @@ Esta documentación proporciona explicaciones en profundidad de estrategias de c
 
 Aprenda sobre los patrones arquitectónicos y patrones de diseño utilizados en este proyecto:
 
-#### English Documentation
-- **[Introduction to MVC](docs/en/MVC.md)** - General introduction to the Model-View-Controller pattern
-- **[MVC Pattern Implementation](docs/en/MVC-Pattern.md)** - How MVC is implemented in this project, what it provides, common mistakes, and best practices
-- **[Factory Pattern](docs/en/Factory-Pattern.md)** - How the Factory pattern is used for object creation, benefits, implementation details, and common pitfalls
-- **[Strategy Pattern](docs/en/Strategy-Pattern.md)** - How the Strategy pattern enables interchangeable algorithms (physics engines), usage examples, and anti-patterns
-- **[DTO Pattern](docs/en/DTO-Pattern.md)** - Data Transfer Objects for safe data transfer between layers, thread safety, and implementation guidelines
-
-#### Documentación en Español
 - **[Introducción a MVC](docs/es/MVC.md)** - Introducción general al patrón Modelo-Vista-Controlador
 - **[Implementación del Patrón MVC](docs/es/MVC-Pattern.md)** - Cómo se implementa MVC en este proyecto, qué aporta, errores comunes y mejores prácticas
 - **[Patrón Factory](docs/es/Factory-Pattern.md)** - Cómo se usa el patrón Factory para creación de objetos, beneficios, detalles de implementación y errores comunes
