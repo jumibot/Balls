@@ -151,6 +151,14 @@ public class Model {
             double speedX, double speedY, double accX, double accY,
             double angle, double angularSpeed, double angularAcc, double thrust) {
 
+        return this.addDynamicBody(size, posX, posY, speedX, speedY, accX, accY, angle, angularSpeed, angularAcc,
+                thrust, -1L);
+    }
+
+    public String addDynamicBody(double size, double posX, double posY,
+            double speedX, double speedY, double accX, double accY,
+            double angle, double angularSpeed, double angularAcc, double thrust, double maxLifeInSeconds) {
+
         if (AbstractBody.getAliveQuantity() >= this.maxDBody) {
             return null; // ========= Max vObject quantity reached ==========>>
         }
@@ -158,7 +166,7 @@ public class Model {
         PhysicsValuesDTO phyVals = new PhysicsValuesDTO(nanoTime(), posX, posY, angle, size,
                 speedX, speedY, accX, accY, angularSpeed, angularAcc, thrust);
 
-        DynamicBody dBody = new DynamicBody(new BasicPhysicsEngine(phyVals));
+        DynamicBody dBody = new DynamicBody(new BasicPhysicsEngine(phyVals), maxLifeInSeconds);
 
         dBody.setModel(this);
         dBody.activate();
@@ -173,7 +181,7 @@ public class Model {
         deco.setModel(this);
         deco.activate();
         this.decorators.put(deco.getEntityId(), deco);
-        
+
         return deco.getEntityId();
     }
 
@@ -337,34 +345,34 @@ public class Model {
         }
     }
 
-    public void processDBodyEvents(DynamicBody dBodyToCheck,
+    public void processDBodyEvents(DynamicBody dynamicBody,
             PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
 
-        if (!isProcessable(dBodyToCheck)) {
+        if (!isProcessable(dynamicBody)) {
             return; // To avoid duplicate or unnecesary event processing ======>
         }
 
-        BodyState previousState = dBodyToCheck.getState();
-        dBodyToCheck.setState(BodyState.HANDS_OFF);
+        BodyState previousState = dynamicBody.getState();
+        dynamicBody.setState(BodyState.HANDS_OFF);
 
         try {
             List<EventDTO> events = this.detectEvents(
-                    dBodyToCheck, newPhyValues, oldPhyValues);
+                    dynamicBody, newPhyValues, oldPhyValues);
 
             List<ActionDTO> actions = this.resolveActionsForEvents(
-                    dBodyToCheck, events);
+                    dynamicBody, events);
 
             this.doActions(
-                    dBodyToCheck, actions, newPhyValues, oldPhyValues);
+                    dynamicBody, actions, newPhyValues, oldPhyValues);
 
         } catch (Exception e) { // Fallback anti-zombi
-            if (dBodyToCheck.getState() == BodyState.HANDS_OFF) {
-                dBodyToCheck.setState(previousState);
+            if (dynamicBody.getState() == BodyState.HANDS_OFF) {
+                dynamicBody.setState(previousState);
             }
 
         } finally { // Getout: off HANDS_OFF ... if leaving
-            if (dBodyToCheck.getState() == BodyState.HANDS_OFF) {
-                dBodyToCheck.setState(BodyState.ALIVE);
+            if (dynamicBody.getState() == BodyState.HANDS_OFF) {
+                dynamicBody.setState(BodyState.ALIVE);
             }
         }
     }
@@ -443,6 +451,10 @@ public class Model {
             if (((PlayerBody) body).mustFireNow(newPhyValues)) {
                 events.add(new EventDTO(body, EventType.MUST_FIRE));
             }
+        }
+
+        if (body.isLifeOver()) {
+            events.add(new EventDTO(body, EventType.LIFE_OVER));
         }
 
         // Eventos de colisión, zonas, etc.
@@ -533,6 +545,10 @@ public class Model {
                 this.spawnProjectileFrom(dBody, newPhyValues);
                 break;
 
+            case DIE:
+                this.killDBody(dBody);
+                break;
+
             case EXPLODE_IN_FRAGMENTS:
                 break;
 
@@ -582,9 +598,9 @@ public class Model {
 
         String entityId = this.addDynamicBody(weaponConfig.projectileSize,
                 posX, posY, projSpeedX, projSpeedY,
-                accX, accY, angleDeg, 0d, 0d, 0d);
+                accX, accY, angleDeg, 0d, 0d, 0d, maxLifeInSeconds);
 
-        if (entityId == null|| entityId.isEmpty()) {
+        if (entityId == null || entityId.isEmpty()) {
             return; // ======= Max entity quantity reached =======>>
         }
         this.domainEventProcessor.notifyNewProjectileFired(

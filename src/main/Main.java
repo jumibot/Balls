@@ -16,7 +16,7 @@ import assets.ProjectAssets;
 import controller.Controller;
 import generators.LifeConfigDTO;
 import generators.LifeGenerator;
-import generators.WorldGenerator;
+import generators.SceneGenerator;
 import model.Model;
 import view.View;
 import world.WorldDefinition;
@@ -46,7 +46,7 @@ public class Main {
 
                 controller.activate();
 
-                WorldGenerator worldGenerator = new WorldGenerator(controller, worldDef);
+                SceneGenerator worldGenerator = new SceneGenerator(controller, worldDef);
 
                 LifeConfigDTO lifeConfig = new LifeConfigDTO(
                                 1500, // maxCreationDelay

@@ -21,15 +21,22 @@ public abstract class AbstractBody {
     private volatile BodyState state;
     private final String entityId;
     private final PhysicsEngine phyEngine;
+    private final long bornTime = System.nanoTime();
+    private final double maxLifeInSeconds; // Infinite life by default
 
     /**
      * CONSTRUCTORS
      */
     public AbstractBody(PhysicsEngine phyEngine) {
+        this(phyEngine, -1D);
+    }
+
+    public AbstractBody(PhysicsEngine phyEngine, double maxLifeInSeconds) {
         this.entityId = UUID.randomUUID().toString();
 
         this.phyEngine = phyEngine;
         this.state = BodyState.STARTING;
+        this.maxLifeInSeconds = maxLifeInSeconds;
     }
 
     public synchronized void activate() {
@@ -55,8 +62,28 @@ public abstract class AbstractBody {
         AbstractBody.aliveQuantity--;
     }
 
+    public long getBornTime() {
+        return this.bornTime;
+    }
+
     public String getEntityId() {
         return this.entityId;
+    }
+
+    public double getLifeInSeconds() {
+        return (System.nanoTime() - this.bornTime) / 1_000_000_000.0D;
+    }
+
+    public boolean isLifeOver() {
+        if (this.maxLifeInSeconds <= 0) {
+            return false;
+        }
+
+        return this.getLifeInSeconds() >= this.maxLifeInSeconds;
+    }
+
+    public double getMaxLife() {
+        return this.maxLifeInSeconds;
     }
 
     public Model getModel() {

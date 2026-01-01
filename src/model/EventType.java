@@ -13,4 +13,5 @@ public enum EventType implements Serializable {
     REACHED_EAST_LIMIT,
     REACHED_WEST_LIMIT,
     TRY_TO_GO_INSIDE,
+    LIFE_OVER
 }

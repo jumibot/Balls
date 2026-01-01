@@ -185,7 +185,7 @@ public class Controller implements WorldEvolver, WorldInitializer, DomainEventPr
         }
         this.view.addStaticRenderable(entityId, assetId);
         ArrayList<BodyDTO> bodiesData = this.model.getStaticsData();
-        ArrayList<RenderDTO> renderablesData = RenderableMapper.fromBodyDTO(bodiesData);       
+        ArrayList<RenderDTO> renderablesData = RenderableMapper.fromBodyDTO(bodiesData);
 
         this.view.updateStaticRenderables(renderablesData);
     }
@@ -230,7 +230,7 @@ public class Controller implements WorldEvolver, WorldInitializer, DomainEventPr
         this.model.addWeaponToPlayer(playerId, weapon);
     }
 
-    private List<ActionDTO> applyGameRules(AbstractBody entity, EventDTO event) {
+    private List<ActionDTO> applyGameRules(AbstractBody body, EventDTO event) {
 
         List<ActionDTO> actions = new ArrayList<>(2);
 
@@ -248,6 +248,11 @@ public class Controller implements WorldEvolver, WorldInitializer, DomainEventPr
                         ActionType.FIRE, ActionExecutor.MODEL, ActionPriority.HIGH));
                 break;
 
+            case LIFE_OVER:
+                actions.add(new ActionDTO(
+                        ActionType.DIE, ActionExecutor.MODEL, ActionPriority.HIGH));
+                break;
+
             case COLLIDED:
             case NONE:
             default:
@@ -257,13 +262,13 @@ public class Controller implements WorldEvolver, WorldInitializer, DomainEventPr
         return actions;
     }
 
-    public List<ActionDTO> decideActions(AbstractBody entity, List<EventDTO> events) {
+    public List<ActionDTO> decideActions(AbstractBody body, List<EventDTO> events) {
         List<ActionDTO> actions = new ArrayList<>();
 
         if (events != null) {
             for (EventDTO event : events) {
                 if (event != null && event.eventType != null && event.eventType != EventType.NONE) {
-                    actions.addAll(applyGameRules(entity, event));
+                    actions.addAll(applyGameRules(body, event));
                 }
             }
         }
