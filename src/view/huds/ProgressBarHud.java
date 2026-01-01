@@ -11,13 +11,8 @@ public class ProgressBarHud extends Hud {
     public ProgressBarHud() {
         super(Color.GRAY, 10, 12, 35);
         
-        this.addLabels();
-    }
-    
-    private void addLabels() {
-        this.addLine("Health");
-        this.addLine("Energy");
-        this.addLine("Shield");
+        // Set maxLenLabel to ensure proper spacing for labels
+        this.maxLenLabel = 7; // Length of "Shield" + 1
     }
     
     /**

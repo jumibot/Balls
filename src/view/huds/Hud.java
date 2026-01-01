@@ -76,7 +76,7 @@ public class Hud {
         
         // Fill background
         g.setColor(new Color(40, 40, 40));
-        g.fillRect(barX + 1, barY + 1, barWidth - 1, barHeight - 1);
+        g.fillRect(barX + 1, barY + 1, barWidth - 2, barHeight - 2);
         
         // Draw filled portion based on progress
         if (progress > 0) {
@@ -91,7 +91,7 @@ public class Hud {
                 fillColor = Color.GREEN;
             }
             g.setColor(fillColor);
-            g.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 1);
+            g.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 2);
         }
         
         // Draw percentage text
