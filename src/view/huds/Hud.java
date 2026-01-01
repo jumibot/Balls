@@ -44,6 +44,66 @@ public class Hud {
 
 
     /**
+     * Draws a progress bar on a specific row of the HUD.
+     * 
+     * @param g Graphics2D context to draw on
+     * @param row The row number where the progress bar should be drawn
+     * @param label The text label for the progress bar
+     * @param progress The progress value (0.0 to 1.0, where 1.0 is 100%)
+     * @param barWidth The width of the progress bar in pixels
+     */
+    public void drawProgressBar(Graphics2D g, int row, String label, double progress, int barWidth) {
+        // Clamp progress between 0.0 and 1.0
+        progress = Math.max(0.0, Math.min(1.0, progress));
+        
+        Color oldColor = g.getColor();
+        
+        // Draw label
+        g.setFont(this.font);
+        g.setColor(this.color);
+        String labelText = String.format("%-" + (this.maxLenLabel) + "s", label);
+        int yPos = this.initRow + (this.interline * row);
+        g.drawString(labelText, this.initCol, yPos);
+        
+        // Calculate bar position (after label)
+        int barX = this.initCol + g.getFontMetrics(this.font).stringWidth(labelText);
+        int barY = yPos - (int)(this.font.getSize() * 0.7); // Align with text baseline
+        int barHeight = (int)(this.font.getSize() * 0.8);
+        
+        // Draw bar background (outline)
+        g.setColor(Color.DARK_GRAY);
+        g.drawRect(barX, barY, barWidth, barHeight);
+        
+        // Fill background
+        g.setColor(new Color(40, 40, 40));
+        g.fillRect(barX + 1, barY + 1, barWidth - 1, barHeight - 1);
+        
+        // Draw filled portion based on progress
+        if (progress > 0) {
+            int fillWidth = (int)((barWidth - 2) * progress);
+            // Color gradient based on progress: red -> yellow -> green
+            Color fillColor;
+            if (progress < 0.33) {
+                fillColor = Color.RED;
+            } else if (progress < 0.66) {
+                fillColor = Color.YELLOW;
+            } else {
+                fillColor = Color.GREEN;
+            }
+            g.setColor(fillColor);
+            g.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 1);
+        }
+        
+        // Draw percentage text
+        String percentText = String.format("%d%%", (int)(progress * 100));
+        g.setColor(Color.WHITE);
+        int textX = barX + barWidth + 5;
+        g.drawString(percentText, textX, yPos);
+        
+        g.setColor(oldColor);
+    }
+
+    /**
      * PRIVATE METHODS
      */
     private void drawLine(Graphics2D g, int row, String line, String data) {
