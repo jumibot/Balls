@@ -150,7 +150,7 @@ The codebase is organized into well-defined packages, each with clear responsibi
 - **`assets`**: Asset management system for loading and organizing visual resources (Assets, AssetCatalog, AssetInfo, AssetType)
 - **`world`**: World definition and configuration (WorldDefinition, BackgroundDef, DynamicBodyDef, StaticBodyDef, DecoratorDef)
   - **`world.providers`**: Factory implementations for generating different world configurations (RandomWorldDefinitionProvider)
-- **`generators`**: Procedural content generators (WorldGenerator for initial setup, LifeGenerator for dynamic entity spawning)
+- **`generators`**: Procedural content generators (SceneGenerator for static scene setup, LifeGenerator for dynamic entity spawning)
 - **`fx`**: Visual effects system for animations and particle effects (Fx, FxImage, Spin)
 - **`_helpers`**: Utility classes for common operations (DoubleVector for 2D vector math, RandomArrayList)
 - **`_images`**: Image loading and caching infrastructure (Images, ImageCache, ImageDTO, CachedImageKeyDTO)

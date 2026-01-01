@@ -62,7 +62,7 @@ El código está organizado en paquetes bien definidos:
 
 - **`assets`**: Gestión de recursos visuales
 - **`world`**: Definición y configuración de mundos
-- **`generators`**: Generadores de contenido procedural
+- **`generators`**: Generadores de contenido procedural (SceneGenerator para escena estática, LifeGenerator para generación dinámica)
 - **`fx`**: Sistema de efectos visuales
 - **`_helpers`**: Clases de utilidad (DoubleVector, RandomArrayList)
 - **`resources`**: Recursos estáticos (sprites, imágenes)

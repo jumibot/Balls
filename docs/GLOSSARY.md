@@ -147,11 +147,11 @@ Objeto que define la configuración completa de un mundo:
 - Definiciones de fondo, decoradores, cuerpos gravitacionales
 - Configuraciones de asteroides, naves espaciales, armas
 
-### WorldGenerator
-Clase responsable de generar el mundo inicial basándose en una `WorldDefinition`. Crea y coloca todas las entidades iniciales.
+### SceneGenerator
+Clase responsable de generar la escena estática inicial basándose en una `WorldDefinition`. Crea y coloca todos los cuerpos estáticos y decoradores.
 
 ### LifeGenerator
-Generador automático de entidades dinámicas que mantiene la actividad en la simulación, creando nuevas entidades cuando es necesario.
+Generador automático de cuerpos dinámicos que mantiene la actividad en la simulación, creando nuevos cuerpos dinámicos cuando es necesario y gestionando la creación de jugadores.
 
 ## Sistema de Armas
 
@@ -237,11 +237,12 @@ Objetos inmutables como `PhysicsValues` que garantizan seguridad en concurrencia
 
 1. **Inicialización**: `Main` crea Controller, Model y View
 2. **Carga de Assets**: Controller carga recursos visuales en View
-3. **Generación de Mundo**: WorldGenerator crea entidades iniciales
+3. **Generación de Escena**: SceneGenerator crea la escena estática (cuerpos estáticos y decoradores) basándose en WorldDefinition
 4. **Activación**: Model y View se activan, iniciando sus bucles de ejecución
-5. **Bucle de Simulación**: DynamicBody entities calculan física en hilos separados
-6. **Bucle de Renderizado**: View solicita instantáneas y renderiza el estado actual
-7. **Procesamiento de Entrada**: Controller traduce entrada de teclado en acciones del Model
-8. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones
+5. **Generación de Vida**: LifeGenerator crea jugadores y gestiona la generación programática de cuerpos dinámicos
+6. **Bucle de Simulación**: Los cuerpos DynamicBody calculan física en hilos separados
+7. **Bucle de Renderizado**: View solicita instantáneas y renderiza el estado actual
+8. **Procesamiento de Entrada**: Controller traduce entrada de teclado en acciones del Model
+9. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones mediante el sistema de ActionDTO/EventDTO
 
 Este glosario proporciona una base sólida para entender la arquitectura y conceptos fundamentales del proyecto MVCGameEngine.
