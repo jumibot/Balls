@@ -1,8 +1,8 @@
-# Glosario de Conceptos - Balls
+# Glosario de Conceptos - MVCGameEngine
 
 **[English](GLOSSARY_EN.md)** | **Español**
 
-Este documento proporciona un glosario de los conceptos más importantes utilizados en el proyecto Balls, un motor de física 2D en tiempo real implementado en Java.
+Este documento proporciona un glosario de los conceptos más importantes utilizados en el proyecto MVCGameEngine, un motor de física 2D en tiempo real implementado en Java.
 
 ## Arquitectura y Patrones de Diseño
 
@@ -21,15 +21,16 @@ Capa de presentación que maneja el renderizado visual utilizando Java Swing. So
 ### Controller
 Coordinador central de la arquitectura MVC. Conecta Model y View, gestiona la inicialización del motor, procesa comandos de usuario, y proporciona acceso a instantáneas del estado para el renderizado.
 
-## Entidades (Entities)
+## Cuerpos (Bodies)
 
-### Entity (AbstractEntity)
-Clase base abstracta para todas las entidades en la simulación. Define:
+### AbstractBody
+Clase base abstracta para todos los cuerpos en la simulación. Define:
 - Identificador único (`entityId`)
-- Estado del ciclo de vida (`EntityState`: STARTING, ALIVE, DEAD)
-- Referencia al asset visual (`assetId`)
+- Estado del ciclo de vida (`BodyState`: STARTING, ALIVE, DEAD)
+- Referencia al motor de física (`PhysicsEngine`)
 - Tamaño (`size`)
-- Contadores estáticos para seguimiento de entidades creadas, vivas y muertas
+- Tiempo de vida máximo (opcional)
+- Contadores estáticos para seguimiento de cuerpos creados, vivos y muertos
 
 ### DynamicBody
 Entidad dinámica que se mueve y rota según las leyes de física. Características:
@@ -54,20 +55,23 @@ Entidad especial que extiende `DynamicBody` y representa al jugador. Caracterís
 - Parámetros configurables: fuerza máxima de empuje, aceleración angular
 - Identificador único de jugador (`playerId`)
 
-### DecoEntity
-Entidad puramente decorativa sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo.
+### DecoBody
+Cuerpo puramente decorativo sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo (elementos de fondo, efectos visuales temporales).
 
 ### PhysicsBody
-Interfaz que marca entidades que tienen comportamiento físico. Proporciona métodos por defecto para:
-- Obtener valores físicos (`PhysicsValues`)
+Interfaz que marca cuerpos que tienen comportamiento físico. Proporciona métodos por defecto para:
+- Obtener valores físicos (`PhysicsValuesDTO`)
 - Aplicar movimiento
 - Gestionar rebotes en los bordes del mundo
 
-### EntityState
-Enumeración que define los estados del ciclo de vida de una entidad:
-- **STARTING**: Entidad creada pero no activada
-- **ALIVE**: Entidad activa en la simulación
-- **DEAD**: Entidad marcada para eliminación
+### BodyState
+Enumeración que define los estados del ciclo de vida de un cuerpo:
+- **STARTING**: Cuerpo creado pero no activado
+- **ALIVE**: Cuerpo activo en la simulación
+- **DEAD**: Cuerpo marcado para eliminación
+
+### BodyDTO
+Objeto de Transferencia de Datos (DTO) que contiene información inmutable sobre un cuerpo para transferencia segura entre las capas Model y View. Incluye entityId, assetId, size, posición (x, y) y ángulo.
 
 ## Motor de Física (Physics Engine)
 
@@ -91,8 +95,8 @@ Motor de física "nulo" usado por `StaticBody`. No realiza cálculos físicos, m
 ### AbstractPhysicsEngine
 Clase base abstracta que proporciona implementación común para motores de física, incluyendo gestión de valores físicos y rebotes.
 
-### PhysicsValues
-Objeto inmutable que encapsula el estado físico completo de una entidad en un momento específico:
+### PhysicsValuesDTO
+Objeto inmutable que encapsula el estado físico completo de un cuerpo en un momento específico:
 - **timeStamp**: Marca temporal en nanosegundos
 - **posX, posY**: Posición en el espacio 2D
 - **speedX, speedY**: Velocidad (componentes x, y)
@@ -147,11 +151,11 @@ Objeto que define la configuración completa de un mundo:
 - Definiciones de fondo, decoradores, cuerpos gravitacionales
 - Configuraciones de asteroides, naves espaciales, armas
 
-### WorldGenerator
-Clase responsable de generar el mundo inicial basándose en una `WorldDefinition`. Crea y coloca todas las entidades iniciales.
+### SceneGenerator
+Clase responsable de generar la escena estática inicial basándose en una `WorldDefinition`. Crea y coloca todos los cuerpos estáticos y decoradores.
 
 ### LifeGenerator
-Generador automático de entidades dinámicas que mantiene la actividad en la simulación, creando nuevas entidades cuando es necesario.
+Generador automático de cuerpos dinámicos que mantiene la actividad en la simulación, creando nuevos cuerpos dinámicos cuando es necesario y gestionando la creación de jugadores.
 
 ## Sistema de Armas
 
@@ -226,10 +230,10 @@ Fuerza que se opone al movimiento, reduciendo gradualmente la velocidad de las e
 Colecciones seguras para hilos (como `ConcurrentHashMap`) utilizadas para gestionar entidades en un entorno multihilo.
 
 ### Volatile Variables
-Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `EntityState`).
+Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `BodyState`, `EngineState`). Asegura que todos los hilos vean siempre el valor más reciente.
 
 ### Immutable Objects
-Objetos inmutables como `PhysicsValues` que garantizan seguridad en concurrencia al no permitir modificación después de la creación.
+Objetos inmutables como `PhysicsValuesDTO` y otros DTOs que garantizan seguridad en concurrencia al no permitir modificación después de la creación. Esto permite compartirlos entre hilos sin necesidad de sincronización.
 
 ---
 
@@ -237,11 +241,12 @@ Objetos inmutables como `PhysicsValues` que garantizan seguridad en concurrencia
 
 1. **Inicialización**: `Main` crea Controller, Model y View
 2. **Carga de Assets**: Controller carga recursos visuales en View
-3. **Generación de Mundo**: WorldGenerator crea entidades iniciales
+3. **Generación de Escena**: SceneGenerator crea la escena estática (cuerpos estáticos y decoradores) basándose en WorldDefinition
 4. **Activación**: Model y View se activan, iniciando sus bucles de ejecución
-5. **Bucle de Simulación**: DynamicBody entities calculan física en hilos separados
-6. **Bucle de Renderizado**: View solicita instantáneas y renderiza el estado actual
-7. **Procesamiento de Entrada**: Controller traduce entrada de teclado en acciones del Model
-8. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones
+5. **Generación de Vida**: LifeGenerator crea jugadores y gestiona la generación programática de cuerpos dinámicos
+6. **Bucle de Simulación**: Los cuerpos DynamicBody calculan física en hilos separados
+7. **Bucle de Renderizado**: View solicita instantáneas y renderiza el estado actual
+8. **Procesamiento de Entrada**: Controller traduce entrada de teclado en acciones del Model
+9. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones mediante el sistema de ActionDTO/EventDTO
 
-Este glosario proporciona una base sólida para entender la arquitectura y conceptos fundamentales del proyecto Balls.
+Este glosario proporciona una base sólida para entender la arquitectura y conceptos fundamentales del proyecto MVCGameEngine.
