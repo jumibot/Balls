@@ -95,8 +95,8 @@ Motor de física "nulo" usado por `StaticBody`. No realiza cálculos físicos, m
 ### AbstractPhysicsEngine
 Clase base abstracta que proporciona implementación común para motores de física, incluyendo gestión de valores físicos y rebotes.
 
-### PhysicsValues
-Objeto inmutable que encapsula el estado físico completo de una entidad en un momento específico:
+### PhysicsValuesDTO
+Objeto inmutable que encapsula el estado físico completo de un cuerpo en un momento específico:
 - **timeStamp**: Marca temporal en nanosegundos
 - **posX, posY**: Posición en el espacio 2D
 - **speedX, speedY**: Velocidad (componentes x, y)
@@ -233,7 +233,7 @@ Colecciones seguras para hilos (como `ConcurrentHashMap`) utilizadas para gestio
 Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `EntityState`).
 
 ### Immutable Objects
-Objetos inmutables como `PhysicsValues` que garantizan seguridad en concurrencia al no permitir modificación después de la creación.
+Objetos inmutables como `PhysicsValuesDTO` y otros DTOs que garantizan seguridad en concurrencia al no permitir modificación después de la creación. Esto permite compartirlos entre hilos sin necesidad de sincronización.
 
 ---
 
