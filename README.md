@@ -2,23 +2,25 @@
 
 **English** | **[Español](README_ES.md)**
 
-An educational Java project that demonstrates real-time 2D physics simulation through a dynamic bouncing balls environment with interactive gameplay elements. 
+An educational Java project that demonstrates a modular 2D game engine architecture with real-time physics simulation, designed for creating arcade-style games like Asteroids, space shooters, or other physics-based games.
 
 This project serves as a comprehensive learning platform for understanding software architecture patterns, concurrent programming, game engine fundamentals, and object-oriented design principles.
 
-## What the Program Does
+## What the Engine Does
 
-**MVCGameEngine** is a real-time 2D physics simulation featuring dynamic entities (balls/asteroids) that interact within a configurable world space. The program creates an animated environment where:
+**MVCGameEngine** is a flexible 2D game engine featuring real-time physics simulation, entity management, and rendering capabilities. While the included example implementation demonstrates a space shooter scenario, the engine is designed to support various arcade-style games:
 
+- **Flexible Game Development**: Build different types of 2D arcade games (space shooters like Asteroids, billiards, or other physics-based games)
+- **Example Implementation**: Includes a space shooter example with asteroids, spaceships, and projectiles
 - **Dynamic Bodies**: Entities move, rotate, and collide according to physics rules governed by interchangeable physics engines
-- **Player Interaction**: Users can control a player entity with thrust, rotation, and firing capabilities using keyboard inputs
-- **Multiple Physics Engines**: Choose from different physics implementations including basic physics, spin physics, and null physics for varied simulation behaviors
-- **World Generation**: Procedurally generated worlds with customizable backgrounds, static bodies, and decorative elements
-- **Weapon Systems**: Fire projectiles with configurable properties and behaviors
-- **Life Generation**: Automated entity spawning system that maintains activity in the simulation
+- **Player Interaction**: Users can control player entities with thrust, rotation, and firing capabilities using keyboard inputs
+- **Multiple Physics Engines**: Choose from different physics implementations including basic physics and null physics for varied simulation behaviors
+- **Scene Generation**: Define worlds with customizable backgrounds, static bodies, and decorative elements
+- **Weapon Systems**: Configurable weapon framework supporting different projectile types and behaviors
+- **Life Generation**: Automated entity spawning system for maintaining game activity
 - **Visual Rendering**: Real-time graphics rendering using Java Swing with asset management for sprites and visual effects
 
-The simulation runs continuously with a multithreaded architecture, separating rendering (View), game logic (Model), and user input handling (Controller) for optimal performance and maintainability.
+The engine runs continuously with a multithreaded architecture, separating rendering (View), game logic (Model), and user input handling (Controller) for optimal performance and maintainability.
 
 ## Educational Value for Learning Programming
 
@@ -27,7 +29,7 @@ This project serves as an excellent educational resource for learning fundamenta
 ### Core Programming Concepts
 
 1. **Object-Oriented Programming (OOP)**
-   - Inheritance hierarchies (AbstractEntity, DynamicBody, StaticBody, PlayerBody)
+   - Inheritance hierarchies (AbstractBody, DynamicBody, StaticBody, PlayerBody)
    - Polymorphism through interface implementations (PhysicsEngine, ActionExecutor)
    - Encapsulation of entity state and behavior
    - Abstract classes and concrete implementations
@@ -73,7 +75,7 @@ This project provides hands-on experience with fundamental game engine concepts:
    - Frame rate management and performance optimization
 
 2. **Entity Component System**
-   - Entity state management (EntityState enum)
+   - Entity state management (BodyState enum)
    - Component-based entity attributes (position, velocity, rotation, mass)
    - Entity lifecycle management (creation, updates, destruction)
 
