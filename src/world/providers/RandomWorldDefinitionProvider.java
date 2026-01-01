@@ -62,11 +62,11 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
         this.dynamicBodies(this.spaceshipsDef, 1, AssetType.SPACESHIP, 40, 40);
 
         this.primaryWeapon(this.primaryWeapon, 1, AssetType.BULLET,
-                17, 17, 300d, 8);
+                15, 15, 350d, 8);
 
         this.secondaryWeapon(this.secondaryWeaponDef, 1, AssetType.BULLET,
-                7, 7, 600d, 5,
-                25, 6);
+                7, 7, 1000d, 8,
+                190, 5);
 
         this.mineLaunchers(this.mineLaunchersDef, 1, AssetType.MINE,
                 35, 35, 1);
@@ -197,13 +197,13 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     WorldDefWeaponType.PRIMARY_WEAPON,
                     firingSpeed, 0, 0,
                     1, 0, fireRate, 100, 2,
-                    100, 2));
+                    100, 6.5D));
         }
     }
 
     private void secondaryWeapon(ArrayList<WorldDefWeaponDto> weapons,
             int num, AssetType type,
-            int maxSize, int minSize, double firingSpeed,
+            int maxSize, int minSize, double projectileSpeed,
             int burstSize, int burstFireRate, int fireRate) {
 
         String randomAssetId;
@@ -218,10 +218,10 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     randomAssetId,
                     this.randomSize(maxSize, minSize),
                     WorldDefWeaponType.SECONDARY_WEAPON,
-                    firingSpeed, 0, 0,
+                    projectileSpeed, 0, 0,
                     burstSize, burstFireRate, fireRate,
-                    100, 4,
-                    10, 2));
+                    200, 4,
+                    10, 0.40D));
         }
     }
 
@@ -243,7 +243,7 @@ public class RandomWorldDefinitionProvider implements WorldDefinitionProvider {
                     WorldDefWeaponType.MISSILE_LAUNCHER,
                     0, acceleration, accelerationDuration,
                     1, 0, fireRate, 4, 4,
-                    1000, 4));
+                    1000, 1D));
 
         }
     }

@@ -279,39 +279,32 @@ public class Renderer extends Canvas implements Runnable {
         Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
         g.setFont(font);
         g.setColor(Color.YELLOW);
-        g.drawString("FPS: " + this.fps, 12, 30);
+        this.drawHUDLine(g,65,12, 35 ,0, "FPS: " + this.fps);
 
         g.setColor(Color.ORANGE);
-        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
-        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
-        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
-                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
-                12, 135);
-        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
-        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
-        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
-
+        this.drawHUDLine(g, 65, 12, 35, 1, "Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms");
+        this.drawHUDLine(g, 65, 12, 35, 2, "Cache imgs: " + this.imagesCache.size());
+        this.drawHUDLine(g, 65, 12, 35, 3, "Cache hits:  " + this.imagesCache.getHits() + " ("
+                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)");
+        this.drawHUDLine(g, 65, 12, 35, 4, "Entities Alive: " + this.view.getEntityAliveQuantity());
+        this.drawHUDLine(g, 65, 12, 35, 5, "Entities Dead: " + this.view.getEntityDeadQuantity());
         g.setColor(old);
     }
 
-    private void drawHUDPlayer(Graphics2D g) {
+    private void drawHUDLine(Graphics2D g, int initRow, int initCol, int interline, int row, String line) {
+        g.drawString(line, initCol, initRow + (row * interline));
+    }
+
+    private void drawHUDPlayer(Graphics2D g, int row, int col, int interline) {
         Color old = g.getColor();
+        g.setColor(Color.YELLOW);
 
         Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
         g.setFont(font);
-        g.setColor(Color.YELLOW);
         g.drawString("FPS: " + this.fps, 12, 30);
 
         g.setColor(Color.ORANGE);
         g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
-        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
-        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
-                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
-                12, 135);
-        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
-        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
-        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
-
         g.setColor(old);
     }
 

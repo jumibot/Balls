@@ -13,7 +13,7 @@ public class WeaponMapper {
             WeaponTypeMapper.fromWorldDef(weaponDef.type),
                 weaponDef.assetId,
                 weaponDef.size,
-                weaponDef.firingSpeed,
+                weaponDef.projectileSpeed,
                 weaponDef.acceleration,
                 weaponDef.accelerationDuration,
                 weaponDef.burstSize,
@@ -22,7 +22,7 @@ public class WeaponMapper {
                 weaponDef.maxAmmo,
                 weaponDef.reloadTime,
                 weaponDef.projectileMass,
-                weaponDef.maxlifeTime,
+                weaponDef.maxLifetimeInSeconds,
                 shootingOffset
         );   
     }
