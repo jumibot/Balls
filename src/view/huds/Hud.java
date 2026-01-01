@@ -104,6 +104,89 @@ public class Hud {
     }
 
     /**
+     * Draws a countdown timer on a specific row of the HUD.
+     * Shows remaining time in seconds with optional graphical representation.
+     * 
+     * @param g Graphics2D context to draw on
+     * @param row The row number where the countdown should be drawn
+     * @param label The text label for the countdown
+     * @param remainingSeconds The remaining time in seconds
+     * @param totalSeconds The total countdown duration in seconds (used for graphical representation)
+     * @param graphical If true, shows a visual bar; if false, shows only text
+     */
+    public void drawCountdown(Graphics2D g, int row, String label, double remainingSeconds, double totalSeconds, boolean graphical) {
+        // Clamp remaining seconds to valid range
+        remainingSeconds = Math.max(0.0, remainingSeconds);
+        
+        Color oldColor = g.getColor();
+        
+        // Draw label
+        g.setFont(this.font);
+        g.setColor(this.color);
+        String labelText = String.format("%-" + (this.maxLenLabel) + "s", label);
+        int yPos = this.initRow + (this.interline * row);
+        g.drawString(labelText, this.initCol, yPos);
+        
+        // Format time as MM:SS or SS.S depending on duration
+        String timeText;
+        if (remainingSeconds >= 60) {
+            int minutes = (int)(remainingSeconds / 60);
+            int seconds = (int)(remainingSeconds % 60);
+            timeText = String.format("%d:%02d", minutes, seconds);
+        } else {
+            timeText = String.format("%.1fs", remainingSeconds);
+        }
+        
+        int textStartX = this.initCol + g.getFontMetrics(this.font).stringWidth(labelText);
+        
+        if (graphical && totalSeconds > 0) {
+            // Draw graphical countdown bar
+            int barWidth = 150;
+            int barX = textStartX;
+            int barY = yPos - (int)(this.font.getSize() * 0.7);
+            int barHeight = (int)(this.font.getSize() * 0.8);
+            
+            // Calculate progress (inverse of remaining time)
+            double progress = Math.min(1.0, remainingSeconds / totalSeconds);
+            
+            // Draw bar outline
+            g.setColor(Color.DARK_GRAY);
+            g.drawRect(barX, barY, barWidth, barHeight);
+            
+            // Fill background
+            g.setColor(new Color(40, 40, 40));
+            g.fillRect(barX + 1, barY + 1, barWidth - 2, barHeight - 2);
+            
+            // Draw remaining time portion
+            if (progress > 0) {
+                int fillWidth = (int)((barWidth - 2) * progress);
+                // Color based on urgency: green -> yellow -> red
+                Color fillColor;
+                if (progress > 0.66) {
+                    fillColor = Color.GREEN;
+                } else if (progress > 0.33) {
+                    fillColor = Color.YELLOW;
+                } else {
+                    fillColor = Color.RED;
+                }
+                g.setColor(fillColor);
+                g.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 2);
+            }
+            
+            // Draw time text next to bar
+            g.setColor(Color.WHITE);
+            int timeX = barX + barWidth + 5;
+            g.drawString(timeText, timeX, yPos);
+        } else {
+            // Draw text-only countdown
+            g.setColor(Color.WHITE);
+            g.drawString(timeText, textStartX, yPos);
+        }
+        
+        g.setColor(oldColor);
+    }
+
+    /**
      * PRIVATE METHODS
      */
     private void drawLine(Graphics2D g, int row, String line, String data) {
