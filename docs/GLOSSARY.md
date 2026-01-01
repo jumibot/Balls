@@ -33,7 +33,7 @@ Clase base abstracta para todos los cuerpos en la simulación. Define:
 - Contadores estáticos para seguimiento de cuerpos creados, vivos y muertos
 
 ### DynamicBody
-Entidad dinámica que se mueve y rota según las leyes de física. Características:
+Cuerpo dinámico que se mueve y rota según las leyes de física. Características:
 - Ejecuta en su propio hilo dedicado
 - Posee un `PhysicsEngine` que calcula su movimiento
 - Actualiza continuamente su posición, velocidad y aceleración
@@ -41,7 +41,7 @@ Entidad dinámica que se mueve y rota según las leyes de física. Característi
 - Ejemplos: asteroides, proyectiles
 
 ### StaticBody
-Entidad estática que no se mueve durante la simulación. Características:
+Cuerpo estático que no se mueve durante la simulación. Características:
 - No tiene hilo propio
 - Utiliza `NullPhysicsEngine` (sin cálculos físicos)
 - Posición, rotación y tamaño fijos
@@ -49,7 +49,7 @@ Entidad estática que no se mueve durante la simulación. Características:
 - Ejemplos: planetas, obstáculos decorativos
 
 ### PlayerBody
-Entidad especial que extiende `DynamicBody` y representa al jugador. Características:
+Cuerpo especial que extiende `DynamicBody` y representa al jugador. Características:
 - Control mediante teclado (empuje, rotación, disparo)
 - Sistema de armas con múltiples slots
 - Parámetros configurables: fuerza máxima de empuje, aceleración angular
@@ -117,7 +117,7 @@ Objeto de transferencia de datos que encapsula una acción a ejecutar:
 
 ### EventDTO (Data Transfer Object)
 Objeto que representa un evento en la simulación:
-- **entity**: Entidad que genera el evento
+- **entity**: Cuerpo que genera el evento
 - **eventType**: Tipo de evento (`EventType`)
 
 ### ActionType
