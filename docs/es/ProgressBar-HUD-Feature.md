@@ -1,15 +1,21 @@
-# Característica de Barra de Progreso - Clase Hud
+# Características de Barra de Progreso y Cuenta Atrás - Clase Hud
 
 ## Descripción General
-La clase `Hud` ha sido extendida con un nuevo método `drawProgressBar` que permite mostrar barras de progreso visuales en el HUD del juego.
+La clase `Hud` ha sido extendida con dos nuevos métodos:
+1. **`drawProgressBar`** - Muestra barras de progreso visuales
+2. **`drawCountdown`** - Muestra temporizadores de cuenta atrás con representación de texto o gráfica
 
-## Firma del Método
+---
+
+## Método de Barra de Progreso
+
+### Firma del Método
 
 ```java
 public void drawProgressBar(Graphics2D g, int row, String label, double progress, int barWidth)
 ```
 
-## Parámetros
+### Parámetros
 
 - **`g`** (Graphics2D): El contexto gráfico donde dibujar
 - **`row`** (int): El número de fila donde se debe dibujar la barra de progreso (sigue el mismo sistema de filas que las líneas de texto)
@@ -17,7 +23,7 @@ public void drawProgressBar(Graphics2D g, int row, String label, double progress
 - **`progress`** (double): El valor del progreso, entre 0.0 (0%) y 1.0 (100%)
 - **`barWidth`** (int): El ancho de la barra de progreso en píxeles (ej., 200)
 
-## Características
+### Características
 
 1. **Progreso Codificado por Color**: La barra cambia automáticamente de color según el progreso:
    - **Rojo**: progreso < 33%
@@ -30,9 +36,47 @@ public void drawProgressBar(Graphics2D g, int row, String label, double progress
 
 4. **Estilo Consistente**: Se integra perfectamente con el sistema HUD existente (fuente, posicionamiento, colores)
 
+---
+
+## Método de Cuenta Atrás
+
+### Firma del Método
+
+```java
+public void drawCountdown(Graphics2D g, int row, String label, double remainingSeconds, double totalSeconds, boolean graphical)
+```
+
+### Parámetros
+
+- **`g`** (Graphics2D): El contexto gráfico donde dibujar
+- **`row`** (int): El número de fila donde se debe dibujar la cuenta atrás
+- **`label`** (String): La etiqueta de texto a mostrar antes de la cuenta atrás
+- **`remainingSeconds`** (double): El tiempo restante en segundos
+- **`totalSeconds`** (double): La duración total de la cuenta atrás en segundos (usado para representación gráfica)
+- **`graphical`** (boolean): Si es true, muestra una barra visual; si es false, muestra solo texto
+
+### Características
+
+1. **Formato de Tiempo Flexible**:
+   - Tiempos ≥ 60 segundos: Muestra como "M:SS" (ej., "2:30")
+   - Tiempos < 60 segundos: Muestra como "SS.S" (ej., "45.3s")
+
+2. **Modo Texto**: Visualización simple de texto del tiempo restante
+
+3. **Modo Gráfico**: Barra de cuenta atrás visual con codificación de color:
+   - **Verde**: Más del 66% del tiempo restante
+   - **Amarillo**: 33% a 66% del tiempo restante
+   - **Rojo**: Menos del 33% del tiempo restante (¡urgente!)
+
+4. **Limitación Automática**: Los segundos restantes se limitan para prevenir valores negativos
+
+5. **Perfecto para Recargas de Armas**: Ideal para mostrar temporizadores de recarga de munición
+
+---
+
 ## Ejemplos de Uso
 
-### Uso Básico
+### Barra de Progreso - Uso Básico
 
 ```java
 // Crear una instancia de HUD
@@ -52,63 +96,104 @@ public void render(Graphics2D g) {
 }
 ```
 
-### Usando la Clase de Ejemplo
-
-La clase `ProgressBarHud` proporciona un ejemplo listo para usar:
+### Cuenta Atrás - Ejemplo de Recarga de Armas
 
 ```java
-// Crear el HUD de barras de progreso
-ProgressBarHud progressHud = new ProgressBarHud();
+// Crear una instancia de HUD
+Hud hud = new Hud(Color.GRAY, 10, 12, 35);
+hud.maxLenLabel = 10; // Establecer ancho de etiqueta para nombres de armas
 
-// En tu bucle de renderizado
+// En tu método de renderizado
 public void render(Graphics2D g) {
-    double health = 0.85;  // 85% de salud
-    double energy = 0.40;  // 40% de energía
-    double shield = 0.95;  // 95% de escudo
+    double recargaArma1 = 5.3;  // 5.3 segundos restantes
+    double totalArma1 = 10.0;   // 10 segundos de tiempo total de recarga
     
-    progressHud.drawWithProgressBars(g, health, energy, shield);
+    double recargaArma2 = 125.0; // 2 minutos 5 segundos restantes
+    double totalArma2 = 180.0;   // 3 minutos de tiempo total de recarga
+    
+    // Dibujar barras de cuenta atrás gráficas
+    hud.drawCountdown(g, 1, "Rifle", recargaArma1, totalArma1, true);
+    hud.drawCountdown(g, 2, "Lanzador", recargaArma2, totalArma2, true);
+    
+    // O dibujar cuenta atrás solo texto
+    hud.drawCountdown(g, 3, "Pistola", 3.5, 0, false);
 }
 ```
 
-### HUD Personalizado con Barras de Progreso
+### Usando las Clases de Ejemplo
 
-Puedes crear tu propia clase HUD extendiendo `Hud`:
+Las clases `ProgressBarHud` y `CountdownHud` proporcionan ejemplos listos para usar:
 
 ```java
-public class MiHudPersonalizado extends Hud {
-    public MiHudPersonalizado() {
+// Barras de progreso
+ProgressBarHud progressHud = new ProgressBarHud();
+progressHud.drawWithProgressBars(g, 0.85, 0.40, 0.95);
+
+// Temporizadores de recarga de armas (gráfico)
+CountdownHud countdownHud = new CountdownHud();
+countdownHud.drawWeaponReloads(g, 5.3, 10.0, 125.0, 180.0);
+
+// Temporizadores de recarga de armas (solo texto)
+countdownHud.drawWeaponReloadsTextOnly(g, 5.3, 125.0);
+```
+
+### HUD Personalizado con Características Mixtas
+
+Puedes combinar ambas características en una clase HUD personalizada:
+
+```java
+public class MiHudJuego extends Hud {
+    public MiHudJuego() {
         super(Color.CYAN, 10, 12, 35);
-        this.maxLenLabel = 10; // Ajustar según tu etiqueta más larga
+        this.maxLenLabel = 12;
     }
     
-    public void dibujarEstadisticas(Graphics2D g, EstadisticasJugador stats) {
-        // Dibujar múltiples barras de progreso con valores dinámicos
-        drawProgressBar(g, 1, "HP", stats.getRatioSalud(), 250);
-        drawProgressBar(g, 2, "MP", stats.getRatioMana(), 250);
-        drawProgressBar(g, 3, "XP", stats.getRatioExperiencia(), 250);
-        drawProgressBar(g, 4, "Resistencia", stats.getRatioResistencia(), 250);
+    public void dibujarEstadisticasJuego(Graphics2D g, EstadisticasJugador stats, EstadisticasArma arma) {
+        // Mostrar estadísticas del jugador como barras de progreso
+        drawProgressBar(g, 1, "Salud", stats.getRatioSalud(), 200);
+        drawProgressBar(g, 2, "Escudo", stats.getRatioEscudo(), 200);
+        
+        // Mostrar recarga de arma como cuenta atrás
+        if (arma.estaRecargando()) {
+            drawCountdown(g, 3, "Recargando", 
+                         arma.getTiempoRecargaRestante(), 
+                         arma.getTiempoTotalRecarga(), 
+                         true);
+        }
     }
 }
 ```
+
+---
 
 ## Apariencia Visual
 
-La barra de progreso consiste en:
-- Un contorno gris oscuro
-- Un relleno de fondo oscuro
-- Un relleno de color representando el progreso actual
-- Texto de porcentaje en blanco (ej., "75%") mostrado a la derecha de la barra
-
-Ejemplo de visualización:
+### Barra de Progreso
 ```
 Salud    [████████████░░░░░░░░] 60%
 Energía  [██████░░░░░░░░░░░░░░] 30%
 Escudo   [████████████████████] 100%
 ```
 
+### Cuenta Atrás (Gráfico)
+```
+Rifle      [████████░░░░░░░░░░] 5.3s
+Lanzador   [██████████████░░░░] 2:05
+```
+
+### Cuenta Atrás (Solo Texto)
+```
+Pistola     3.5s
+Francotirador    1:45
+```
+
+---
+
 ## Notas
 
-- La altura de la barra de progreso se calcula automáticamente según el tamaño de la fuente
-- La barra se alinea verticalmente con la línea base del texto
+- Ambos métodos calculan automáticamente las dimensiones según el tamaño de la fuente
+- Ambos métodos se alinean verticalmente con la línea base del texto
 - El estado gráfico (colores) se preserva y restaura automáticamente después de dibujar
-- El método funciona con cualquier configuración de posicionamiento HUD existente
+- Los métodos funcionan con cualquier configuración de posicionamiento HUD existente
+- Las barras de cuenta atrás se llenan de izquierda a derecha y disminuyen a medida que el tiempo transcurre
+- Las barras de progreso se llenan de izquierda a derecha y aumentan a medida que el progreso avanza
