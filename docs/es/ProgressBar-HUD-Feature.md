@@ -195,5 +195,11 @@ Francotirador    1:45
 - Ambos métodos se alinean verticalmente con la línea base del texto
 - El estado gráfico (colores) se preserva y restaura automáticamente después de dibujar
 - Los métodos funcionan con cualquier configuración de posicionamiento HUD existente
-- Las barras de cuenta atrás se llenan de izquierda a derecha y disminuyen a medida que el tiempo transcurre
-- Las barras de progreso se llenan de izquierda a derecha y aumentan a medida que el progreso avanza
+- **Barras de cuenta atrás** muestran el tiempo restante (la barra comienza llena y disminuye a medida que el tiempo transcurre)
+  - Barra llena (verde) = mucho tiempo restante
+  - Barra parcial (amarillo) = tiempo bajo
+  - Casi vacía (rojo) = urgente, casi sin tiempo
+- **Barras de progreso** muestran completitud (la barra comienza vacía y aumenta a medida que el progreso avanza)
+  - Barra vacía (rojo) = recién comenzado
+  - Barra parcial (amarillo) = progresando
+  - Barra llena (verde) = casi completo

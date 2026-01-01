@@ -195,5 +195,11 @@ Sniper    1:45
 - Both methods are vertically aligned with the text baseline
 - Graphics state (colors) is automatically preserved and restored after drawing
 - The methods work with any existing HUD positioning configuration
-- Countdown bars fill from left to right and decrease as time runs out
-- Progress bars fill from left to right and increase as progress advances
+- **Countdown bars** show remaining time (bar fills from full and decreases as time runs out)
+  - Full bar (green) = plenty of time remaining
+  - Partial bar (yellow) = time getting low
+  - Almost empty (red) = urgent, almost out of time
+- **Progress bars** show completion (bar fills from empty and increases as progress advances)
+  - Empty bar (red) = just started
+  - Partial bar (yellow) = making progress
+  - Full bar (green) = nearly complete

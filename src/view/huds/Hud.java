@@ -146,8 +146,8 @@ public class Hud {
             int barY = yPos - (int)(this.font.getSize() * 0.7);
             int barHeight = (int)(this.font.getSize() * 0.8);
             
-            // Calculate progress (inverse of remaining time)
-            double progress = Math.min(1.0, remainingSeconds / totalSeconds);
+            // Calculate remaining time ratio (1.0 = full time, 0.0 = no time)
+            double timeRatio = Math.min(1.0, remainingSeconds / totalSeconds);
             
             // Draw bar outline
             g.setColor(Color.DARK_GRAY);
@@ -158,16 +158,16 @@ public class Hud {
             g.fillRect(barX + 1, barY + 1, barWidth - 2, barHeight - 2);
             
             // Draw remaining time portion
-            if (progress > 0) {
-                int fillWidth = (int)((barWidth - 2) * progress);
-                // Color based on urgency: green -> yellow -> red
+            if (timeRatio > 0) {
+                int fillWidth = (int)((barWidth - 2) * timeRatio);
+                // Color based on urgency: green when plenty of time, red when urgent
                 Color fillColor;
-                if (progress > 0.66) {
-                    fillColor = Color.GREEN;
-                } else if (progress > 0.33) {
-                    fillColor = Color.YELLOW;
+                if (timeRatio > 0.66) {
+                    fillColor = Color.GREEN;  // Plenty of time remaining
+                } else if (timeRatio > 0.33) {
+                    fillColor = Color.YELLOW; // Getting low
                 } else {
-                    fillColor = Color.RED;
+                    fillColor = Color.RED;    // Urgent!
                 }
                 g.setColor(fillColor);
                 g.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 2);
