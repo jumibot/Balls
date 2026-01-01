@@ -4,15 +4,15 @@
 - [Visión General](#visión-general)
 - [Patrón MVC](#patrón-mvc)
 - [Componentes Principales](#componentes-principales)
-  - [Controller (Controlador)](#controller-controlador)
-  - [Model (Modelo)](#model-modelo)
-  - [View (Vista)](#view-vista)
-  - [Renderer (Renderizador)](#renderer-renderizador)
+  - [Controller](#controller)
+  - [Model](#model)
+  - [View](#view)
+  - [Renderer](#renderer)
 - [Sistema de Física](#sistema-de-física)
-  - [DynamicBody (Cuerpo Dinámico)](#dynamicbody-cuerpo-dinámico)
-  - [StaticBody (Cuerpo Estático)](#staticbody-cuerpo-estático)
+  - [DynamicBody](#dynamicbody)
+  - [StaticBody](#staticbody)
 - [Sistema de Armas](#sistema-de-armas)
-  - [AbstractWeapon (Arma Abstracta)](#abstractweapon-arma-abstracta)
+  - [AbstractWeapon](#abstractweapon)
 - [Modelo de Threading](#modelo-de-threading)
 - [Guías de Implementación](#guías-de-implementación)
 
@@ -54,7 +54,7 @@ Usuario → Controller → Model → View → Renderer → Pantalla
 
 ## Componentes Principales
 
-### Controller (Controlador)
+### Controller
 
 #### Responsabilidades
 
@@ -125,7 +125,7 @@ public class GameController {
 
 ---
 
-### Model (Modelo)
+### Model
 
 #### Responsabilidades
 
@@ -234,7 +234,7 @@ public class GameModel implements Runnable {
 
 ---
 
-### View (Vista)
+### View
 
 #### Responsabilidades
 
@@ -319,7 +319,7 @@ public class GameView extends JPanel implements ModelObserver {
 
 ---
 
-### Renderer (Renderizador)
+### Renderer
 
 #### Responsabilidades
 
@@ -440,7 +440,7 @@ public class GameRenderer {
 
 ## Sistema de Física
 
-### DynamicBody (Cuerpo Dinámico)
+### DynamicBody
 
 #### Responsabilidades
 
@@ -556,7 +556,7 @@ public class DynamicBody {
 
 ---
 
-### StaticBody (Cuerpo Estático)
+### StaticBody
 
 #### Responsabilidades
 
@@ -648,7 +648,7 @@ public class StaticBody {
 
 ## Sistema de Armas
 
-### AbstractWeapon (Arma Abstracta)
+### AbstractWeapon
 
 #### Responsabilidades
 

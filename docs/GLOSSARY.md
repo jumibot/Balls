@@ -21,15 +21,16 @@ Capa de presentación que maneja el renderizado visual utilizando Java Swing. So
 ### Controller
 Coordinador central de la arquitectura MVC. Conecta Model y View, gestiona la inicialización del motor, procesa comandos de usuario, y proporciona acceso a instantáneas del estado para el renderizado.
 
-## Entidades (Entities)
+## Cuerpos (Bodies)
 
-### Entity (AbstractEntity)
-Clase base abstracta para todas las entidades en la simulación. Define:
+### AbstractBody
+Clase base abstracta para todos los cuerpos en la simulación. Define:
 - Identificador único (`entityId`)
-- Estado del ciclo de vida (`EntityState`: STARTING, ALIVE, DEAD)
-- Referencia al asset visual (`assetId`)
+- Estado del ciclo de vida (`BodyState`: STARTING, ALIVE, DEAD)
+- Referencia al motor de física (`PhysicsEngine`)
 - Tamaño (`size`)
-- Contadores estáticos para seguimiento de entidades creadas, vivas y muertas
+- Tiempo de vida máximo (opcional)
+- Contadores estáticos para seguimiento de cuerpos creados, vivos y muertos
 
 ### DynamicBody
 Entidad dinámica que se mueve y rota según las leyes de física. Características:
@@ -54,20 +55,23 @@ Entidad especial que extiende `DynamicBody` y representa al jugador. Caracterís
 - Parámetros configurables: fuerza máxima de empuje, aceleración angular
 - Identificador único de jugador (`playerId`)
 
-### DecoEntity
-Entidad puramente decorativa sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo.
+### DecoBody
+Cuerpo puramente decorativo sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo (elementos de fondo, efectos visuales temporales).
 
 ### PhysicsBody
-Interfaz que marca entidades que tienen comportamiento físico. Proporciona métodos por defecto para:
-- Obtener valores físicos (`PhysicsValues`)
+Interfaz que marca cuerpos que tienen comportamiento físico. Proporciona métodos por defecto para:
+- Obtener valores físicos (`PhysicsValuesDTO`)
 - Aplicar movimiento
 - Gestionar rebotes en los bordes del mundo
 
-### EntityState
-Enumeración que define los estados del ciclo de vida de una entidad:
-- **STARTING**: Entidad creada pero no activada
-- **ALIVE**: Entidad activa en la simulación
-- **DEAD**: Entidad marcada para eliminación
+### BodyState
+Enumeración que define los estados del ciclo de vida de un cuerpo:
+- **STARTING**: Cuerpo creado pero no activado
+- **ALIVE**: Cuerpo activo en la simulación
+- **DEAD**: Cuerpo marcado para eliminación
+
+### BodyDTO
+Objeto de Transferencia de Datos (DTO) que contiene información inmutable sobre un cuerpo para transferencia segura entre las capas Model y View. Incluye entityId, assetId, size, posición (x, y) y ángulo.
 
 ## Motor de Física (Physics Engine)
 
