@@ -10,7 +10,7 @@ public class Hud {
     public final int initCol;
     public final int interline;
     public final Color color;
-    public Font font = new Font("Courier New", Font.PLAIN, 28); // tamaño 24
+    public Font font = new Font("Monospaced", Font.PLAIN, 28); // tamaño 24
 
     public int maxLenLabel = 0;
 
@@ -40,6 +40,44 @@ public class Hud {
             this.drawLine(g, row, label, data[row - 1]);
             row++;
         }
+    }
+
+    public void drawProgressBar(Graphics2D g, int row, String label, double progress, int barWidth) {
+        Color oldColor = g.getColor();
+        g.setColor(this.color);
+        g.setFont(this.font);
+
+        String labelText = String.format("%-" + (this.maxLenLabel) + "s", label);
+        int posY = this.initRow + (this.interline * row);
+        g.drawString(labelText, this.initCol, posY);
+
+        // Calculate bar position (after label)
+        final int barX = this.initCol + g.getFontMetrics(this.font).stringWidth(labelText);
+        final int barY = posY - (int) (this.font.getSize() * 0.5); // Align with text baseline
+        final int barHeight = (int) (this.font.getSize() * 0.5);
+
+        // Border
+        final int arc = barHeight / 2; // rounded if you want, or set 0 for square
+        g.setColor(this.color);
+        g.drawRoundRect(barX, barY, barWidth, barHeight, arc, arc);
+
+        // Progess bar
+        progress = Math.max(0.0, Math.min(1.0, progress));
+        int fillWidth = (int) ((barWidth - 2) * progress);
+        float hue = (float) (0.33 * progress); // Hue: 0.0 = red, ~0.33 = green
+        Color baseColor = Color.getHSBColor(hue, 1.0f, 1.0f);
+        Color fillColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 90);
+
+        g.setColor(fillColor);
+        g.fillRoundRect(barX + 1, barY + 1, fillWidth, barHeight - 2, arc, arc);
+
+        // Draw percentage text
+        g.setColor(this.color);
+        String percentText = String.format("%d%%", (int) (progress * 100));
+        int textX = barX + barWidth + 15;
+        g.drawString(percentText, textX, posY);
+
+        g.setColor(oldColor);
     }
 
 
