@@ -1,5 +1,6 @@
 package view;
 
+import view.huds.ImagesHud;
 import view.renderables.DynamicRenderDTO;
 import view.renderables.Renderable;
 import view.renderables.DynamicRenderable;
@@ -131,6 +132,7 @@ public class Renderer extends Canvas implements Runnable {
     private Images images;
     private ImageCache imagesCache;
     private VolatileImage viBackground;
+    private final ImagesHud hud = new ImagesHud();
 
     private final Map<String, DynamicRenderable> dynamicRenderables = new ConcurrentHashMap<>();
     private volatile Map<String, Renderable> staticRenderables = new ConcurrentHashMap<>();
@@ -274,38 +276,19 @@ public class Renderer extends Canvas implements Runnable {
     }
 
     private void drawHUD(Graphics2D g) {
-        Color old = g.getColor();
 
-        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
-        g.setFont(font);
-        g.setColor(Color.YELLOW);
-        this.drawHUDLine(g,65,12, 35 ,0, "FPS: " + this.fps);
+        String[] data = {
+                "" + this.fps,
+                String.format("%.0f", this.renderTimeInMs) + " ms",
+                "" + this.imagesCache.size(),
+                this.imagesCache.getHits() + " (" + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
+                "" + this.view.getEntityAliveQuantity(),
+                "" + this.view.getEntityDeadQuantity()
+        };
 
-        g.setColor(Color.ORANGE);
-        this.drawHUDLine(g, 65, 12, 35, 1, "Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms");
-        this.drawHUDLine(g, 65, 12, 35, 2, "Cache imgs: " + this.imagesCache.size());
-        this.drawHUDLine(g, 65, 12, 35, 3, "Cache hits:  " + this.imagesCache.getHits() + " ("
-                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)");
-        this.drawHUDLine(g, 65, 12, 35, 4, "Entities Alive: " + this.view.getEntityAliveQuantity());
-        this.drawHUDLine(g, 65, 12, 35, 5, "Entities Dead: " + this.view.getEntityDeadQuantity());
-        g.setColor(old);
-    }
+        ImagesHud hud = new ImagesHud();
 
-    private void drawHUDLine(Graphics2D g, int initRow, int initCol, int interline, int row, String line) {
-        g.drawString(line, initCol, initRow + (row * interline));
-    }
-
-    private void drawHUDPlayer(Graphics2D g, int row, int col, int interline) {
-        Color old = g.getColor();
-        g.setColor(Color.YELLOW);
-
-        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
-        g.setFont(font);
-        g.drawString("FPS: " + this.fps, 12, 30);
-
-        g.setColor(Color.ORANGE);
-        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
-        g.setColor(old);
+        hud.draw(g, data);
     }
 
     private void drawStaticRenderables(Graphics2D g) {

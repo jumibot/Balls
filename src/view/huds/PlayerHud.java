@@ -2,8 +2,8 @@ package view.huds;
 
 import java.awt.Color;
 
-public class ImagesHud extends Hud {
-    public ImagesHud() {
+public class PlayerHud extends Hud {
+    public PlayerHud() {
         super(Color.GRAY, 10, 12, 35);
 
         this.addLabels();
