@@ -4,194 +4,282 @@
 
 1. [Overview](#overview)
 2. [MVC Core Components](#mvc-core-components)
-   - [Controller](#controller)
    - [Model](#model)
+   - [Controller](#controller)
    - [View](#view)
    - [Renderer](#renderer)
 3. [Entity System](#entity-system)
+   - [AbstractBody](#abstractbody)
    - [DynamicBody](#dynamicbody)
    - [StaticBody](#staticbody)
+   - [PlayerBody](#playerbody)
 4. [Weapon System](#weapon-system)
    - [AbstractWeapon](#abstractweapon)
+   - [Weapon Implementations](#weapon-implementations)
 5. [Threading Model](#threading-model)
-6. [Design Patterns](#design-patterns)
-7. [Implementation Guidelines](#implementation-guidelines)
-8. [Best Practices](#best-practices)
+6. [Data Transfer Objects (DTOs)](#data-transfer-objects-dtos)
+7. [Design Patterns](#design-patterns)
+8. [Implementation Guidelines](#implementation-guidelines)
 
 ---
 
 ## Overview
 
-MVCGameEngine is a lightweight, modular game engine built on the Model-View-Controller (MVC) architectural pattern. The engine provides a clean separation of concerns, enabling scalable and maintainable game development with support for entity management, rendering, and weapon systems.
+MVCGameEngine is a concurrent, event-driven game engine built on the Model-View-Controller (MVC) architectural pattern. The engine features a unique per-entity threading model where each dynamic body runs in its own thread, enabling true parallelism for physics simulation.
 
 ### Key Features
 
-- **MVC Architecture**: Clear separation between game logic, state, and presentation
-- **Entity System**: Flexible hierarchy supporting both dynamic and static game objects
-- **Weapon System**: Extensible weapon framework with abstract base classes
-- **Thread-Safe Design**: Concurrent rendering and game logic execution
-- **Modular Components**: Easy to extend and customize
+- **MVC Architecture**: Clear separation between simulation (Model), coordination (Controller), and presentation (View/Renderer)
+- **Per-Entity Threading**: Each dynamic body runs in its own thread with independent physics updates
+- **Event-Driven Processing**: Events are detected, actions are decided by game rules, and executed by appropriate components
+- **Snapshot-Based Rendering**: Immutable DTOs ensure thread-safe communication between simulation and rendering
+- **Weapon Request System**: Fire-and-forget weapon requests with cooldown management
+- **Concurrent Collections**: ConcurrentHashMap for thread-safe entity management
 
 ### Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     Application Layer                    │
-└─────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-        ▼                   ▼                   ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  Controller  │◄───┤    Model     │───►│     View     │
-└──────────────┘    └──────────────┘    └──────────────┘
-        │                   │                   │
-        │                   │                   ▼
-        │                   │            ┌──────────────┐
-        │                   │            │   Renderer   │
-        │                   │            └──────────────┘
-        │                   │
-        │                   ▼
-        │           ┌──────────────────┐
-        │           │  Entity System   │
-        │           ├──────────────────┤
-        │           │  DynamicBody     │
-        │           │  StaticBody      │
-        │           └──────────────────┘
-        │
-        ▼
-┌─────────────────────┐
-│   Weapon System     │
-├─────────────────────┤
-│  AbstractWeapon     │
-└─────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                      Application Layer                        │
+│                          (Main)                               │
+└──────────────────────────────────────────────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+          ▼                   ▼                   ▼
+    ┌──────────┐      ┌────────────┐      ┌────────────┐
+    │  Model   │      │ Controller │      │    View    │
+    │          │◄─────┤  (Rules &  │─────►│            │
+    │ Entities │      │   Events)  │      │  Renderer  │
+    └──────────┘      └────────────┘      └────────────┘
+          │                   │                   │
+          │                   │                   │
+          ▼                   ▼                   │
+    ┌──────────────────┐ ┌──────────┐            │
+    │  DynamicBody 1   │ │   DTOs   │◄───────────┘
+    │   (Thread 1)     │ │ BodyDTO  │  (Pull snapshots)
+    ├──────────────────┤ │EventDTO  │
+    │  DynamicBody 2   │ │ActionDTO │
+    │   (Thread 2)     │ └──────────┘
+    ├──────────────────┤
+    │      ...         │
+    ├──────────────────┤
+    │  PlayerBody N    │
+    │   + Weapons      │
+    ├──────────────────┤
+    │  StaticBody      │
+    │  (No thread)     │
+    └──────────────────┘
 ```
 
 ---
 
 ## MVC Core Components
 
-### Controller
+### Model
 
-The Controller manages user input, game flow, and coordinates communication between Model and View components.
+The Model is the core simulation layer that owns and manages all game entities. It operates on an event-driven architecture where entities report physics updates, and the Model processes events to determine appropriate actions.
 
 #### Responsibilities
 
-- **Input Handling**: Process keyboard, mouse, and gamepad input
-- **Game Loop Management**: Control the main game loop timing
-- **Event Distribution**: Route events to appropriate handlers
-- **State Management**: Manage game states (menu, playing, paused, etc.)
+- **Entity Management**: Create, track, and manage dynamic bodies, static bodies, players, and decorators
+- **Event Processing**: Detect events from entity physics updates (boundary reached, life over, collisions)
+- **Thread-Safe Operations**: Manage concurrent access using ConcurrentHashMap for entity storage
+- **Snapshot Generation**: Provide immutable DTOs for rendering
+- **World Boundaries**: Enforce world limits and entity lifecycle
 
-#### Key Methods
+#### Entity Collections
+
+The Model maintains several concurrent maps for different entity types:
 
 ```java
-public interface Controller {
-    void handleInput(InputEvent event);
-    void update(float deltaTime);
-    void initialize();
-    void shutdown();
-    void changeState(GameState newState);
+private final Map<String, AbstractBody> dynamicBodies = new ConcurrentHashMap<>(MAX_ENTITIES);
+private final Map<String, AbstractBody> decorators = new ConcurrentHashMap<>(100);
+private final Map<String, AbstractBody> gravityBodies = new ConcurrentHashMap<>(50);
+private final Map<String, AbstractBody> playerBodies = new ConcurrentHashMap<>(10);
+private final Map<String, AbstractBody> staticBodies = new ConcurrentHashMap<>(100);
+```
+
+#### Event-Driven Processing
+
+The Model processes dynamic body events in three phases:
+
+1. **Event Detection**: Check physics values for boundary crossings, life expiration, etc.
+2. **Action Resolution**: Query Controller for appropriate actions based on events
+3. **Action Execution**: Execute actions on entities or through the Model
+
+```java
+public void processDBodyEvents(DynamicBody dynamicBody,
+        PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
+    
+    if (!isProcessable(dynamicBody)) {
+        return;
+    }
+
+    BodyState previousState = dynamicBody.getState();
+    dynamicBody.setState(BodyState.HANDS_OFF);
+
+    try {
+        List<EventDTO> events = this.detectEvents(
+                dynamicBody, newPhyValues, oldPhyValues);
+
+        List<ActionDTO> actions = this.resolveActionsForEvents(
+                dynamicBody, events);
+
+        this.doActions(
+                dynamicBody, actions, newPhyValues, oldPhyValues);
+
+    } finally {
+        if (dynamicBody.getState() == BodyState.HANDS_OFF) {
+            dynamicBody.setState(BodyState.ALIVE);
+        }
+    }
 }
 ```
 
-#### Threading Model
-
-The Controller operates on the **main thread** and should:
-- Process input events in the main loop
-- Delegate heavy computations to worker threads
-- Synchronize state updates with the Model
-
-#### Implementation Example
+#### Adding Entities
 
 ```java
-public class GameController implements Controller {
-    private Model model;
-    private View view;
-    private GameState currentState;
+// Add a dynamic body
+public String addDynamicBody(double size, double posX, double posY,
+        double speedX, double speedY, double accX, double accY,
+        double angle, double angularSpeed, double angularAcc, 
+        double thrust, double maxLifeInSeconds) {
     
-    @Override
-    public void handleInput(InputEvent event) {
-        switch(event.getType()) {
-            case KEY_PRESS:
-                processKeyPress(event.getKeyCode());
-                break;
-            case MOUSE_CLICK:
-                processMouseClick(event.getPosition());
-                break;
-        }
+    if (AbstractBody.getAliveQuantity() >= this.maxDBody) {
+        return null;
     }
+
+    PhysicsValuesDTO phyVals = new PhysicsValuesDTO(nanoTime(), posX, posY, 
+            angle, size, speedX, speedY, accX, accY, 
+            angularSpeed, angularAcc, thrust);
+
+    DynamicBody dBody = new DynamicBody(new BasicPhysicsEngine(phyVals), 
+                                        maxLifeInSeconds);
+
+    dBody.setModel(this);
+    dBody.activate();
+    this.dynamicBodies.put(dBody.getEntityId(), dBody);
+
+    return dBody.getEntityId();
+}
+
+// Add a player
+public String addPlayer(double size, double posX, double posY, 
+        double speedX, double speedY, double accX, double accY,
+        double angle, double angularSpeed, double angularAcc, double thrust) {
     
-    @Override
-    public void update(float deltaTime) {
-        currentState.update(deltaTime);
-        model.update(deltaTime);
-    }
+    PhysicsValuesDTO phyVals = new PhysicsValuesDTO(
+            nanoTime(), posX, posY, angle, size,
+            speedX, speedY, accX, accY,
+            angularSpeed, angularAcc, thrust);
+
+    PlayerBody pBody = new PlayerBody(new BasicPhysicsEngine(phyVals));
+
+    pBody.setModel(this);
+    pBody.activate();
+    String entityId = pBody.getEntityId();
+    this.dynamicBodies.put(entityId, pBody);
+    this.playerBodies.put(entityId, pBody);
+
+    return entityId;
 }
 ```
 
 ---
 
-### Model
+### Controller
 
-The Model represents the game state and business logic, independent of presentation concerns.
+The Controller coordinates between Model and View, managing the engine lifecycle, processing user input, and implementing game rules through an event-action mapping system.
 
 #### Responsibilities
 
-- **State Management**: Maintain all game state data
-- **Business Logic**: Implement game rules and mechanics
-- **Entity Management**: Track and update all game entities
-- **Data Persistence**: Handle save/load operations
-- **Physics Simulation**: Coordinate physics calculations
+- **Bootstrap & Activation**: Initialize Model and View with required dependencies
+- **Input Handling**: Translate user input into Model commands
+- **Game Rules**: Implement the `decideActions()` method to map events to actions
+- **Snapshot Bridging**: Provide DTOs from Model to View for rendering
+- **Entity Creation**: Delegate entity creation to Model and update View
 
-#### Key Components
+#### Engine States
 
 ```java
-public interface Model {
-    void update(float deltaTime);
-    void addEntity(Entity entity);
-    void removeEntity(Entity entity);
-    List<Entity> getEntities();
-    GameState getState();
-    void setState(GameState state);
+public enum EngineState {
+    STARTING,
+    ALIVE,
+    PAUSED,
+    STOPPED
 }
 ```
 
-#### Threading Model
+#### Input Command Delegation
 
-The Model supports **thread-safe operations**:
-- Use concurrent collections for entity storage
-- Implement read-write locks for state access
-- Queue modifications for batch processing
-
-#### Implementation Pattern
+The Controller exposes player control methods that delegate to the Model:
 
 ```java
-public class GameModel implements Model {
-    private final ConcurrentHashMap<UUID, Entity> entities;
-    private final ReadWriteLock stateLock;
-    private volatile GameState gameState;
-    
-    public GameModel() {
-        this.entities = new ConcurrentHashMap<>();
-        this.stateLock = new ReentrantReadWriteLock();
-    }
-    
-    @Override
-    public void update(float deltaTime) {
-        stateLock.writeLock().lock();
-        try {
-            entities.values().forEach(e -> e.update(deltaTime));
-            updatePhysics(deltaTime);
-            checkCollisions();
-        } finally {
-            stateLock.writeLock().unlock();
+public void playerThrustOn(String playerId) {
+    this.model.playerThrustOn(playerId);
+}
+
+public void playerFire(String playerId) {
+    this.model.playerFire(playerId);
+}
+
+public void playerRotateLeftOn(String playerId) {
+    this.model.playerRotateLeftOn(playerId);
+}
+
+public void selectNextWeapon(String playerId) {
+    this.model.selectNextWeapon(playerId);
+}
+```
+
+#### Game Rules - Event to Action Mapping
+
+The Controller implements the `DomainEventProcesor` interface to decide what actions should occur based on events:
+
+```java
+@Override
+public List<ActionDTO> decideActions(AbstractBody entity, 
+                                     List<EventDTO> events) {
+    return applyGameRules(entity, events);
+}
+
+private List<ActionDTO> applyGameRules(AbstractBody entity, 
+                                       List<EventDTO> events) {
+    List<ActionDTO> actions = new ArrayList<>();
+
+    for (EventDTO event : events) {
+        switch (event.type) {
+            case REACHED_EAST_LIMIT:
+            case REACHED_WEST_LIMIT:
+            case REACHED_NORTH_LIMIT:
+            case REACHED_SOUTH_LIMIT:
+                actions.add(new ActionDTO(ActionType.DIE, 
+                           ActionPriority.HIGH, ActionExecutor.MODEL));
+                break;
+
+            case MUST_FIRE:
+                actions.add(new ActionDTO(ActionType.FIRE, 
+                           ActionPriority.HIGH, ActionExecutor.MODEL));
+                break;
+
+            case LIFE_OVER:
+                actions.add(new ActionDTO(ActionType.DIE, 
+                           ActionPriority.HIGH, ActionExecutor.MODEL));
+                break;
         }
     }
+
+    // Default action: move if not dead
+    boolean hasDeath = actions.stream()
+        .anyMatch(a -> a.type == ActionType.DIE);
     
-    @Override
-    public void addEntity(Entity entity) {
-        entities.put(entity.getId(), entity);
+    if (!hasDeath) {
+        actions.add(new ActionDTO(ActionType.MOVE, 
+                   ActionPriority.NORMAL, ActionExecutor.BODY));
     }
+
+    return actions;
 }
 ```
 
@@ -199,59 +287,98 @@ public class GameModel implements Model {
 
 ### View
 
-The View handles the presentation layer, rendering visual representations of the game state.
+The View is the presentation layer that manages the window, UI components, and coordinates with the Renderer. It handles user input and delegates commands to the Controller.
 
 #### Responsibilities
 
-- **Rendering Coordination**: Manage what gets rendered
-- **Camera Management**: Control viewport and camera transformations
-- **UI Management**: Handle HUD and menu rendering
-- **Visual Effects**: Coordinate particle systems and effects
+- **Window Management**: Create and manage the JFrame and UI components
+- **Asset Loading**: Load images and sprites for rendering
+- **Input Handling**: Capture keyboard events and translate to Controller commands
+- **Renderer Coordination**: Start and manage the Renderer thread
+- **Snapshot Updates**: Push static/decorator snapshots when they change
 
-#### Key Methods
+#### Key Components
 
 ```java
-public interface View {
-    void render();
-    void setRenderer(Renderer renderer);
-    void setCamera(Camera camera);
-    void updateViewport(int width, int height);
+public class View extends JFrame implements KeyListener {
+    private Controller controller;
+    private Renderer renderer;
+    private ControlPanel controlPanel;
+    private Dimension viewDim;
+    
+    // Asset catalogs
+    private BufferedImage background;
+    private Images dynamicBodyImages;
+    private Images staticBodyImages;
+    private Images decoratorImages;
 }
 ```
 
-#### Threading Model
+#### Input Handling
 
-The View operates on the **rendering thread**:
-- All OpenGL/rendering calls must be on this thread
-- Synchronize with Model updates using double buffering
-- Use render queues for thread-safe communication
-
-#### Implementation Example
+The View translates keyboard events into Controller commands:
 
 ```java
-public class GameView implements View {
-    private Renderer renderer;
-    private Camera camera;
-    private Model model;
-    
-    @Override
-    public void render() {
-        renderer.begin();
-        renderer.clear();
-        
-        // Set camera transformation
-        renderer.setViewMatrix(camera.getViewMatrix());
-        
-        // Render entities
-        for (Entity entity : model.getEntities()) {
-            renderer.render(entity);
-        }
-        
-        // Render UI
-        renderUI();
-        
-        renderer.end();
+@Override
+public void keyPressed(KeyEvent e) {
+    if (this.controller.getEngineState() != EngineState.ALIVE) {
+        return;
     }
+
+    switch (e.getKeyCode()) {
+        case KeyEvent.VK_UP:
+            this.controller.playerThrustOn(playerId);
+            break;
+        case KeyEvent.VK_DOWN:
+            this.controller.playerReverseThrust(playerId);
+            break;
+        case KeyEvent.VK_LEFT:
+            this.controller.playerRotateLeftOn(playerId);
+            break;
+        case KeyEvent.VK_RIGHT:
+            this.controller.playerRotateRightOn(playerId);
+            break;
+        case KeyEvent.VK_SPACE:
+            if (!fireKeyDown) {
+                this.controller.playerFire(playerId);
+                fireKeyDown = true;
+            }
+            break;
+        case KeyEvent.VK_W:
+            this.controller.selectNextWeapon(playerId);
+            break;
+    }
+}
+
+@Override
+public void keyReleased(KeyEvent e) {
+    switch (e.getKeyCode()) {
+        case KeyEvent.VK_UP:
+        case KeyEvent.VK_DOWN:
+            this.controller.playerThrustOff(playerId);
+            break;
+        case KeyEvent.VK_LEFT:
+        case KeyEvent.VK_RIGHT:
+            this.controller.playerRotateOff(playerId);
+            break;
+        case KeyEvent.VK_SPACE:
+            fireKeyDown = false;
+            break;
+    }
+}
+```
+
+#### Asset Loading
+
+```java
+public void loadAssets(BufferedImage background, 
+                      Images dynamicBodyImages,
+                      Images staticBodyImages, 
+                      Images decoratorImages) {
+    this.background = background;
+    this.dynamicBodyImages = dynamicBodyImages;
+    this.staticBodyImages = staticBodyImages;
+    this.decoratorImages = decoratorImages;
 }
 ```
 
@@ -259,65 +386,108 @@ public class GameView implements View {
 
 ### Renderer
 
-The Renderer is responsible for low-level graphics operations and rendering primitives.
+The Renderer is a dedicated thread that continuously pulls entity snapshots and draws them to the screen using Java2D BufferStrategy.
 
 #### Responsibilities
 
-- **Graphics API Abstraction**: Abstract OpenGL/DirectX/Vulkan calls
-- **Batch Rendering**: Optimize draw calls
-- **Shader Management**: Load and manage shader programs
-- **Texture Management**: Handle texture loading and binding
-- **Primitive Rendering**: Provide drawing methods for shapes and sprites
+- **Active Rendering Loop**: Run in a dedicated thread, pulling snapshots each frame
+- **Draw Ordering**: Render background, decorators, static bodies, dynamic bodies, and HUD
+- **Image Management**: Cache and manage textures through ImageCache
+- **Performance Optimization**: Use VolatileImage for hardware-accelerated rendering
+- **Frame Tracking**: Remove stale renderables based on frame counters
 
-#### Key Methods
+#### Threading Model
 
 ```java
-public interface Renderer {
-    void begin();
-    void end();
-    void clear();
-    void render(Renderable object);
-    void drawSprite(Texture texture, Vector2 position, Vector2 size);
-    void drawRect(Vector2 position, Vector2 size, Color color);
-    void setViewMatrix(Matrix4 viewMatrix);
-    void setProjectionMatrix(Matrix4 projectionMatrix);
+public class Renderer extends Canvas implements Runnable {
+    private Thread renderThread;
+    
+    public void activate() {
+        this.renderThread = new Thread(this, "Renderer");
+        this.renderThread.start();
+    }
+    
+    @Override
+    public void run() {
+        while (view.getEngineState() != EngineState.STOPPED) {
+            if (view.getEngineState() == EngineState.ALIVE) {
+                render();
+            } else {
+                Thread.yield();
+            }
+        }
+    }
 }
 ```
 
-#### Design Patterns
-
-- **Command Pattern**: Queue rendering commands
-- **Flyweight Pattern**: Share textures and shaders
-- **State Pattern**: Manage rendering states
-
-#### Implementation Example
+#### Rendering Pipeline
 
 ```java
-public class OpenGLRenderer implements Renderer {
-    private ShaderProgram currentShader;
-    private Matrix4 viewMatrix;
-    private Matrix4 projectionMatrix;
-    private SpriteBatch spriteBatch;
+private void render() {
+    BufferStrategy strategy = this.getBufferStrategy();
+    if (strategy == null) {
+        this.createBufferStrategy(2);
+        return;
+    }
+
+    Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+
+    try {
+        // 1. Draw background
+        renderBackground(g);
+        
+        // 2. Draw decorators
+        renderDecorators(g);
+        
+        // 3. Draw static bodies
+        renderStaticBodies(g);
+        
+        // 4. Update and draw dynamic bodies
+        updateAndRenderDynamicBodies(g);
+        
+        // 5. Draw HUD
+        renderHUD(g);
+        
+    } finally {
+        g.dispose();
+        strategy.show();
+    }
+}
+```
+
+#### Dynamic Body Snapshot Updates
+
+The Renderer pulls fresh snapshots from the Controller each frame:
+
+```java
+private void updateAndRenderDynamicBodies(Graphics2D g) {
+    long currentFrame = this.getCurrentFrame();
     
-    @Override
-    public void begin() {
-        spriteBatch.begin();
+    // Pull fresh data from controller
+    ArrayList<DynamicRenderDTO> freshData = 
+        this.view.getController().getDBodyRenderData();
+    
+    // Update renderable map
+    for (DynamicRenderDTO dto : freshData) {
+        DynamicRenderable renderable = dynamicRenderables.get(dto.entityId);
+        
+        if (renderable == null) {
+            // Create new renderable
+            renderable = new DynamicRenderable(dto, imageCache, currentFrame);
+            dynamicRenderables.put(dto.entityId, renderable);
+        } else {
+            // Update existing
+            renderable.update(dto, currentFrame);
+        }
+        
+        // Render
+        renderable.render(g);
     }
     
-    @Override
-    public void render(Renderable object) {
-        object.render(this);
-    }
-    
-    @Override
-    public void drawSprite(Texture texture, Vector2 position, Vector2 size) {
-        spriteBatch.draw(texture, position.x, position.y, size.x, size.y);
-    }
-    
-    @Override
-    public void end() {
-        spriteBatch.end();
-    }
+    // Remove stale renderables
+    dynamicRenderables.entrySet().removeIf(
+        entry -> entry.getValue().getLastUpdateFrame() < currentFrame - 2
+    );
 }
 ```
 
@@ -325,38 +495,107 @@ public class OpenGLRenderer implements Renderer {
 
 ## Entity System
 
-The Entity System provides a hierarchical structure for game objects with support for both dynamic and static entities.
+The Entity System is built on a hierarchy rooted in `AbstractBody`, with different concrete types for dynamic, static, player, and decorator entities.
 
 ### Entity Hierarchy
 
 ```
-Entity (Abstract Base)
-├── DynamicBody
-│   ├── Player
-│   ├── Enemy
-│   └── Projectile
-└── StaticBody
-    ├── Wall
-    ├── Platform
-    └── Decoration
+AbstractBody (Abstract Base)
+├── DynamicBody (Runnable - own thread)
+│   ├── PlayerBody (adds weapon management)
+│   └── Projectiles, Asteroids, etc.
+├── StaticBody (no thread)
+│   └── Walls, Platforms, Obstacles
+└── DecoBody (decorator, no thread)
+    └── Visual elements
 ```
 
-### Base Entity Interface
+### AbstractBody
+
+AbstractBody provides the common foundation for all entities with lifecycle management, physics integration, and state tracking.
+
+#### Key Features
+
+- **Unique Identification**: UUID-based entity ID
+- **Lifecycle States**: STARTING → ALIVE → DEAD
+- **Static Counters**: Track created, alive, and dead entity counts
+- **Physics Integration**: Each body has a PhysicsEngine (BasicPhysicsEngine or NullPhysicsEngine)
+- **Lifespan Support**: Optional maximum life in seconds for temporary entities
+
+#### Body States
 
 ```java
-public abstract class Entity {
-    protected UUID id;
-    protected Vector2 position;
-    protected Vector2 size;
-    protected boolean active;
-    
-    public abstract void update(float deltaTime);
-    public abstract void render(Renderer renderer);
-    public abstract BoundingBox getBoundingBox();
-    
-    public UUID getId() { return id; }
-    public Vector2 getPosition() { return position; }
-    public void setPosition(Vector2 position) { this.position = position; }
+public enum BodyState {
+    STARTING,  // Initial state before activation
+    ALIVE,     // Active and simulating
+    HANDS_OFF, // Temporarily locked during event processing
+    DEAD       // Terminated
+}
+```
+
+#### Implementation
+
+```java
+public abstract class AbstractBody {
+    private static volatile int aliveQuantity = 0;
+    private static volatile int createdQuantity = 0;
+    private static volatile int deadQuantity = 0;
+
+    private Model model = null;
+    private volatile BodyState state;
+    private final String entityId;
+    private final PhysicsEngine phyEngine;
+    private final long bornTime = System.nanoTime();
+    private final double maxLifeInSeconds;
+
+    public AbstractBody(PhysicsEngine phyEngine, double maxLifeInSeconds) {
+        this.entityId = UUID.randomUUID().toString();
+        this.phyEngine = phyEngine;
+        this.state = BodyState.STARTING;
+        this.maxLifeInSeconds = maxLifeInSeconds;
+    }
+
+    public synchronized void activate() {
+        if (this.model == null) {
+            throw new IllegalArgumentException("Model not setted");
+        }
+
+        if (!this.model.isAlive()) {
+            throw new IllegalArgumentException(
+                "Entity activation error due MODEL is not alive!");
+        }
+
+        if (this.state != BodyState.STARTING) {
+            throw new IllegalArgumentException(
+                "Entity activation error due is not starting!");
+        }
+
+        AbstractBody.aliveQuantity++;
+        this.state = BodyState.ALIVE;
+    }
+
+    public synchronized void die() {
+        this.state = BodyState.DEAD;
+        AbstractBody.deadQuantity++;
+        AbstractBody.aliveQuantity--;
+    }
+
+    public boolean isLifeOver() {
+        if (this.maxLifeInSeconds <= 0) {
+            return false;
+        }
+        return this.getLifeInSeconds() >= this.maxLifeInSeconds;
+    }
+
+    public double getLifeInSeconds() {
+        return (System.nanoTime() - this.bornTime) / 1_000_000_000.0D;
+    }
+
+    public PhysicsValuesDTO getPhysicsValues() {
+        return this.phyEngine.getPhysicsValues();
+    }
+
+    // Getters, setters...
 }
 ```
 
@@ -364,123 +603,96 @@ public abstract class Entity {
 
 ### DynamicBody
 
-DynamicBody represents entities with physics simulation, movement, and collision response.
-
-#### Responsibilities
-
-- **Physics Integration**: Apply forces, velocity, and acceleration
-- **Collision Response**: React to collisions with other entities
-- **Movement**: Handle position updates based on physics
-- **State Updates**: Manage entity state (alive, dead, invulnerable, etc.)
+DynamicBody represents entities with active physics simulation. Each dynamic body runs in its own thread, continuously updating its physics state and reporting to the Model for event processing.
 
 #### Key Features
 
-- Velocity and acceleration vectors
-- Mass and friction properties
-- Collision detection and response
-- Gravity application
-- Force accumulation
+- **Per-Entity Threading**: Implements Runnable, runs in dedicated thread
+- **Continuous Physics Updates**: Physics engine calculates new state each iteration
+- **Event Reporting**: Reports physics changes to Model for event detection
+- **State Synchronization**: Uses HANDS_OFF state during event processing
+- **Bounded Actions**: Supports rebound, movement, and death actions
+
+#### Threading Model
+
+Each DynamicBody has its own thread that:
+1. Calculates new physics values
+2. Reports to Model for event processing
+3. Waits briefly between iterations
+4. Terminates when state becomes DEAD
 
 #### Implementation
 
 ```java
-public abstract class DynamicBody extends Entity {
-    protected Vector2 velocity;
-    protected Vector2 acceleration;
-    protected float mass;
-    protected float friction;
-    protected boolean affectedByGravity;
-    
-    public DynamicBody() {
-        this.velocity = new Vector2(0, 0);
-        this.acceleration = new Vector2(0, 0);
-        this.mass = 1.0f;
-        this.friction = 0.1f;
-        this.affectedByGravity = true;
+public class DynamicBody extends AbstractBody implements PhysicsBody, Runnable {
+
+    private Thread thread;
+    private final BasicPhysicsEngine phyEngine;
+
+    public DynamicBody(BasicPhysicsEngine phyEngine) {
+        super(phyEngine);
+        this.phyEngine = phyEngine;
     }
-    
+
+    public DynamicBody(BasicPhysicsEngine phyEngine, double maxLifeInSeconds) {
+        super(phyEngine, maxLifeInSeconds);
+        this.phyEngine = phyEngine;
+    }
+
     @Override
-    public void update(float deltaTime) {
-        // Apply gravity
-        if (affectedByGravity) {
-            applyForce(new Vector2(0, -9.81f * mass));
-        }
-        
-        // Update velocity
-        velocity.add(acceleration.scale(deltaTime));
-        
-        // Apply friction
-        velocity.scale(1.0f - friction * deltaTime);
-        
-        // Update position
-        position.add(velocity.scale(deltaTime));
-        
-        // Reset acceleration
-        acceleration.set(0, 0);
-        
-        // Update state
-        updateState(deltaTime);
+    public synchronized void activate() {
+        super.activate();
+
+        this.thread = new Thread(this);
+        this.thread.setName("Body " + this.getEntityId());
+        this.thread.setPriority(Thread.NORM_PRIORITY - 1);
+        this.thread.start();
+        this.setState(BodyState.ALIVE);
     }
-    
-    public void applyForce(Vector2 force) {
-        acceleration.add(force.scale(1.0f / mass));
-    }
-    
-    public void applyImpulse(Vector2 impulse) {
-        velocity.add(impulse.scale(1.0f / mass));
-    }
-    
-    protected abstract void updateState(float deltaTime);
-    
-    public void onCollision(Entity other, CollisionInfo info) {
-        // Default collision response
-        if (info.penetrationDepth > 0) {
-            position.add(info.normal.scale(info.penetrationDepth));
-            
-            // Reflect velocity
-            float dot = velocity.dot(info.normal);
-            if (dot < 0) {
-                velocity.subtract(info.normal.scale(2 * dot));
+
+    @Override
+    public void run() {
+        PhysicsValuesDTO newPhyValues;
+
+        while ((this.getState() != BodyState.DEAD)
+                && (this.getModel().getState() != ModelState.STOPPED)) {
+
+            if ((this.getState() == BodyState.ALIVE)
+                    && (this.getModel().getState() == ModelState.ALIVE)) {
+
+                newPhyValues = this.phyEngine.calcNewPhysicsValues();
+                this.getModel().processDBodyEvents(this, newPhyValues, 
+                                                   this.phyEngine.getPhysicsValues());
+            }
+
+            try {
+                Thread.sleep(5); // Brief pause between updates
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
             }
         }
     }
-}
-```
 
-#### Usage Example
+    public void doMovement(PhysicsValuesDTO newPhyValues) {
+        this.phyEngine.setPhysicsValues(newPhyValues);
+    }
 
-```java
-public class Player extends DynamicBody {
-    private float speed = 5.0f;
-    private float jumpForce = 10.0f;
-    private boolean grounded = false;
-    
-    @Override
-    protected void updateState(float deltaTime) {
-        // Handle player-specific state updates
-        checkGroundStatus();
-        updateAnimation(deltaTime);
+    public void reboundInEast(PhysicsValuesDTO newPhy, PhysicsValuesDTO oldPhy,
+                             int worldWidth, int worldHeight) {
+        newPhy.posX = 0;
+        newPhy.speedX = -oldPhy.speedX;
+        this.phyEngine.setPhysicsValues(newPhy);
     }
-    
-    public void moveLeft() {
-        applyForce(new Vector2(-speed * mass, 0));
+
+    public void reboundInWest(PhysicsValuesDTO newPhy, PhysicsValuesDTO oldPhy,
+                             int worldWidth, int worldHeight) {
+        newPhy.posX = worldWidth;
+        newPhy.speedX = -oldPhy.speedX;
+        this.phyEngine.setPhysicsValues(newPhy);
     }
-    
-    public void moveRight() {
-        applyForce(new Vector2(speed * mass, 0));
-    }
-    
-    public void jump() {
-        if (grounded) {
-            applyImpulse(new Vector2(0, jumpForce));
-            grounded = false;
-        }
-    }
-    
-    @Override
-    public void render(Renderer renderer) {
-        renderer.drawSprite(playerTexture, position, size);
-    }
+
+    // Additional rebound methods...
 }
 ```
 
@@ -488,76 +700,28 @@ public class Player extends DynamicBody {
 
 ### StaticBody
 
-StaticBody represents immovable entities that don't require physics simulation but can interact with dynamic entities.
-
-#### Responsibilities
-
-- **Collision Geometry**: Provide collision boundaries
-- **Static Rendering**: Render non-moving objects
-- **Trigger Volumes**: Detect entity entry/exit
-- **Environmental Interaction**: Platforms, walls, hazards
+StaticBody represents immovable entities with fixed positions. Unlike dynamic bodies, static bodies have no thread and use a NullPhysicsEngine that doesn't update.
 
 #### Key Features
 
-- No physics simulation
-- Optimized collision detection
-- Can be batched for rendering
-- Support for trigger events
+- **No Thread**: Activate() doesn't start a thread
+- **Fixed Position**: Uses NullPhysicsEngine with constant values
+- **Lightweight**: Minimal overhead for non-moving entities
+- **Common Uses**: Walls, platforms, obstacles, decorative elements
 
 #### Implementation
 
 ```java
-public abstract class StaticBody extends Entity {
-    protected boolean isTrigger;
-    protected Set<Entity> entitiesInside;
-    
-    public StaticBody() {
-        this.isTrigger = false;
-        this.entitiesInside = new HashSet<>();
+public class StaticBody extends AbstractBody {
+
+    public StaticBody(double size, double x, double y, double angle) {
+        super(new NullPhysicsEngine(size, x, y, angle));
     }
-    
+
     @Override
-    public void update(float deltaTime) {
-        // Static bodies typically don't update
-        // But can handle trigger logic
-        if (isTrigger) {
-            updateTriggers(deltaTime);
-        }
-    }
-    
-    protected void updateTriggers(float deltaTime) {
-        // Check for entities entering/exiting
-        Set<Entity> currentEntities = detectOverlappingEntities();
-        
-        // New entries
-        for (Entity entity : currentEntities) {
-            if (!entitiesInside.contains(entity)) {
-                onEntityEnter(entity);
-            }
-        }
-        
-        // Exits
-        for (Entity entity : entitiesInside) {
-            if (!currentEntities.contains(entity)) {
-                onEntityExit(entity);
-            }
-        }
-        
-        entitiesInside = currentEntities;
-    }
-    
-    protected abstract Set<Entity> detectOverlappingEntities();
-    
-    protected void onEntityEnter(Entity entity) {
-        // Override in subclasses
-    }
-    
-    protected void onEntityExit(Entity entity) {
-        // Override in subclasses
-    }
-    
-    public boolean checkCollision(DynamicBody body) {
-        return getBoundingBox().intersects(body.getBoundingBox());
+    public synchronized void activate() {
+        super.activate();
+        this.setState(BodyState.ALIVE);
     }
 }
 ```
@@ -565,60 +729,90 @@ public abstract class StaticBody extends Entity {
 #### Usage Example
 
 ```java
-public class Wall extends StaticBody {
-    private Texture texture;
-    
-    public Wall(Vector2 position, Vector2 size) {
-        this.position = position;
-        this.size = size;
-        this.isTrigger = false;
+// Create a wall at position (100, 50) with size 20
+String wallId = model.addStaticBody(20, 100, 50, 0);
+
+// Create a platform
+String platformId = model.addStaticBody(30, 200, 300, 0);
+```
+
+---
+
+### PlayerBody
+
+PlayerBody extends DynamicBody with player-specific features including weapon management and control input handling.
+
+#### Key Features
+
+- **Weapon Management**: Multiple weapons with selection
+- **Control Input**: Thrust, rotation, and firing controls
+- **Fire Request System**: Thread-safe weapon firing requests
+- **All DynamicBody Features**: Inherits physics and threading
+
+#### Weapon Integration
+
+```java
+public class PlayerBody extends DynamicBody {
+    private final List<Weapon> weapons = new ArrayList<>();
+    private int selectedWeaponIndex = 0;
+
+    public void addWeapon(Weapon weapon) {
+        this.weapons.add(weapon);
     }
-    
-    @Override
-    public void render(Renderer renderer) {
-        renderer.drawRect(position, size, Color.GRAY);
+
+    public void selectNextWeapon() {
+        if (weapons.isEmpty()) return;
+        selectedWeaponIndex = (selectedWeaponIndex + 1) % weapons.size();
     }
-    
-    @Override
-    public BoundingBox getBoundingBox() {
-        return new BoundingBox(position, size);
+
+    public Weapon getActiveWeapon() {
+        if (weapons.isEmpty()) return null;
+        return weapons.get(selectedWeaponIndex);
     }
-    
-    @Override
-    protected Set<Entity> detectOverlappingEntities() {
-        return Collections.emptySet();
+
+    public void requestFire() {
+        Weapon active = getActiveWeapon();
+        if (active != null) {
+            active.registerFireRequest();
+        }
+    }
+
+    public boolean mustFireNow(PhysicsValuesDTO newPhyValues) {
+        Weapon active = getActiveWeapon();
+        if (active == null) return false;
+        
+        double dt = (newPhyValues.timeStamp - 
+                    this.getPhysicsValues().timeStamp) / 1_000_000_000.0;
+        return active.mustFireNow(dt);
     }
 }
+```
 
-public class TriggerZone extends StaticBody {
-    public TriggerZone(Vector2 position, Vector2 size) {
-        this.position = position;
-        this.size = size;
-        this.isTrigger = true;
-    }
-    
-    @Override
-    protected void onEntityEnter(Entity entity) {
-        if (entity instanceof Player) {
-            System.out.println("Player entered trigger zone!");
-            // Trigger game event
-        }
-    }
-    
-    @Override
-    protected void onEntityExit(Entity entity) {
-        if (entity instanceof Player) {
-            System.out.println("Player exited trigger zone!");
-        }
-    }
-    
-    @Override
-    public void render(Renderer renderer) {
-        // Optionally render debug visualization
-        if (DebugSettings.showTriggers) {
-            renderer.drawRect(position, size, new Color(1, 0, 0, 0.3f));
-        }
-    }
+#### Control Methods
+
+```java
+public void thrustOn() {
+    this.getPhysicsEngine().setThrust(this.getPhysicsValues().thrust);
+}
+
+public void thrustOff() {
+    this.getPhysicsEngine().setThrust(0);
+}
+
+public void reverseThrust() {
+    this.getPhysicsEngine().setThrust(-this.getPhysicsValues().thrust);
+}
+
+public void rotateLeftOn() {
+    this.addAngularAcceleration(-ROTATION_SPEED);
+}
+
+public void rotateRightOn() {
+    this.addAngularAcceleration(ROTATION_SPEED);
+}
+
+public void rotateOff() {
+    this.getPhysicsEngine().setAngularAcceleration(0);
 }
 ```
 
@@ -626,301 +820,305 @@ public class TriggerZone extends StaticBody {
 
 ## Weapon System
 
-The Weapon System provides an extensible framework for implementing various weapon types with different behaviors.
+The Weapon System implements a request-based firing mechanism where weapons are passive components that respond to fire requests during their update cycle.
 
 ### AbstractWeapon
 
-AbstractWeapon is the base class for all weapons in the game, providing common functionality and defining the weapon interface.
+AbstractWeapon is the base class for all weapons, implementing a thread-safe fire request system with cooldown and ammo management.
 
-#### Responsibilities
+#### Design Philosophy
 
-- **Firing Mechanism**: Handle weapon firing logic
-- **Ammunition Management**: Track ammo count and reloading
-- **Cooldown Management**: Enforce rate of fire limits
-- **Projectile Spawning**: Create and configure projectiles
-- **State Management**: Track weapon state (ready, firing, reloading, etc.)
+- **Passive Component**: Weapons have no threads and perform no asynchronous work
+- **Request-Based**: Fire requests are registered from any thread, consumed during update
+- **Monotonic Requests**: Only the most recent fire request matters; no queuing
+- **Deterministic**: All firing logic occurs during `mustFireNow(dtSeconds)` calls
 
-#### Key Features
-
-- Rate of fire control
-- Ammo capacity and reload mechanics
-- Automatic vs. semi-automatic firing modes
-- Projectile configuration
-- Weapon upgrades and modifications
-
-#### Implementation
+#### Concurrency Model
 
 ```java
-public abstract class AbstractWeapon {
-    protected String name;
-    protected int damage;
-    protected float fireRate; // Shots per second
-    protected int maxAmmo;
+public abstract class AbstractWeapon implements Weapon {
+
+    private final String id;
+    private final WeaponDto weaponConfig;
+    private final AtomicLong lastFireRequest = new AtomicLong(0L);
+    protected long lastHandledRequest = 0L;
     protected int currentAmmo;
-    protected float reloadTime;
-    protected boolean automatic;
-    
-    protected float cooldownTimer;
-    protected float reloadTimer;
-    protected WeaponState state;
-    protected Entity owner;
-    
-    public enum WeaponState {
-        READY,
-        FIRING,
-        COOLDOWN,
-        RELOADING,
-        EMPTY
-    }
-    
-    public AbstractWeapon(String name, int damage, float fireRate, int maxAmmo, float reloadTime) {
-        this.name = name;
-        this.damage = damage;
-        this.fireRate = fireRate;
-        this.maxAmmo = maxAmmo;
-        this.currentAmmo = maxAmmo;
-        this.reloadTime = reloadTime;
-        this.automatic = false;
-        this.state = WeaponState.READY;
-        this.cooldownTimer = 0;
-        this.reloadTimer = 0;
-    }
-    
-    public void update(float deltaTime) {
-        switch (state) {
-            case COOLDOWN:
-                cooldownTimer -= deltaTime;
-                if (cooldownTimer <= 0) {
-                    state = currentAmmo > 0 ? WeaponState.READY : WeaponState.EMPTY;
-                }
-                break;
-                
-            case RELOADING:
-                reloadTimer -= deltaTime;
-                if (reloadTimer <= 0) {
-                    currentAmmo = maxAmmo;
-                    state = WeaponState.READY;
-                    onReloadComplete();
-                }
-                break;
-                
-            case EMPTY:
-                // Auto-reload when empty
-                if (canReload()) {
-                    startReload();
-                }
-                break;
+
+    public AbstractWeapon(WeaponDto weaponConfig) {
+        if (weaponConfig.fireRate <= 0) {
+            throw new IllegalArgumentException(
+                    "fireRatePerSec must be > 0. Weapon not created");
         }
+
+        this.id = UUID.randomUUID().toString();
+        this.weaponConfig = weaponConfig;
+        this.currentAmmo = weaponConfig.maxAmmo;
     }
-    
-    public boolean fire(Vector2 direction) {
-        if (state != WeaponState.READY) {
+
+    @Override
+    public void registerFireRequest() {
+        this.lastFireRequest.set(System.nanoTime());
+    }
+
+    protected boolean hasRequest() {
+        return this.lastFireRequest.get() > this.lastHandledRequest;
+    }
+
+    protected void markAllRequestsHandled() {
+        this.lastHandledRequest = this.lastFireRequest.get();
+    }
+
+    // Abstract method: subclasses implement firing logic
+    public abstract boolean mustFireNow(double dtSeconds);
+}
+```
+
+#### Request Flow
+
+1. **Register**: User input calls `registerFireRequest()` (from any thread)
+2. **Check**: `hasRequest()` returns true if new request exists
+3. **Process**: `mustFireNow(dtSeconds)` decides whether to fire
+4. **Consume**: `markAllRequestsHandled()` marks request as processed
+
+---
+
+### Weapon Implementations
+
+#### BasicWeapon
+
+Simple semi-automatic weapon with cooldown between shots.
+
+```java
+public class BasicWeapon extends AbstractWeapon {
+
+    private double cooldown = 0.0; // seconds
+
+    public BasicWeapon(WeaponDto weaponConfig) {
+        super(weaponConfig);
+    }
+
+    @Override
+    public boolean mustFireNow(double dtSeconds) {
+        if (this.cooldown > 0) {
+            // Cool down weapon. Any pending requests are discarded.
+            this.cooldown -= dtSeconds;
+            this.markAllRequestsHandled();
             return false;
         }
-        
-        if (currentAmmo <= 0) {
-            state = WeaponState.EMPTY;
-            onEmptyFire();
+
+        if (this.currentAmmo <= 0) {
+            // No ammunition: reload, set time to reload and discard requests
+            this.markAllRequestsHandled();
+            cooldown = this.getWeaponConfig().reloadTime;
+            this.currentAmmo = this.getWeaponConfig().maxAmmo;
             return false;
         }
-        
-        // Fire the weapon
-        currentAmmo--;
-        state = WeaponState.COOLDOWN;
-        cooldownTimer = 1.0f / fireRate;
-        
-        // Create projectile(s)
-        createProjectile(direction);
-        
-        // Trigger effects
-        onFire();
+
+        if (!this.hasRequest()) {
+            // Nothing to do
+            this.cooldown = 0;
+            return false;
+        }
+
+        // Fire
+        this.markAllRequestsHandled();
+        this.currentAmmo--;
+        cooldown = 1.0 / this.getWeaponConfig().fireRate;
+        return true;
+    }
+}
+```
+
+#### BurstWeapon
+
+Weapon that fires multiple shots in rapid succession per trigger pull.
+
+```java
+public class BurstWeapon extends AbstractWeapon {
+
+    private double cooldown = 0.0d;
+    private int shotsRemainingInBurst = 0;
+
+    public BurstWeapon(WeaponDto weaponConfig) {
+        super(weaponConfig);
+    }
+
+    @Override
+    public boolean mustFireNow(double dtSeconds) {
+        if (this.cooldown > 0) {
+            this.cooldown -= dtSeconds;
+            this.markAllRequestsHandled();
+            return false;
+        }
+
+        if (this.currentAmmo <= 0) {
+            // No ammunition: reload
+            this.markAllRequestsHandled();
+            this.shotsRemainingInBurst = 0;
+            cooldown = this.getWeaponConfig().reloadTime;
+            this.currentAmmo = this.getWeaponConfig().maxAmmo;
+            return false;
+        }
+
+        if (this.shotsRemainingInBurst > 0) {
+            // Burst mode ongoing - fire next shot
+            this.markAllRequestsHandled();
+            this.shotsRemainingInBurst--;
+            this.currentAmmo--;
+
+            if (this.shotsRemainingInBurst == 0) {
+                // Burst finished
+                this.cooldown = 1.0 / this.getWeaponConfig().fireRate;
+            } else {
+                // More shots in burst
+                this.cooldown = 1.0 / this.getWeaponConfig().burstFireRate;
+            }
+
+            return true;
+        }
+
+        if (!this.hasRequest()) {
+            return false;
+        }
+
+        // Start new burst
+        this.markAllRequestsHandled();
+        int burstSize = Math.max(1, getWeaponConfig().burstSize);
+        this.shotsRemainingInBurst = burstSize - 1;
+        this.currentAmmo--;
+
+        if (this.shotsRemainingInBurst == 0) {
+            this.cooldown = 1.0 / this.getWeaponConfig().fireRate;
+        } else {
+            this.cooldown = 1.0 / this.getWeaponConfig().burstFireRate;
+        }
         
         return true;
     }
-    
-    public void startReload() {
-        if (state == WeaponState.RELOADING || currentAmmo == maxAmmo) {
-            return;
-        }
-        
-        state = WeaponState.RELOADING;
-        reloadTimer = reloadTime;
-        onReloadStart();
-    }
-    
-    public boolean canReload() {
-        return currentAmmo < maxAmmo && state != WeaponState.RELOADING;
-    }
-    
-    protected abstract void createProjectile(Vector2 direction);
-    
-    protected void onFire() {
-        // Override for firing effects (sound, muzzle flash, etc.)
-    }
-    
-    protected void onReloadStart() {
-        // Override for reload start effects
-    }
-    
-    protected void onReloadComplete() {
-        // Override for reload complete effects
-    }
-    
-    protected void onEmptyFire() {
-        // Override for empty fire feedback (click sound, etc.)
-    }
-    
-    // Getters and setters
-    public WeaponState getState() { return state; }
-    public int getCurrentAmmo() { return currentAmmo; }
-    public int getMaxAmmo() { return maxAmmo; }
-    public float getReloadProgress() {
-        if (state != WeaponState.RELOADING) return 0;
-        return 1.0f - (reloadTimer / reloadTime);
-    }
-    public void setOwner(Entity owner) { this.owner = owner; }
-    public Entity getOwner() { return owner; }
 }
 ```
 
-#### Concrete Weapon Examples
+#### MissileLauncher and MineLauncher
+
+Specialized weapons for different projectile types:
 
 ```java
-public class Pistol extends AbstractWeapon {
-    public Pistol() {
-        super("Pistol", 25, 2.0f, 12, 1.5f);
-        this.automatic = false;
+public class MissileLauncher extends BasicWeapon {
+    public MissileLauncher(WeaponDto weaponConfig) {
+        super(weaponConfig);
     }
-    
-    @Override
-    protected void createProjectile(Vector2 direction) {
-        Vector2 spawnPos = owner.getPosition().add(direction.scale(1.0f));
-        Projectile bullet = new Bullet(spawnPos, direction, damage, owner);
-        GameModel.getInstance().addEntity(bullet);
-    }
-    
-    @Override
-    protected void onFire() {
-        SoundManager.play("pistol_fire");
-        ParticleSystem.emit("muzzle_flash", owner.getPosition());
-    }
+    // Uses BasicWeapon logic with missile-specific configuration
 }
 
-public class Shotgun extends AbstractWeapon {
-    private int pelletCount = 8;
-    private float spread = 15.0f; // degrees
-    
-    public Shotgun() {
-        super("Shotgun", 15, 0.8f, 6, 2.0f);
-        this.automatic = false;
+public class MineLauncher extends BasicWeapon {
+    public MineLauncher(WeaponDto weaponConfig) {
+        super(weaponConfig);
     }
-    
-    @Override
-    protected void createProjectile(Vector2 direction) {
-        float baseAngle = (float) Math.atan2(direction.y, direction.x);
-        
-        for (int i = 0; i < pelletCount; i++) {
-            float angle = baseAngle + (float) Math.toRadians(
-                (Math.random() * spread) - (spread / 2)
-            );
-            
-            Vector2 pelletDir = new Vector2(
-                (float) Math.cos(angle),
-                (float) Math.sin(angle)
-            );
-            
-            Vector2 spawnPos = owner.getPosition().add(pelletDir.scale(1.0f));
-            Projectile pellet = new ShotgunPellet(spawnPos, pelletDir, damage, owner);
-            GameModel.getInstance().addEntity(pellet);
-        }
-    }
-    
-    @Override
-    protected void onFire() {
-        SoundManager.play("shotgun_fire");
-        ParticleSystem.emit("shotgun_muzzle_flash", owner.getPosition());
-        
-        // Apply recoil to owner
-        if (owner instanceof DynamicBody) {
-            ((DynamicBody) owner).applyImpulse(direction.scale(-5.0f));
-        }
-    }
+    // Uses BasicWeapon logic with mine-specific configuration
 }
+```
 
-public class AssaultRifle extends AbstractWeapon {
-    public AssaultRifle() {
-        super("Assault Rifle", 30, 10.0f, 30, 2.0f);
-        this.automatic = true;
-    }
-    
-    @Override
-    protected void createProjectile(Vector2 direction) {
-        Vector2 spawnPos = owner.getPosition().add(direction.scale(1.0f));
-        Projectile bullet = new Bullet(spawnPos, direction, damage, owner);
-        GameModel.getInstance().addEntity(bullet);
-    }
-    
-    @Override
-    protected void onFire() {
-        SoundManager.play("rifle_fire");
-        ParticleSystem.emit("muzzle_flash", owner.getPosition());
+---
+
+### WeaponDto
+
+Configuration data for weapons, defining all weapon parameters:
+
+```java
+public class WeaponDto {
+    public final String weaponId;
+    public final WeaponType weaponType;
+    public final double fireRate;           // Shots per second
+    public final double reloadTime;         // Seconds
+    public final int maxAmmo;
+    public final int burstSize;             // For burst weapons
+    public final double burstFireRate;      // Shots per second within burst
+    public final double firingSpeed;        // Projectile speed
+    public final double acceleration;       // Projectile acceleration
+    public final double projectileSize;
+    public final String projectileAssetId;
+    public final double shootingOffset;     // Spawn distance from player
+
+    // Constructor with all parameters...
+}
+```
+
+---
+
+### WeaponFactory
+
+Factory pattern for creating weapons based on configuration:
+
+```java
+public class WeaponFactory {
+
+    public static Weapon create(WeaponDto weaponConfig) {
+        switch (weaponConfig.weaponType) {
+            case BASIC:
+                return new BasicWeapon(weaponConfig);
+            case BURST:
+                return new BurstWeapon(weaponConfig);
+            case MISSILE_LAUNCHER:
+                return new MissileLauncher(weaponConfig);
+            case MINE_LAUNCHER:
+                return new MineLauncher(weaponConfig);
+            default:
+                throw new IllegalArgumentException(
+                    "Unknown weapon type: " + weaponConfig.weaponType);
+        }
     }
 }
 ```
 
-#### Weapon Manager
+---
+
+### Projectile Spawning
+
+When a weapon's `mustFireNow()` returns true, the Model spawns a projectile:
 
 ```java
-public class WeaponManager {
-    private List<AbstractWeapon> weapons;
-    private int currentWeaponIndex;
-    private Entity owner;
-    
-    public WeaponManager(Entity owner) {
-        this.owner = owner;
-        this.weapons = new ArrayList<>();
-        this.currentWeaponIndex = 0;
+private void spawnProjectileFrom(DynamicBody shooter, 
+                                PhysicsValuesDTO shooterNewPhy) {
+    if (!(shooter instanceof PlayerBody)) {
+        return;
     }
-    
-    public void addWeapon(AbstractWeapon weapon) {
-        weapon.setOwner(owner);
-        weapons.add(weapon);
+    PlayerBody pBody = (PlayerBody) shooter;
+
+    Weapon activeWeapon = pBody.getActiveWeapon();
+    if (activeWeapon == null) {
+        return;
     }
-    
-    public void update(float deltaTime) {
-        if (!weapons.isEmpty()) {
-            getCurrentWeapon().update(deltaTime);
-        }
+
+    WeaponDto weaponConfig = activeWeapon.getWeaponConfig();
+    if (weaponConfig == null) {
+        return;
     }
-    
-    public void fire(Vector2 direction) {
-        if (!weapons.isEmpty()) {
-            getCurrentWeapon().fire(direction);
-        }
-    }
-    
-    public void reload() {
-        if (!weapons.isEmpty()) {
-            getCurrentWeapon().startReload();
-        }
-    }
-    
-    public void switchWeapon(int index) {
-        if (index >= 0 && index < weapons.size()) {
-            currentWeaponIndex = index;
-        }
-    }
-    
-    public void nextWeapon() {
-        currentWeaponIndex = (currentWeaponIndex + 1) % weapons.size();
-    }
-    
-    public void previousWeapon() {
-        currentWeaponIndex = (currentWeaponIndex - 1 + weapons.size()) % weapons.size();
-    }
-    
-    public AbstractWeapon getCurrentWeapon() {
-        return weapons.isEmpty() ? null : weapons.get(currentWeaponIndex);
+
+    double angleDeg = shooterNewPhy.angle;
+    double angleRad = Math.toRadians(angleDeg);
+
+    double dirX = Math.cos(angleRad);
+    double dirY = Math.sin(angleRad);
+
+    double angleInRads = Math.toRadians(shooterNewPhy.angle - 90);
+    double posX = shooterNewPhy.posX + 
+                  Math.cos(angleInRads) * weaponConfig.shootingOffset;
+    double posY = shooterNewPhy.posY + 
+                  Math.sin(angleInRads) * weaponConfig.shootingOffset;
+
+    double projSpeedX = shooterNewPhy.speedX + weaponConfig.firingSpeed * dirX;
+    double projSpeedY = shooterNewPhy.speedY + weaponConfig.firingSpeed * dirY;
+
+    double accX = weaponConfig.acceleration * dirX;
+    double accY = weaponConfig.acceleration * dirY;
+
+    String entityId = this.addDynamicBody(weaponConfig.projectileSize,
+            posX, posY, projSpeedX, projSpeedY,
+            accX, accY, angleDeg, 0d, 0d, 0d, maxLifeInSeconds);
+
+    if (entityId != null && !entityId.isEmpty()) {
+        this.domainEventProcessor.notifyNewProjectileFired(
+                entityId, weaponConfig.projectileAssetId);
     }
 }
 ```
@@ -929,133 +1127,312 @@ public class WeaponManager {
 
 ## Threading Model
 
-MVCGameEngine uses a multi-threaded architecture to maximize performance and responsiveness.
+MVCGameEngine implements a unique **per-entity threading** model where each DynamicBody runs in its own thread. This enables true parallel physics simulation across multiple CPU cores.
 
 ### Thread Architecture
 
 ```
-┌─────────────────┐
-│   Main Thread   │ - Input handling
-│                 │ - Game loop coordination
-│                 │ - State management
-└────────┬────────┘
-         │
-    ┌────┴────────────────────────┐
-    │                             │
-┌───▼──────────┐         ┌────────▼──────┐
-│ Update Thread│         │ Render Thread │
-│              │         │               │
-│ - Physics    │         │ - OpenGL calls│
-│ - AI         │         │ - Draw calls  │
-│ - Collision  │         │ - UI rendering│
-└──────────────┘         └───────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                     Main/AWT Thread                       │
+│           - Window management (JFrame)                    │
+│           - Keyboard input capture                        │
+└──────────────────────────────────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+    ┌──────────┐    ┌──────────┐    ┌──────────┐
+    │ DBody 1  │    │ DBody 2  │    │ DBody N  │
+    │ Thread   │    │ Thread   │    │ Thread   │
+    │          │    │          │    │          │
+    │ Physics  │    │ Physics  │    │ Physics  │
+    │ Update   │    │ Update   │    │ Update   │
+    └──────────┘    └──────────┘    └──────────┘
+          │                │                │
+          └────────────────┼────────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │    Model     │
+                    │   (Event     │
+                    │ Processing)  │
+                    └──────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Renderer    │
+                    │   Thread     │
+                    │              │
+                    │ Pull DTOs    │
+                    │ Draw Frame   │
+                    └──────────────┘
 ```
 
-### Thread Responsibilities
+### Thread Categories
 
-#### Main Thread
-- **Input Processing**: Handle all user input events
-- **Loop Control**: Manage game loop timing and frame rate
-- **State Transitions**: Handle game state changes
-- **Event Dispatching**: Route events to appropriate systems
+#### 1. Per-Entity Threads (DynamicBody)
 
-#### Update Thread
-- **Physics Simulation**: Calculate physics for all DynamicBody entities
-- **AI Updates**: Process AI logic for NPCs
-- **Collision Detection**: Detect and resolve collisions
-- **Game Logic**: Execute game-specific logic
-
-#### Render Thread
-- **Graphics Rendering**: All OpenGL/graphics API calls
-- **UI Rendering**: Draw HUD and menus
-- **Visual Effects**: Particle systems and animations
-- **Frame Presentation**: Swap buffers and present frames
-
-### Synchronization Strategies
-
-#### Double Buffering
+Each DynamicBody runs in its own thread:
 
 ```java
-public class GameState {
-    private volatile EntityCollection readBuffer;
-    private volatile EntityCollection writeBuffer;
-    private final Object bufferLock = new Object();
-    
-    public void swapBuffers() {
-        synchronized (bufferLock) {
-            EntityCollection temp = readBuffer;
-            readBuffer = writeBuffer;
-            writeBuffer = temp;
+@Override
+public void run() {
+    PhysicsValuesDTO newPhyValues;
+
+    while ((this.getState() != BodyState.DEAD)
+            && (this.getModel().getState() != ModelState.STOPPED)) {
+
+        if ((this.getState() == BodyState.ALIVE)
+                && (this.getModel().getState() == ModelState.ALIVE)) {
+
+            // Calculate new physics state
+            newPhyValues = this.phyEngine.calcNewPhysicsValues();
+            
+            // Report to Model for event processing
+            this.getModel().processDBodyEvents(this, newPhyValues, 
+                                               this.phyEngine.getPhysicsValues());
         }
-    }
-    
-    public EntityCollection getReadBuffer() {
-        return readBuffer;
-    }
-    
-    public EntityCollection getWriteBuffer() {
-        return writeBuffer;
-    }
-}
-```
 
-#### Lock-Free Queues
-
-```java
-public class RenderCommandQueue {
-    private final ConcurrentLinkedQueue<RenderCommand> commands;
-    
-    public RenderCommandQueue() {
-        this.commands = new ConcurrentLinkedQueue<>();
-    }
-    
-    public void enqueue(RenderCommand command) {
-        commands.offer(command);
-    }
-    
-    public void processAll(Renderer renderer) {
-        RenderCommand command;
-        while ((command = commands.poll()) != null) {
-            command.execute(renderer);
+        try {
+            Thread.sleep(5); // Brief pause
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            break;
         }
     }
 }
 ```
 
-#### Read-Write Locks
+**Benefits**:
+- True parallelism: Each entity updates independently
+- Scales with CPU cores
+- Simple entity lifecycle management
+
+**Considerations**:
+- Thread creation overhead (mitigated by entity pooling)
+- Requires careful synchronization
+
+#### 2. Renderer Thread
+
+The Renderer runs in its own dedicated thread:
 
 ```java
-public class ThreadSafeModel {
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Map<UUID, Entity> entities = new HashMap<>();
-    
-    public Entity getEntity(UUID id) {
-        lock.readLock().lock();
-        try {
-            return entities.get(id);
-        } finally {
-            lock.readLock().unlock();
+@Override
+public void run() {
+    while (view.getEngineState() != EngineState.STOPPED) {
+        if (view.getEngineState() == EngineState.ALIVE) {
+            render();
+        } else {
+            Thread.yield();
         }
     }
+}
+```
+
+The Renderer pulls snapshots from the Model via Controller each frame.
+
+#### 3. Main/AWT Thread
+
+Handles Swing UI events and keyboard input, delegating commands to the Controller.
+
+### Synchronization Strategy
+
+#### ConcurrentHashMap for Entity Storage
+
+The Model uses ConcurrentHashMap for thread-safe entity management:
+
+```java
+private final Map<String, AbstractBody> dynamicBodies = 
+    new ConcurrentHashMap<>(MAX_ENTITIES);
+private final Map<String, AbstractBody> playerBodies = 
+    new ConcurrentHashMap<>(10);
+private final Map<String, AbstractBody> staticBodies = 
+    new ConcurrentHashMap<>(100);
+```
+
+#### HANDS_OFF State for Event Processing
+
+During event processing, entities are locked with HANDS_OFF state:
+
+```java
+public void processDBodyEvents(DynamicBody dynamicBody,
+        PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
     
-    public void addEntity(Entity entity) {
-        lock.writeLock().lock();
-        try {
-            entities.put(entity.getId(), entity);
-        } finally {
-            lock.writeLock().unlock();
+    if (!isProcessable(dynamicBody)) {
+        return;
+    }
+
+    BodyState previousState = dynamicBody.getState();
+    dynamicBody.setState(BodyState.HANDS_OFF); // Lock entity
+
+    try {
+        // Process events, resolve actions, execute actions
+    } finally {
+        if (dynamicBody.getState() == BodyState.HANDS_OFF) {
+            dynamicBody.setState(BodyState.ALIVE); // Unlock
         }
     }
+}
+```
+
+#### Atomic Operations for Weapons
+
+Weapons use AtomicLong for thread-safe fire requests:
+
+```java
+private final AtomicLong lastFireRequest = new AtomicLong(0L);
+
+@Override
+public void registerFireRequest() {
+    this.lastFireRequest.set(System.nanoTime());
+}
+
+protected boolean hasRequest() {
+    return this.lastFireRequest.get() > this.lastHandledRequest;
+}
+```
+
+#### Copy-on-Write for Static Renderables
+
+Static bodies and decorators use volatile references with copy-on-write:
+
+```java
+// In Renderer
+private volatile Map<String, Renderable> staticRenderables = new HashMap<>();
+private volatile Map<String, Renderable> decoratorRenderables = new HashMap<>();
+
+public void updateSBodyInfo(ArrayList<RenderDTO> sBodyData) {
+    Map<String, Renderable> newMap = new HashMap<>(sBodyData.size());
+    
+    for (RenderDTO dto : sBodyData) {
+        newMap.put(dto.entityId, new Renderable(dto, imageCache));
+    }
+    
+    this.staticRenderables = newMap; // Atomic swap
 }
 ```
 
 ### Threading Best Practices
 
-1. **Minimize Lock Contention**: Use fine-grained locks and lock-free structures
-2. **Avoid Blocking**: Never block the render thread
-3. **Use Atomics**: Prefer atomic operations for simple state
-4. **Copy on Read**: Make defensive copies when crossing thread boundaries
-5. **Queue Commands**: Use command queues for cross-thread communication
+1. **Immutable DTOs**: All data passed between threads uses immutable DTOs
+2. **No Direct Access**: View/Renderer never access Model entities directly
+3. **Volatile States**: Use volatile for state flags (ModelState, BodyState)
+4. **Minimal Locks**: Rely on concurrent collections instead of explicit locks
+5. **Entity Isolation**: Each entity thread is independent
+
+---
+
+## Data Transfer Objects (DTOs)
+
+DTOs are immutable value objects used to transfer data between layers without exposing mutable state.
+
+### PhysicsValuesDTO
+
+Contains all physics state for an entity:
+
+```java
+public class PhysicsValuesDTO {
+    public final long timeStamp;
+    public final double posX;
+    public final double posY;
+    public final double angle;
+    public final double size;
+    public final double speedX;
+    public final double speedY;
+    public final double accX;
+    public final double accY;
+    public final double angularSpeed;
+    public final double angularAcc;
+    public final double thrust;
+    
+    // Constructor and copy methods...
+}
+```
+
+### BodyDTO
+
+Snapshot of body data for rendering:
+
+```java
+public class BodyDTO {
+    public final String entityId;
+    public final PhysicsValuesDTO physicsValues;
+    
+    public BodyDTO(String entityId, PhysicsValuesDTO physicsValues) {
+        this.entityId = entityId;
+        this.physicsValues = physicsValues;
+    }
+}
+```
+
+### EventDTO
+
+Represents a detected event from an entity:
+
+```java
+public class EventDTO {
+    public final AbstractBody entity;
+    public final EventType type;
+    
+    public EventDTO(AbstractBody entity, EventType type) {
+        this.entity = entity;
+        this.type = type;
+    }
+}
+
+public enum EventType {
+    REACHED_EAST_LIMIT,
+    REACHED_WEST_LIMIT,
+    REACHED_NORTH_LIMIT,
+    REACHED_SOUTH_LIMIT,
+    MUST_FIRE,
+    LIFE_OVER,
+    COLLIDED
+}
+```
+
+### ActionDTO
+
+Represents an action to be executed:
+
+```java
+public class ActionDTO {
+    public final ActionType type;
+    public final ActionPriority priority;
+    public final ActionExecutor executor;
+    
+    public ActionDTO(ActionType type, ActionPriority priority, 
+                    ActionExecutor executor) {
+        this.type = type;
+        this.priority = priority;
+        this.executor = executor;
+    }
+}
+
+public enum ActionType {
+    MOVE, REBOUND_IN_EAST, REBOUND_IN_WEST,
+    REBOUND_IN_NORTH, REBOUND_IN_SOUTH,
+    DIE, FIRE, EXPLODE_IN_FRAGMENTS, GO_INSIDE, NONE
+}
+
+public enum ActionExecutor {
+    BODY,  // Action executed by the body itself
+    MODEL  // Action executed by the Model
+}
+```
+
+### DynamicRenderDTO
+
+Extended rendering data for dynamic bodies:
+
+```java
+public class DynamicRenderDTO extends RenderDTO {
+    public final double speedX;
+    public final double speedY;
+    
+    // Additional dynamic-specific rendering data
+}
+```
 
 ---
 
@@ -1064,122 +1441,51 @@ public class ThreadSafeModel {
 ### Patterns Used in MVCGameEngine
 
 #### 1. Model-View-Controller (MVC)
-- **Purpose**: Separate concerns into three distinct layers
-- **Usage**: Core architecture of the entire engine
-- **Benefits**: Maintainability, testability, scalability
+- **Purpose**: Separate simulation, coordination, and presentation
+- **Usage**: Core architecture separating Model, Controller, and View/Renderer
+- **Benefits**: Clear responsibilities, testability, maintainability
 
-#### 2. Observer Pattern
-- **Purpose**: Event notification system
-- **Usage**: Entity events, input handling, state changes
-- **Implementation**:
-
-```java
-public interface GameEventListener {
-    void onEvent(GameEvent event);
-}
-
-public class EventDispatcher {
-    private final Map<Class<? extends GameEvent>, List<GameEventListener>> listeners;
-    
-    public void subscribe(Class<? extends GameEvent> eventType, GameEventListener listener) {
-        listeners.computeIfAbsent(eventType, k -> new ArrayList<>()).add(listener);
-    }
-    
-    public void dispatch(GameEvent event) {
-        List<GameEventListener> eventListeners = listeners.get(event.getClass());
-        if (eventListeners != null) {
-            eventListeners.forEach(listener -> listener.onEvent(event));
-        }
-    }
-}
-```
+#### 2. Data Transfer Object (DTO)
+- **Purpose**: Transfer immutable data between layers
+- **Usage**: BodyDTO, PhysicsValuesDTO, EventDTO, ActionDTO
+- **Benefits**: Thread-safe communication, clean layer separation
 
 #### 3. Factory Pattern
-- **Purpose**: Create entities and weapons
-- **Usage**: Entity spawning, weapon creation
+- **Purpose**: Encapsulate object creation
+- **Usage**: WeaponFactory creates weapons based on WeaponDto
 - **Implementation**:
 
 ```java
-public class EntityFactory {
-    public static Entity createEntity(EntityType type, Vector2 position) {
-        switch (type) {
-            case PLAYER:
-                return new Player(position);
-            case ENEMY:
-                return new Enemy(position);
-            case PROJECTILE:
-                return new Projectile(position);
+public class WeaponFactory {
+    public static Weapon create(WeaponDto weaponConfig) {
+        switch (weaponConfig.weaponType) {
+            case BASIC:
+                return new BasicWeapon(weaponConfig);
+            case BURST:
+                return new BurstWeapon(weaponConfig);
+            case MISSILE_LAUNCHER:
+                return new MissileLauncher(weaponConfig);
             default:
-                throw new IllegalArgumentException("Unknown entity type");
+                throw new IllegalArgumentException("Unknown weapon type");
         }
     }
 }
 ```
 
 #### 4. Strategy Pattern
-- **Purpose**: Different AI behaviors, rendering strategies
-- **Usage**: AI systems, weapon behaviors
-- **Implementation**:
+- **Purpose**: Different physics behaviors
+- **Usage**: PhysicsEngine interface with BasicPhysicsEngine and NullPhysicsEngine
+- **Benefits**: Flexibility in physics simulation approaches
 
-```java
-public interface AIStrategy {
-    void execute(Entity entity, float deltaTime);
-}
+#### 5. Event-Action Pattern
+- **Purpose**: Decouple event detection from action execution
+- **Usage**: Events detected in Model, actions decided by Controller, executed appropriately
+- **Flow**: Event Detection → Action Resolution → Action Execution
 
-public class AggressiveAI implements AIStrategy {
-    @Override
-    public void execute(Entity entity, float deltaTime) {
-        // Chase player, attack on sight
-    }
-}
-
-public class PatrolAI implements AIStrategy {
-    @Override
-    public void execute(Entity entity, float deltaTime) {
-        // Follow patrol path
-    }
-}
-```
-
-#### 5. Command Pattern
-- **Purpose**: Encapsulate rendering operations
-- **Usage**: Render queue, input handling
-- **Implementation**:
-
-```java
-public interface RenderCommand {
-    void execute(Renderer renderer);
-}
-
-public class DrawSpriteCommand implements RenderCommand {
-    private final Texture texture;
-    private final Vector2 position;
-    private final Vector2 size;
-    
-    @Override
-    public void execute(Renderer renderer) {
-        renderer.drawSprite(texture, position, size);
-    }
-}
-```
-
-#### 6. Object Pool Pattern
-- **Purpose**: Reuse expensive objects (projectiles, particles)
-- **Usage**: Projectile management, particle systems
-- **Implementation**:
-
-```java
-public class ProjectilePool {
-    private final Queue<Projectile> available;
-    private final Set<Projectile> inUse;
-    
-    public Projectile acquire() {
-        Projectile projectile = available.poll();
-        if (projectile == null) {
-            projectile = new Projectile();
-        }
-        inUse.add(projectile);
-        return projectile;
+#### 6. Ports and Adapters (Hexagonal Architecture)
+- **Purpose**: Define interfaces (ports) for external interactions
+- **Usage**: PhysicsEngine port, Weapon port, DomainEventProcessor port
+- **Benefits**: Testability, flexibility, clear boundaries
     }
     
     public void release(Projectile projectile) {
