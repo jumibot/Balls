@@ -177,19 +177,11 @@ This documentation provides in-depth explanations of concurrency strategies, lif
 
 Learn about the architectural patterns and design patterns used in this project:
 
-#### English Documentation
 - **[Introduction to MVC](docs/en/MVC.md)** - General introduction to the Model-View-Controller pattern
 - **[MVC Pattern Implementation](docs/en/MVC-Pattern.md)** - How MVC is implemented in this project, what it provides, common mistakes, and best practices
 - **[Factory Pattern](docs/en/Factory-Pattern.md)** - How the Factory pattern is used for object creation, benefits, implementation details, and common pitfalls
 - **[Strategy Pattern](docs/en/Strategy-Pattern.md)** - How the Strategy pattern enables interchangeable algorithms (physics engines), usage examples, and anti-patterns
 - **[DTO Pattern](docs/en/DTO-Pattern.md)** - Data Transfer Objects for safe data transfer between layers, thread safety, and implementation guidelines
-
-#### Documentación en Español
-- **[Introducción a MVC](docs/es/MVC.md)** - Introducción general al patrón Modelo-Vista-Controlador
-- **[Implementación del Patrón MVC](docs/es/MVC-Pattern.md)** - Cómo se implementa MVC en este proyecto, qué aporta, errores comunes y mejores prácticas
-- **[Patrón Factory](docs/es/Factory-Pattern.md)** - Cómo se usa el patrón Factory para creación de objetos, beneficios, detalles de implementación y errores comunes
-- **[Patrón Strategy](docs/es/Strategy-Pattern.md)** - Cómo el patrón Strategy permite algoritmos intercambiables (motores físicos), ejemplos de uso y anti-patrones
-- **[Patrón DTO](docs/es/DTO-Pattern.md)** - Objetos de Transferencia de Datos para transferencia segura entre capas, seguridad de hilos y guías de implementación
 
 Each pattern document explains:
 - **What it provides**: The benefits and advantages of using the pattern
