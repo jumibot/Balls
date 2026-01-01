@@ -1,5 +1,6 @@
 package view;
 
+import view.huds.ImagesHud;
 import view.renderables.DynamicRenderDTO;
 import view.renderables.Renderable;
 import view.renderables.DynamicRenderable;
@@ -131,6 +132,7 @@ public class Renderer extends Canvas implements Runnable {
     private Images images;
     private ImageCache imagesCache;
     private VolatileImage viBackground;
+    private final ImagesHud hud = new ImagesHud();
 
     private final Map<String, DynamicRenderable> dynamicRenderables = new ConcurrentHashMap<>();
     private volatile Map<String, Renderable> staticRenderables = new ConcurrentHashMap<>();
@@ -274,45 +276,19 @@ public class Renderer extends Canvas implements Runnable {
     }
 
     private void drawHUD(Graphics2D g) {
-        Color old = g.getColor();
 
-        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
-        g.setFont(font);
-        g.setColor(Color.YELLOW);
-        g.drawString("FPS: " + this.fps, 12, 30);
+        String[] data = {
+                "" + this.fps,
+                String.format("%.0f", this.renderTimeInMs) + " ms",
+                "" + this.imagesCache.size(),
+                this.imagesCache.getHits() + " (" + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
+                "" + this.view.getEntityAliveQuantity(),
+                "" + this.view.getEntityDeadQuantity()
+        };
 
-        g.setColor(Color.ORANGE);
-        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
-        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
-        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
-                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
-                12, 135);
-        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
-        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
-        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
+        ImagesHud hud = new ImagesHud();
 
-        g.setColor(old);
-    }
-
-    private void drawHUDPlayer(Graphics2D g) {
-        Color old = g.getColor();
-
-        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
-        g.setFont(font);
-        g.setColor(Color.YELLOW);
-        g.drawString("FPS: " + this.fps, 12, 30);
-
-        g.setColor(Color.ORANGE);
-        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
-        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
-        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
-                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
-                12, 135);
-        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
-        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
-        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
-
-        g.setColor(old);
+        hud.draw(g, data);
     }
 
     private void drawStaticRenderables(Graphics2D g) {

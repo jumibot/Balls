@@ -116,7 +116,7 @@ public class LifeGenerator implements Runnable {
         while (this.controller.getEngineState() != EngineState.STOPPED) { // TO-DO End condition
 
             if (this.controller.getEngineState() == EngineState.ALIVE) { // TO-DO Pause condition
-                // this.addRandomDynamicBody();
+                this.addRandomDynamicBody();
             }
 
             try {

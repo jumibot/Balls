@@ -598,7 +598,7 @@ public class Model {
 
         String entityId = this.addDynamicBody(weaponConfig.projectileSize,
                 posX, posY, projSpeedX, projSpeedY,
-                accX, accY, angleDeg, 0d, 0d, 0d, maxLifeInSeconds);
+                accX, accY, angleDeg, 0d, 0d, 0d, weaponConfig.maxlifeTime);
 
         if (entityId == null || entityId.isEmpty()) {
             return; // ======= Max entity quantity reached =======>>

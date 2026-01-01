@@ -3,7 +3,7 @@ package world;
 public class WorldDefWeaponDto extends WorldDefItemDto {
 
     public WorldDefWeaponType type; // Weapon type
-    public final double firingSpeed; // Projectile initial speed
+    public final double projectileSpeed; // Projectile initial speed
     public final double acceleration; // Projectile acceleration (if applicable)
     public final double accelerationDuration; // Time during which the acceleration applies
     public final int burstSize; // Number of shots per burst
@@ -12,17 +12,17 @@ public class WorldDefWeaponDto extends WorldDefItemDto {
     public final int maxAmmo; // Maximum ammunition capacity
     public final double reloadTime; // Reload time (seconds)
     public final double projectileMass; // Mass of the projectile (kilograms)
-    public final double maxlifeTime; // Maximum lifetime of the projectile (seconds)
+    public final double maxLifetimeInSeconds; // Maximum lifetime of the projectile (seconds)
 
     public WorldDefWeaponDto(String assetId, double size, WorldDefWeaponType type,
-            double firingSpeed, double acceleration, double accelerationDuration,
+            double projectileSpeed, double acceleration, double accelerationDuration,
             int burstSize, int burstFireRate,int fireRate, int maxAmmo, double reloadTime, 
-            double projectileMass, double maxlifeTime) {
+            double projectileMass, double maxLifetimeInSeconds) {
 
         super(assetId, size, 0);
 
         this.type = type;
-        this.firingSpeed = firingSpeed;
+        this.projectileSpeed = projectileSpeed;
         this.acceleration = acceleration;
         this.accelerationDuration = accelerationDuration;
         this.burstSize = burstSize;
@@ -31,6 +31,6 @@ public class WorldDefWeaponDto extends WorldDefItemDto {
         this.maxAmmo = maxAmmo;
         this.reloadTime = reloadTime;
         this.projectileMass = projectileMass;
-        this.maxlifeTime = maxlifeTime;
+        this.maxLifetimeInSeconds = maxLifetimeInSeconds;
     }
 }
