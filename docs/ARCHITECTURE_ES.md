@@ -1,16 +1,23 @@
-# Arquitectura del Motor de Juego Balls
+# Arquitectura del Motor de Física Balls
 
 ## Tabla de Contenidos
 - [Visión General](#visión-general)
 - [Patrón MVC](#patrón-mvc)
-- [Componentes Principales](#componentes-principales)
+- [Componentes Principales MVC](#componentes-principales-mvc)
   - [Controller (Controlador)](#controller-controlador)
   - [Model (Modelo)](#model-modelo)
   - [View (Vista)](#view-vista)
   - [Renderer (Renderizador)](#renderer-renderizador)
-- [Sistema de Física](#sistema-de-física)
+- [Sistema de Cuerpos](#sistema-de-cuerpos)
+  - [AbstractBody (Cuerpo Abstracto)](#abstractbody-cuerpo-abstracto)
   - [DynamicBody (Cuerpo Dinámico)](#dynamicbody-cuerpo-dinámico)
   - [StaticBody (Cuerpo Estático)](#staticbody-cuerpo-estático)
+  - [PlayerBody (Cuerpo del Jugador)](#playerbody-cuerpo-del-jugador)
+  - [DecoBody (Cuerpo Decorativo)](#decobody-cuerpo-decorativo)
+- [Sistema de Motores de Física](#sistema-de-motores-de-física)
+  - [PhysicsEngine (Motor de Física)](#physicsengine-motor-de-física)
+  - [BasicPhysicsEngine](#basicphysicsengine)
+  - [NullPhysicsEngine](#nullphysicsengine)
 - [Sistema de Armas](#sistema-de-armas)
   - [AbstractWeapon (Arma Abstracta)](#abstractweapon-arma-abstracta)
 - [Modelo de Threading](#modelo-de-threading)
@@ -20,15 +27,16 @@
 
 ## Visión General
 
-El motor de juego Balls está diseñado siguiendo el patrón arquitectónico **Modelo-Vista-Controlador (MVC)**, proporcionando una clara separación de responsabilidades entre la lógica del juego, la representación visual y el manejo de entrada del usuario. Esta arquitectura facilita el mantenimiento, testing y extensibilidad del código.
+Balls es un motor de simulación de física 2D ligero y educativo construido sobre el patrón arquitectónico Modelo-Vista-Controlador (MVC). El motor proporciona una clara separación de responsabilidades entre la lógica del juego, la representación visual y el manejo de entrada del usuario. Esta arquitectura facilita el mantenimiento, testing y extensibilidad del código.
 
 ### Principios de Diseño
 
 1. **Separación de Responsabilidades**: Cada componente tiene un propósito específico y bien definido
-2. **Bajo Acoplamiento**: Los componentes se comunican a través de interfaces claras
-3. **Alta Cohesión**: La funcionalidad relacionada está agrupada
+2. **Bajo Acoplamiento**: Los componentes se comunican a través de interfaces claras y DTOs inmutables
+3. **Alta Cohesión**: La funcionalidad relacionada está agrupada en paquetes y clases específicas
 4. **Extensibilidad**: Nuevas características pueden agregarse con mínimo impacto en código existente
-5. **Thread-Safety**: Diseño cuidadoso para operaciones concurrentes
+5. **Thread-Safety**: Cada cuerpo dinámico ejecuta en su propio hilo con estructuras de datos concurrentes
+6. **Inmutabilidad**: Los DTOs son inmutables para garantizar seguridad en transferencia entre hilos
 
 ---
 
