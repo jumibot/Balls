@@ -1,4 +1,4 @@
-# Balls - Architecture Documentation
+# MVCGameEngine Architecture Documentation
 
 ## Table of Contents
 
@@ -8,37 +8,29 @@
    - [Model](#model)
    - [View](#view)
    - [Renderer](#renderer)
-3. [Body System](#body-system)
-   - [AbstractBody](#abstractbody)
+3. [Entity System](#entity-system)
    - [DynamicBody](#dynamicbody)
    - [StaticBody](#staticbody)
-   - [PlayerBody](#playerbody)
-   - [DecoBody](#decobody)
-4. [Physics Engine System](#physics-engine-system)
-   - [PhysicsEngine Interface](#physicsengine-interface)
-   - [BasicPhysicsEngine](#basicphysicsengine)
-   - [NullPhysicsEngine](#nullphysicsengine)
-5. [Weapon System](#weapon-system)
+4. [Weapon System](#weapon-system)
    - [AbstractWeapon](#abstractweapon)
-6. [Threading Model](#threading-model)
-7. [Design Patterns](#design-patterns)
-8. [Implementation Guidelines](#implementation-guidelines)
-9. [Best Practices](#best-practices)
+5. [Threading Model](#threading-model)
+6. [Design Patterns](#design-patterns)
+7. [Implementation Guidelines](#implementation-guidelines)
+8. [Best Practices](#best-practices)
 
 ---
 
 ## Overview
 
-Balls is a lightweight, educational 2D physics simulation built on the Model-View-Controller (MVC) architectural pattern. The engine provides a clean separation of concerns, enabling scalable and maintainable development with support for real-time physics simulation, body management, rendering, and weapon systems.
+MVCGameEngine is a lightweight, modular game engine built on the Model-View-Controller (MVC) architectural pattern. The engine provides a clean separation of concerns, enabling scalable and maintainable game development with support for entity management, rendering, and weapon systems.
 
 ### Key Features
 
-- **MVC Architecture**: Clear separation between simulation logic, state, and presentation
-- **Body System**: Hierarchy supporting dynamic bodies, static bodies, player-controlled bodies, and decorative bodies
-- **Physics Engine System**: Pluggable physics engines with multiple implementations (BasicPhysicsEngine, NullPhysicsEngine)
-- **Weapon System**: Extensible weapon framework with fire-rate control and ammunition management
-- **Thread-Safe Design**: Each dynamic body runs on its own thread with concurrent-safe data structures
-- **Modular Components**: Clean interfaces and abstract classes for easy extension
+- **MVC Architecture**: Clear separation between game logic, state, and presentation
+- **Entity System**: Flexible hierarchy supporting both dynamic and static game objects
+- **Weapon System**: Extensible weapon framework with abstract base classes
+- **Thread-Safe Design**: Concurrent rendering and game logic execution
+- **Modular Components**: Easy to extend and customize
 
 ### Architecture Diagram
 

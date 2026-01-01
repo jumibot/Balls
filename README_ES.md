@@ -1,4 +1,4 @@
-# Balls
+# MVCGameEngine
 
 **[English](README.md)** | **Español**
 
@@ -8,7 +8,7 @@ Este proyecto sirve como una plataforma de aprendizaje integral para comprender 
 
 ## Qué Hace el Programa
 
-**Balls** es una simulación de física 2D en tiempo real que presenta entidades dinámicas (bolas/asteroides) que interactúan dentro de un espacio mundial configurable. El programa crea un entorno animado donde:
+**MVCGameEngine** es una simulación de física 2D en tiempo real que presenta entidades dinámicas (bolas/asteroides) que interactúan dentro de un espacio mundial configurable. El programa crea un entorno animado donde:
 
 - **Cuerpos Dinámicos**: Las entidades se mueven, rotan y colisionan según las reglas de física gobernadas por motores de física intercambiables
 - **Interacción del Jugador**: Los usuarios pueden controlar una entidad jugador con capacidades de empuje, rotación y disparo usando entradas de teclado

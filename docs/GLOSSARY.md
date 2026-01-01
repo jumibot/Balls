@@ -1,8 +1,8 @@
-# Glosario de Conceptos - Balls
+# Glosario de Conceptos - MVCGameEngine
 
 **[English](GLOSSARY_EN.md)** | **Español**
 
-Este documento proporciona un glosario de los conceptos más importantes utilizados en el proyecto Balls, un motor de física 2D en tiempo real implementado en Java.
+Este documento proporciona un glosario de los conceptos más importantes utilizados en el proyecto MVCGameEngine, un motor de física 2D en tiempo real implementado en Java.
 
 ## Arquitectura y Patrones de Diseño
 
@@ -21,19 +21,18 @@ Capa de presentación que maneja el renderizado visual utilizando Java Swing. So
 ### Controller
 Coordinador central de la arquitectura MVC. Conecta Model y View, gestiona la inicialización del motor, procesa comandos de usuario, y proporciona acceso a instantáneas del estado para el renderizado.
 
-## Cuerpos (Bodies)
+## Entidades (Entities)
 
-### Body (AbstractBody)
-Clase base abstracta para todos los cuerpos en la simulación. Define:
+### Entity (AbstractEntity)
+Clase base abstracta para todas las entidades en la simulación. Define:
 - Identificador único (`entityId`)
-- Estado del ciclo de vida (`BodyState`: STARTING, ALIVE, DEAD)
-- Referencia al motor de física (`PhysicsEngine`)
+- Estado del ciclo de vida (`EntityState`: STARTING, ALIVE, DEAD)
+- Referencia al asset visual (`assetId`)
 - Tamaño (`size`)
-- Tiempo de vida máximo (opcional)
-- Contadores estáticos para seguimiento de cuerpos creados, vivos y muertos
+- Contadores estáticos para seguimiento de entidades creadas, vivas y muertas
 
 ### DynamicBody
-Cuerpo dinámico que se mueve y rota según las leyes de física. Características:
+Entidad dinámica que se mueve y rota según las leyes de física. Características:
 - Ejecuta en su propio hilo dedicado
 - Posee un `PhysicsEngine` que calcula su movimiento
 - Actualiza continuamente su posición, velocidad y aceleración
@@ -41,7 +40,7 @@ Cuerpo dinámico que se mueve y rota según las leyes de física. Característic
 - Ejemplos: asteroides, proyectiles
 
 ### StaticBody
-Cuerpo estático que no se mueve durante la simulación. Características:
+Entidad estática que no se mueve durante la simulación. Características:
 - No tiene hilo propio
 - Utiliza `NullPhysicsEngine` (sin cálculos físicos)
 - Posición, rotación y tamaño fijos
@@ -49,29 +48,26 @@ Cuerpo estático que no se mueve durante la simulación. Características:
 - Ejemplos: planetas, obstáculos decorativos
 
 ### PlayerBody
-Cuerpo especial que extiende `DynamicBody` y representa al jugador. Características:
+Entidad especial que extiende `DynamicBody` y representa al jugador. Características:
 - Control mediante teclado (empuje, rotación, disparo)
 - Sistema de armas con múltiples slots
 - Parámetros configurables: fuerza máxima de empuje, aceleración angular
 - Identificador único de jugador (`playerId`)
 
-### DecoBody
-Cuerpo puramente decorativo sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo (elementos de fondo, efectos visuales temporales).
+### DecoEntity
+Entidad puramente decorativa sin física ni lógica de juego. Se utiliza para elementos visuales que no interactúan con el mundo.
 
 ### PhysicsBody
-Interfaz que marca cuerpos que tienen comportamiento físico. Proporciona métodos por defecto para:
-- Obtener valores físicos (`PhysicsValuesDTO`)
+Interfaz que marca entidades que tienen comportamiento físico. Proporciona métodos por defecto para:
+- Obtener valores físicos (`PhysicsValues`)
 - Aplicar movimiento
 - Gestionar rebotes en los bordes del mundo
 
-### BodyState
-Enumeración que define los estados del ciclo de vida de un cuerpo:
-- **STARTING**: Cuerpo creado pero no activado
-- **ALIVE**: Cuerpo activo en la simulación
-- **DEAD**: Cuerpo marcado para eliminación
-
-### BodyDTO
-Objeto de Transferencia de Datos (DTO) que contiene información inmutable sobre un cuerpo para transferencia segura entre las capas Model y View. Incluye entityId, assetId, size, posición (x, y) y ángulo.
+### EntityState
+Enumeración que define los estados del ciclo de vida de una entidad:
+- **STARTING**: Entidad creada pero no activada
+- **ALIVE**: Entidad activa en la simulación
+- **DEAD**: Entidad marcada para eliminación
 
 ## Motor de Física (Physics Engine)
 
@@ -95,11 +91,10 @@ Motor de física "nulo" usado por `StaticBody`. No realiza cálculos físicos, m
 ### AbstractPhysicsEngine
 Clase base abstracta que proporciona implementación común para motores de física, incluyendo gestión de valores físicos y rebotes.
 
-### PhysicsValuesDTO
-Objeto inmutable que encapsula el estado físico completo de un cuerpo en un momento específico:
+### PhysicsValues
+Objeto inmutable que encapsula el estado físico completo de una entidad en un momento específico:
 - **timeStamp**: Marca temporal en nanosegundos
 - **posX, posY**: Posición en el espacio 2D
-- **size**: Tamaño del cuerpo
 - **speedX, speedY**: Velocidad (componentes x, y)
 - **accX, accY**: Aceleración (componentes x, y)
 - **angle**: Ángulo de rotación en grados
@@ -117,7 +112,7 @@ Objeto de transferencia de datos que encapsula una acción a ejecutar:
 
 ### EventDTO (Data Transfer Object)
 Objeto que representa un evento en la simulación:
-- **entity**: Cuerpo que genera el evento
+- **entity**: Entidad que genera el evento
 - **eventType**: Tipo de evento (`EventType`)
 
 ### ActionType
@@ -181,30 +176,26 @@ Catálogo que organiza y gestiona todos los recursos visuales (sprites, imágene
 Enumeración de tipos de assets (backgrounds, solid_bodies, space_decors, spaceship, weapons, etc.).
 
 ### EntityInfoDTO
-Objeto de transferencia de datos que contiene información para renderizar un cuerpo estático:
-- ID del cuerpo (entityId)
-- ID de asset visual (assetId)
-- Tamaño (size)
+Objeto de transferencia de datos que contiene información para renderizar una entidad estática:
+- ID de entidad
+- ID de asset
+- Tamaño
 - Posición (x, y)
-- Ángulo de rotación (angle)
+- Ángulo de rotación
 
 ### DBodyInfoDTO
-Extensión de `EntityInfoDTO` para cuerpos dinámicos, añadiendo:
-- Marca temporal (timeStamp)
+Extensión de `EntityInfoDTO` para entidades dinámicas, añadiendo:
+- Marca temporal
 - Velocidad (speedX, speedY)
 - Aceleración (accX, accY)
-- Información completa de estado físico para renderizado con interpolación
 
 ### Renderer
-Componente que maneja el bucle de renderizado, dibujando el estado actual del juego en pantalla utilizando las instantáneas proporcionadas por el Controller. Ejecuta en su propio hilo, continuamente solicitando datos de cuerpos dinámicos y dibujándolos usando Java Swing.
+Componente que maneja el bucle de renderizado, dibujando el estado actual del juego en pantalla utilizando las instantáneas proporcionadas por el Controller.
 
 ## Utilidades
 
 ### DoubleVector
-Clase de utilidad para matemáticas vectoriales 2D, proporcionando operaciones vectoriales comunes usadas en cálculos físicos.
-
-### RandomArrayList
-ArrayList especializado que proporciona selección aleatoria de elementos, usado para generación de contenido procedural.
+Clase de utilidad para matemáticas vectoriales 2D, proporcionando operaciones vectoriales comunes.
 
 ### Images
 Sistema de carga y caché de imágenes para gestión eficiente de recursos gráficos.
@@ -232,16 +223,13 @@ Fuerza que se opone al movimiento, reduciendo gradualmente la velocidad de las e
 ## Programación Concurrente
 
 ### Thread-Safe Collections
-Colecciones seguras para hilos (como `ConcurrentHashMap`) utilizadas para gestionar cuerpos en un entorno multihilo. El Model usa ConcurrentHashMap para almacenar de forma segura los mapas de cuerpos dinámicos y estáticos.
+Colecciones seguras para hilos (como `ConcurrentHashMap`) utilizadas para gestionar entidades en un entorno multihilo.
 
 ### Volatile Variables
-Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `BodyState`, `EngineState`). Asegura que todos los hilos vean siempre el valor más reciente.
+Variables marcadas como `volatile` para garantizar visibilidad entre hilos (ej: `ModelState`, `EntityState`).
 
 ### Immutable Objects
-Objetos inmutables como `PhysicsValuesDTO` y otros DTOs que garantizan seguridad en concurrencia al no permitir modificación después de la creación. Esto permite compartirlos entre hilos sin necesidad de sincronización.
-
-### Dedicated Thread
-Cada DynamicBody ejecuta en su propio hilo dedicado, actualizando continuamente su estado físico de forma independiente.
+Objetos inmutables como `PhysicsValues` que garantizan seguridad en concurrencia al no permitir modificación después de la creación.
 
 ---
 
@@ -249,11 +237,11 @@ Cada DynamicBody ejecuta en su propio hilo dedicado, actualizando continuamente 
 
 1. **Inicialización**: `Main` crea Controller, Model y View
 2. **Carga de Assets**: Controller carga recursos visuales en View
-3. **Generación de Mundo**: WorldGenerator crea cuerpos iniciales basándose en WorldDefinition
+3. **Generación de Mundo**: WorldGenerator crea entidades iniciales
 4. **Activación**: Model y View se activan, iniciando sus bucles de ejecución
-5. **Bucle de Simulación**: Los cuerpos DynamicBody calculan física en hilos separados
+5. **Bucle de Simulación**: DynamicBody entities calculan física en hilos separados
 6. **Bucle de Renderizado**: View solicita instantáneas y renderiza el estado actual
 7. **Procesamiento de Entrada**: Controller traduce entrada de teclado en acciones del Model
-8. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones mediante el sistema de ActionDTO/EventDTO
+8. **Procesamiento de Eventos**: Model gestiona eventos (colisiones, rebotes) y ejecuta acciones
 
-Este glosario proporciona una base sólida para entender la arquitectura y conceptos fundamentales del proyecto Balls.
+Este glosario proporciona una base sólida para entender la arquitectura y conceptos fundamentales del proyecto MVCGameEngine.

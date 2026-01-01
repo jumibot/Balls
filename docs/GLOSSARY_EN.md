@@ -1,8 +1,8 @@
-# Glossary - Balls
+# Glossary - MVCGameEngine
 
 **English** | **[Español](GLOSSARY.md)**
 
-This glossary provides definitions for key terms and concepts used throughout the Balls project, a real-time 2D physics simulation engine built in Java.
+This glossary provides definitions for key terms and concepts used throughout the MVCGameEngine project, a real-time 2D physics simulation engine built in Java.
 
 ## Table of Contents
 
@@ -54,16 +54,16 @@ An add-on component that extends the engine's functionality without modifying th
 An architectural pattern that separates an application into three interconnected components to organize code and improve maintainability.
 
 ### **Model**
-The data and simulation layer of the MVC pattern. In Balls, the Model manages the complete game state, physics simulation, and all bodies (entities). It runs on its own thread(s), updating physics continuously and providing snapshots (DTOs) to the Controller for rendering. The Model never directly accesses the View.
+The data layer of the MVC pattern. Represents the game's state, business logic, and data structures. Manages game entities, world state, and rules independently of the user interface.
 
 ### **View**
-The presentation layer of the MVC pattern. In Balls, the View is a Swing-based window that handles rendering and input capture. It requests visual resources, manages the Renderer (rendering loop), and translates keyboard input into Controller commands. The View accesses Model data only through Controller-provided snapshots.
+The presentation layer of the MVC pattern. Responsible for rendering the game's visual representation to the screen. Displays the current state of the model without containing game logic.
 
 ### **Controller**
-The coordination layer of the MVC pattern. In Balls, the Controller bridges user input from the View to Model commands, manages the engine lifecycle (initialization, activation, shutdown), and provides snapshot getters that the Renderer uses to pull dynamic body data. It also implements game rules by mapping events to actions.
+The input and logic coordinator of the MVC pattern. Processes user input, updates the model based on game rules, and determines which view updates are needed.
 
 ### **Separation of Concerns**
-A design principle where different aspects of the application (data, presentation, logic) are kept separate to improve maintainability and testability. In Balls, the Model handles simulation, the View handles rendering/input, and the Controller coordinates between them.
+A design principle where different aspects of the application (data, presentation, logic) are kept separate to improve maintainability and testability.
 
 ### **Observer Pattern**
 A design pattern where the View observes the Model for changes and updates automatically when the Model's state changes.
@@ -73,72 +73,40 @@ The process of connecting the Model's data to the View's display, allowing autom
 
 ---
 
-## Body System Terms
+## Game Engine Terms
 
-### **Body**
-A game object that exists within the simulation world. In Balls, bodies are the core entities managed by the Model. See AbstractBody, DynamicBody, StaticBody, PlayerBody, and DecoBody.
+### **Entity**
+A game object that exists within the game world. Can represent characters, items, obstacles, or any interactive element.
 
-### **AbstractBody**
-The base abstract class for all bodies in the simulation. Defines common properties like unique entityId, BodyState lifecycle (STARTING → ALIVE → DEAD), physics engine reference, and lifecycle management methods (activate(), die()). Maintains static counters for tracking created, alive, and dead bodies globally.
+### **Component**
+A modular piece of functionality that can be attached to entities to give them specific behaviors or properties (e.g., physics, rendering, input handling).
 
-### **DynamicBody**
-A body with active physics simulation that moves and rotates according to physics rules. Each DynamicBody runs on its own dedicated thread, continuously updating position, velocity, and acceleration using its BasicPhysicsEngine. Examples: asteroids, projectiles, missiles.
+### **Scene**
+A contained environment or level in the game. Manages a collection of entities and their interactions within a specific context.
 
-### **StaticBody**
-A body with a fixed position that does not move during simulation. Uses NullPhysicsEngine (no physics calculations). Static bodies have no thread and are used for obstacles, decorative elements, and non-moving world elements. Examples: planets, space stations, decorative objects.
+### **Game Loop**
+The main cycle that runs continuously while the game is active. Typically processes input, updates game state, and renders graphics in sequence.
 
-### **PlayerBody**
-A special DynamicBody that represents a player-controlled entity. Extends DynamicBody with player control capabilities (thrust, rotation, firing), a weapon system with multiple weapon slots, and configurable parameters like max thrust force and angular acceleration.
+### **Update Cycle**
+The portion of the game loop where game logic is executed, entity states are updated, and game rules are applied.
 
-### **DecoBody**
-A purely decorative body (like TemporaryDecoBody) used for visual-only elements with no gameplay impact or physics simulation. Used for background elements and temporary visual effects.
+### **Render Cycle**
+The portion of the game loop where the current game state is drawn to the screen.
 
-### **PhysicsBody**
-An interface that marks bodies capable of physics simulation. Provides default methods for obtaining physics values, applying movement, and handling world boundary bounces.
+### **Delta Time (dt)**
+The time elapsed since the last frame update. Used to ensure consistent game behavior regardless of frame rate.
 
-### **BodyState**
-An enumeration defining the lifecycle states of a body:
-- **STARTING**: Body created but not yet activated
-- **ALIVE**: Body is active in the simulation  
-- **DEAD**: Body marked for removal
+### **Frame Rate (FPS)**
+The number of frames (complete update and render cycles) displayed per second. Common targets are 30 or 60 FPS.
 
-### **BodyDTO**
-A Data Transfer Object containing immutable snapshot data about a body for safe transfer between Model and View layers. Contains entityId, assetId, size, position (x, y), and angle.
+### **Game State**
+The current condition of all game data, including entity positions, player scores, level progress, and system status.
 
-## Physics Engine Terms
+### **State Machine**
+A behavioral pattern that allows an entity or system to transition between different states (e.g., menu, playing, paused, game over).
 
-### **PhysicsEngine**
-An interface defining the contract for physics calculations. Responsible for computing new physics values based on elapsed time, managing boundary bounces, and updating thrust and angular acceleration. Different implementations provide different physics behaviors.
-
-### **BasicPhysicsEngine**
-A concrete physics engine that applies realistic 2D kinematics using MRUA (Uniformly Accelerated Rectilinear Motion) integration. Calculates velocity (v₁ = v₀ + a·Δt), position (x₁ = x₀ + v_avg·Δt), and rotation based on angular velocity. Applies thrust according to the body's current angle.
-
-### **NullPhysicsEngine**
-A "null object" physics engine used by StaticBody. Performs no calculations and maintains constant physics values, ensuring static bodies remain immobile without computational overhead.
-
-### **AbstractPhysicsEngine**
-An abstract base class providing common implementation for physics engines, including physics value management and boundary bounce handling.
-
-### **PhysicsValuesDTO**
-An immutable Data Transfer Object encapsulating complete physics state at a specific moment:
-- **timeStamp**: Timestamp in nanoseconds
-- **posX, posY**: Position in 2D space
-- **speedX, speedY**: Velocity components  
-- **accX, accY**: Acceleration components
-- **angle**: Rotation angle in degrees
-- **angularSpeed**: Rotational velocity (degrees/second)
-- **angularAcc**: Angular acceleration (degrees/second²)  
-- **thrust**: Applied thrust force
-- **size**: Body size
-
-### **Thrust**
-A force applied to a body in the direction of its current angle. Used to propel spaceships and other dynamic objects. In Balls, thrust is applied by PlayerBody when the user presses movement keys.
-
-### **Angular Velocity**
-The rate of rotation of a body, measured in degrees per second. Determines how fast a body spins.
-
-### **Angular Acceleration**  
-The rate of change of angular velocity over time, measured in degrees per second squared. Controls how quickly rotation speed changes.
+### **Lifecycle**
+The sequence of events an object goes through from creation (initialization) to destruction (cleanup).
 
 ---
 
@@ -250,155 +218,106 @@ A complex input pattern recognized by the system (e.g., swipe, pinch, double-tap
 
 ---
 
-## Weapon System Terms
+## Audio Terms
 
-### **Weapon**
-An interface/component that can fire projectiles. In Balls, weapons are attached to PlayerBody and managed through the weapon system.
+### **Sound Effect (SFX)**
+A short audio clip played in response to game events (e.g., jump sound, explosion).
 
-### **AbstractWeapon**
-The base abstract class for all weapon implementations. Provides:
-- Immutable weapon identification
-- Thread-safe firing request mechanism using AtomicLong  
-- Unified API for discrete-tick weapon updates
-- Fire rate control and ammunition management
-Weapons are passive components with no threads; they only fire when update(dt) is called by the owning body.
+### **Background Music (BGM)**
+Longer audio tracks that play continuously in the background to set mood and atmosphere.
 
-### **BasicWeapon**
-A standard weapon implementation with cooldown-based fire rate limiting and ammunition/reload mechanics. Fires single projectiles when requested, respecting fire rate (shots per second) and ammo constraints.
+### **Audio Channel**
+An independent audio output stream. Multiple channels allow simultaneous sound playback.
 
-### **BurstWeapon**
-A weapon that fires multiple projectiles in quick succession (a burst) when triggered. Manages burst timing and projectile count internally.
+### **Volume**
+The loudness level of an audio source.
 
-### **MineLauncher**
-A specialized weapon that deploys stationary mines that persist in the world.
+### **Audio Manager**
+A system component that handles loading, playing, and controlling all game audio.
 
-### **MissileLauncher**
-A weapon that fires guided or unguided missile projectiles with different flight characteristics than standard bullets.
+### **Sample Rate**
+The number of audio samples per second, determining audio quality.
 
-### **WeaponDto**
-A Data Transfer Object containing weapon configuration:
-- Fire rate (shots per second)
-- Maximum ammunition capacity
-- Reload time (seconds)
-- Projectile properties (size, speed, lifetime, asset)
-
-### **WeaponFactory**
-A factory class for creating weapon instances with predefined configurations.
-
-### **WeaponType**
-An enumeration of available weapon types in the game.
+### **Audio Buffer**
+A temporary storage area for audio data before playback.
 
 ---
 
-## Event and Action System Terms
+## Physics & Collision
 
-### **ActionDTO**
-A Data Transfer Object that encapsulates an action to be executed:
-- **type**: The type of action (ActionType enum)
-- **executor**: The component that will execute the action (ActionExecutor)
-- **priority**: Execution priority (ActionPriority enum)
+### **Physics Engine**
+A system that simulates physical interactions like gravity, velocity, acceleration, and collisions.
 
-### **EventDTO**
-A Data Transfer Object representing an event in the simulation:
-- **entity**: The body that generated the event  
-- **eventType**: The type of event (EventType enum)
+### **Collision Detection**
+The process of determining when two or more entities intersect or touch.
 
-### **ActionType**
-An enumeration of action types that can be performed in the system (e.g., MOVE, DIE, FIRE).
+### **Bounding Box**
+A rectangular area surrounding an entity used for collision detection.
 
-### **EventType**  
-An enumeration of event types that can occur during simulation (e.g., COLLIDED, WORLD_BOUNDARY_REACHED, MUST_FIRE).
+### **Hit Box**
+The specific area of an entity that can participate in collisions, which may be smaller than the visual sprite.
 
-### **ActionExecutor**
-An interface for objects capable of executing actions on the Model.
+### **Collision Response**
+The action taken when a collision is detected (e.g., bounce, stop, trigger event).
 
-### **ActionPriority**
-An enumeration defining priority levels for action execution, ensuring critical actions (like entity death) are processed before others.
+### **Rigid Body**
+An object that follows physics simulation rules for movement and collision.
+
+### **Velocity**
+The speed and direction of an entity's movement.
+
+### **Acceleration**
+The rate of change of velocity over time.
+
+### **Gravity**
+A constant downward force applied to entities with physics properties.
+
+### **Friction**
+Resistance that slows down moving objects.
+
+### **Impulse**
+A sudden force applied to an object, changing its velocity instantly.
+
+### **Raycast**
+A technique that projects an invisible line to detect what it intersects with, useful for line-of-sight and shooting mechanics.
 
 ---
 
-## State Management Terms
+## Additional Concepts
 
-### **ModelState**
-An enumeration defining the lifecycle states of the Model:
-- **STARTING**: Model is initializing
-- **ALIVE**: Model is running the simulation
-- **STOPPED**: Model has been stopped
+### **Prefab**
+A pre-configured entity template that can be instantiated multiple times in the game.
 
-### **EngineState**  
-An enumeration defining the lifecycle states of the entire engine (managed by Controller):
-- **STARTING**: Engine is initializing
-- **ALIVE**: Engine is running
-- **PAUSED**: Engine is paused
-- **STOPPED**: Engine has been stopped
+### **Serialization**
+The process of converting game state or objects into a format that can be saved to disk or transmitted.
 
-## World Generation Terms
+### **Deserialization**
+The process of reconstructing objects or game state from saved data.
 
-### **WorldDefinition**
-A configuration object that defines a complete world setup:
-- World dimensions (width, height)
-- Asset catalog for visual resources
-- Background definitions
-- Decorator definitions  
-- Body definitions (dynamic and static)
-- Weapon configurations
+### **Hot Reload**
+The ability to update code or assets while the game is running without restarting.
 
-### **WorldGenerator**
-A class responsible for generating the initial world based on a WorldDefinition. Creates and places all initial bodies.
+### **Profiler**
+A tool that measures performance metrics like frame rate, memory usage, and execution time of different systems.
 
-### **LifeGenerator**
-An automated body generator that maintains simulation activity by creating new dynamic bodies when needed. Helps keep the simulation populated with entities.
+### **Memory Leak**
+A bug where allocated memory is not properly released, causing increasing memory consumption over time.
 
-## Rendering Terms
+### **Garbage Collection**
+An automatic memory management process that frees memory no longer in use.
 
-### **Renderer**
-The component that manages the rendering loop. It runs on its own thread, continuously pulling dynamic body snapshots from the Controller and drawing them using Java Swing graphics. Handles layered rendering (backgrounds, static bodies, dynamic bodies, decorations, UI).
+### **Thread**
+An independent sequence of execution within a program, allowing parallel processing.
 
-### **RenderDTO**
-A Data Transfer Object containing immutable rendering information for static bodies. Includes entityId, assetId, size, position, and angle.
-
-### **DynamicRenderDTO**
-An extension of RenderDTO for dynamic bodies, adding timestamp and velocity/acceleration data for potential motion interpolation or effects.
-
-## Asset Management Terms
-
-### **AssetCatalog**
-A catalog that organizes and manages all visual resources (sprites, images) used in the simulation. Groups assets by type and provides lookup functionality.
-
-### **AssetType**
-An enumeration of asset categories: backgrounds, gravity_bodies, solid_bodies, space_decors, spaceship, ui_decors, weapons.
-
-### **Images**
-A system for loading and caching images to support efficient resource management.
-
-## Threading and Concurrency Terms
-
-### **Thread-Safe Collections**
-Collections designed for safe concurrent access from multiple threads. Balls uses ConcurrentHashMap for managing bodies in the Model.
-
-### **Volatile Variables**
-Variables marked with the `volatile` keyword to ensure visibility across threads. Used for ModelState, EngineState, and BodyState to guarantee all threads see the latest values.
-
-### **Immutable Objects**
-Objects that cannot be modified after creation, guaranteeing thread safety. PhysicsValuesDTO and DTOs are immutable, allowing safe sharing between threads without synchronization.
-
-### **Dedicated Thread**
-Each DynamicBody runs on its own dedicated thread, continuously updating its physics state independently.
-
-## Utility Terms
-
-### **DoubleVector**
-A utility class for 2D vector mathematics, providing common vector operations used in physics calculations.
-
-### **RandomArrayList**
-A specialized ArrayList that provides random element selection, used for procedural content generation.
+### **Asynchronous Operation**
+A task that runs independently without blocking the main program flow.
 
 ---
 
 ## Document Information
 
 **Version:** 1.0  
-**Last Updated:** 2026-01-01  
-**Maintained By:** Balls Development Team  
+**Last Updated:** 2025-12-18  
+**Maintained By:** MVCGameEngine Team  
 
 For additional information, please refer to the main documentation or visit the project repository.
