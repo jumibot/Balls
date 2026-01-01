@@ -43,13 +43,19 @@ import model.bodies.ports.PhysicsBody;
 public class DynamicBody extends AbstractBody implements PhysicsBody, Runnable {
 
     private Thread thread;
-    private final BasicPhysicsEngine phyEngine; 
+    private final BasicPhysicsEngine phyEngine;
 
     /**
      * CONSTRUCTORS
      */
     public DynamicBody(BasicPhysicsEngine phyEngine) {
         super(phyEngine);
+
+        this.phyEngine = phyEngine;
+    }
+
+    public DynamicBody(BasicPhysicsEngine phyEngine, double maxLifeInSeconds) {
+        super(phyEngine, maxLifeInSeconds);
 
         this.phyEngine = phyEngine;
     }

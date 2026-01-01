@@ -294,6 +294,27 @@ public class Renderer extends Canvas implements Runnable {
         g.setColor(old);
     }
 
+    private void drawHUDPlayer(Graphics2D g) {
+        Color old = g.getColor();
+
+        Font font = new Font("Arial", Font.PLAIN, 28); // tamaño 24
+        g.setFont(font);
+        g.setColor(Color.YELLOW);
+        g.drawString("FPS: " + this.fps, 12, 30);
+
+        g.setColor(Color.ORANGE);
+        g.drawString("Draw: " + String.format("%.0f", this.renderTimeInMs) + " ms", 12, 65);
+        g.drawString("Cache imgs: " + this.imagesCache.size(), 12, 100);
+        g.drawString("Cache hits:  " + this.imagesCache.getHits() + " ("
+                + String.format("%.2f", this.imagesCache.getHitsPercentage()) + "%)",
+                12, 135);
+        g.drawString("Cache fails: " + this.imagesCache.getFails(), 12, 170);
+        g.drawString("Entities Alive: " + this.view.getEntityAliveQuantity(), 12, 205);
+        g.drawString("Entities Dead: " + this.view.getEntityDeadQuantity(), 12, 240);
+
+        g.setColor(old);
+    }
+
     private void drawStaticRenderables(Graphics2D g) {
         Map<String, Renderable> renderables = this.staticRenderables;
 

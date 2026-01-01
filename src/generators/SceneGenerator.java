@@ -7,14 +7,14 @@ import controller.ports.WorldInitializer;
 import world.WorldDefPositionItemDto;
 import world.WorldDefinition;
 
-public class WorldGenerator {
+public class SceneGenerator {
 
     private final Random rnd = new Random();
 
     private final WorldInitializer controller;
     WorldDefinition worldDefinition;
 
-    public WorldGenerator(WorldInitializer worldInitializer, WorldDefinition worldDef) {
+    public SceneGenerator(WorldInitializer worldInitializer, WorldDefinition worldDef) {
         this.controller = worldInitializer;
         this.worldDefinition = worldDef;
 

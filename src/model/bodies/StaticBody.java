@@ -1,8 +1,6 @@
 package model.bodies;
 
-import java.util.concurrent.atomic.AtomicReference;
 import model.physics.NullPhysicsEngine;
-import model.physics.ports.PhysicsEngine;
 
 /**
  * StaticBody
