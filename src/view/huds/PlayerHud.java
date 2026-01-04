@@ -4,17 +4,25 @@ import java.awt.Color;
 
 public class PlayerHud extends Hud {
     public PlayerHud() {
-        super(Color.GRAY, 10, 12, 35);
+        super(
+                new Color(255, 140, 0, 150 ), // Title color
+                Color.GRAY, // Highlight color
+                new Color(255, 255, 255, 80), // Label color
+                new Color(255, 255, 255, 125), // Data color
+                350, 12, 35);
 
-        this.addLabels();
+        this.addItems();
     }
 
-    private void addLabels() {
-        this.addLine("FPS");
-        this.addLine("Draw");
-        this.addLine("Cache images");
-        this.addLine("Cache hits");
-        this.addLine("Entities Alive");
-        this.addLine("Entities Dead");
+    private void addItems() {
+        this.addTitle("PLAYER STATUS");
+        this.addBar("Damage", 125);
+        this.addBar("Energy", 125);
+        this.addTitle("Weapons");
+        this.addBar("Guns", 125, false);
+        this.addBar("Burst", 125, false);
+        this.addBar("Mines", 125, false);
+        this.addBar("Missiles", 125, false);
+        this.prepareHud();
     }
 }

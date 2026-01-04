@@ -2,7 +2,7 @@ package controller.mappers;
 
 import java.util.ArrayList;
 
-import model.bodies.BodyDTO;
+import model.bodies.core.BodyDTO;
 import view.renderables.DynamicRenderDTO;
 
 public class DynamicRenderableMapper {

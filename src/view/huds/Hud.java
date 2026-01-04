@@ -2,90 +2,96 @@ package view.huds;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Hud {
     public final int initRow;
     public final int initCol;
     public final int interline;
-    public final Color color;
-    public Font font = new Font("Monospaced", Font.PLAIN, 28); // tamaño 24
+    public final Color highLightColor;
+    public final Color titleColor;
+    public final Color labelColor;
+    public final Color dataColor;
 
+    public Font font = new Font("Monospaced", Font.PLAIN, 28);
     public int maxLenLabel = 0;
+    public final List<Item> items = new ArrayList<>(20);
+    public int valuesExpected = 0;
 
-    public ArrayList<String> labels = new ArrayList<>();
-
-    public Hud(Color color, int initRow, int initCol, int interline) {
+    public Hud(Color titleColor, Color highLightColor, Color labelColor, Color dataColor, int initRow, int initCol, int interline) {
         this.initRow = initRow;
         this.initCol = initCol;
         this.interline = interline;
-        this.color = color;
+        this.highLightColor = highLightColor;
+        this.titleColor = titleColor;
+        this.labelColor = labelColor;
+        this.dataColor = dataColor;
     }
 
-    public void addLine(String label) {
-        this.labels.add(label);
-        this.maxLenLabel = Math.max(this.maxLenLabel, label.length()) + 1;
+    public void addTextItem(String label) {
+        this.addItem(new TextItem(label, this.labelColor, this.dataColor));
     }
 
-    public void draw(Graphics2D g, String[] data) {
-        Color old = g.getColor();
+    public void addTitle(String title) {
+        this.addItem(new TitleItem(title, this.titleColor));
+    }
+
+    public void addSeparator() {
+        this.addItem(new SeparatorItem());
+    }
+
+    public void addBar(String label, int barWidth) {
+        this.addItem(new BarItem(label, this.labelColor, this.dataColor, barWidth));
+    }
+
+    public void addBar(String label, int barWidth, boolean showPercentage) {
+        this.addItem(new BarItem(label, this.labelColor, this.dataColor, barWidth, showPercentage));
+    }
+
+    public void draw(Graphics2D g, Object... values) {
+        if (values.length != this.valuesExpected) {
+            throw new IllegalArgumentException(
+                    "Hud.draw: expected " + this.valuesExpected + " values but got " + values.length);
+        }
 
         g.setFont(this.font);
-        g.setColor(Color.YELLOW);
 
-        g.setColor(this.color);
-        int row = 1;
-        for (String label : this.labels) {
-            this.drawLine(g, row, label, data[row - 1]);
-            row++;
+        final FontMetrics fm = g.getFontMetrics();
+        int valueIndex = 0;
+        Object value = null;
+        for (int i = 0; i < this.items.size(); i++) {
+
+            int posX = this.initCol;
+            int posY = this.initRow + i * this.interline;
+            if (this.items.get(i).isValueExpected()) {
+                value = values[valueIndex];
+                valueIndex++;
+            }
+
+            items.get(i).draw(g, fm, posX, posY, value);
         }
     }
 
-    public void drawProgressBar(Graphics2D g, int row, String label, double progress, int barWidth) {
-        Color oldColor = g.getColor();
-        g.setColor(this.color);
-        g.setFont(this.font);
-
-        String labelText = String.format("%-" + (this.maxLenLabel) + "s", label);
-        int posY = this.initRow + (this.interline * row);
-        g.drawString(labelText, this.initCol, posY);
-
-        // Calculate bar position (after label)
-        final int barX = this.initCol + g.getFontMetrics(this.font).stringWidth(labelText);
-        final int barY = posY - (int) (this.font.getSize() * 0.5); // Align with text baseline
-        final int barHeight = (int) (this.font.getSize() * 0.5);
-
-        // Border
-        final int arc = barHeight / 2; // rounded if you want, or set 0 for square
-        g.setColor(this.color);
-        g.drawRoundRect(barX, barY, barWidth, barHeight, arc, arc);
-
-        // Progess bar
-        progress = Math.max(0.0, Math.min(1.0, progress));
-        int fillWidth = (int) ((barWidth - 2) * progress);
-        float hue = (float) (0.33 * progress); // Hue: 0.0 = red, ~0.33 = green
-        Color baseColor = Color.getHSBColor(hue, 1.0f, 1.0f);
-        Color fillColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 90);
-
-        g.setColor(fillColor);
-        g.fillRoundRect(barX + 1, barY + 1, fillWidth, barHeight - 2, arc, arc);
-
-        // Draw percentage text
-        g.setColor(this.color);
-        String percentText = String.format("%d%%", (int) (progress * 100));
-        int textX = barX + barWidth + 15;
-        g.drawString(percentText, textX, posY);
-
-        g.setColor(oldColor);
+    public void prepareHud() {
+        for (Item item : this.items) {
+            item.updatePaddedLabel(maxLenLabel);
+            if (item.isValueExpected()) {
+                this.valuesExpected++;
+            }
+        }
     }
 
-
     /**
-     * PRIVATE METHODS
+     * PRIVATES
      */
-    private void drawLine(Graphics2D g, int row, String line, String data) {
-        String text = String.format("%-" + (this.maxLenLabel) + "s%s", line, data);
-        g.drawString(text, this.initCol, this.initRow + (this.interline * row));
+    private void addItem(Item item) {
+        items.add(item);
+
+        if (item.isValueExpected()) {
+            maxLenLabel = Math.max(maxLenLabel, item.getLabel().length());
+        }
     }
 }

@@ -5,24 +5,29 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import controller.ports.DomainEventProcesor;
-import model.physics.PhysicsValuesDTO;
 
 import java.awt.Dimension;
 import static java.lang.System.nanoTime;
 import java.util.Comparator;
 import java.util.List;
 
-import model.bodies.AbstractBody;
-import model.bodies.BodyDTO;
 import model.bodies.DecoBody;
 import model.bodies.DynamicBody;
-import model.bodies.BodyState;
 import model.bodies.PlayerBody;
 import model.bodies.StaticBody;
+import model.bodies.core.AbstractBody;
+import model.bodies.core.BodyDTO;
+import model.bodies.ports.BodyState;
 import model.physics.BasicPhysicsEngine;
-import model.weapons.WeaponDto;
-import model.weapons.WeaponFactory;
+import model.physics.ports.PhysicsValuesDTO;
+import model.ports.ActionDTO;
+import model.ports.ActionType;
+import model.ports.EventDTO;
+import model.ports.EventType;
+import model.ports.ModelState;
+import model.weapons.core.WeaponFactory;
 import model.weapons.ports.Weapon;
+import model.weapons.ports.WeaponDto;
 
 /**
  * Model
@@ -598,7 +603,7 @@ public class Model {
 
         String entityId = this.addDynamicBody(weaponConfig.projectileSize,
                 posX, posY, projSpeedX, projSpeedY,
-                accX, accY, angleDeg, 0d, 0d, 0d, weaponConfig.maxlifeTime);
+                accX, accY, angleDeg, 0d, 0d, 0d, weaponConfig.maxLifeTime);
 
         if (entityId == null || entityId.isEmpty()) {
             return; // ======= Max entity quantity reached =======>>

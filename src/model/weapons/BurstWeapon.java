@@ -1,5 +1,9 @@
 package model.weapons;
 
+import model.weapons.core.AbstractWeapon;
+import model.weapons.ports.WeaponDto;
+import model.weapons.ports.WeaponState;
+
 public class BurstWeapon extends AbstractWeapon {
 
     private double cooldown = 0.0d; // seconds until next shot is allowed
@@ -19,13 +23,13 @@ public class BurstWeapon extends AbstractWeapon {
             return false; // ======== Weapon is overheated =========>
         }
 
-        if (this.currentAmmo <= 0) {
+        if (this.getCurrentAmmo() <= 0) {
             // No ammunition: set time to reload, reload and discard requests
-
+            this.setState(WeaponState.RELOADING);
             this.markAllRequestsHandled();
             this.shotsRemainingInBurst = 0; // cancel any ongoing burst
-            cooldown = this.getWeaponConfig().reloadTime;
-            this.currentAmmo = this.getWeaponConfig().maxAmmo;
+            this.setCooldown(this.getWeaponConfig().reloadTime);
+            this.setCurrentAmmo(this.getWeaponConfig().maxAmmo);
             return false;
         }
 
@@ -35,7 +39,7 @@ public class BurstWeapon extends AbstractWeapon {
             this.markAllRequestsHandled();
 
             this.shotsRemainingInBurst--;
-            this.currentAmmo--;
+            this.decCurrentAmmo();
 
             if (this.shotsRemainingInBurst == 0) {
                 // Burst finished. Cooldown between bursts
@@ -58,7 +62,7 @@ public class BurstWeapon extends AbstractWeapon {
         int burstSize = Math.max(1, getWeaponConfig().burstSize);
 
         this.shotsRemainingInBurst = burstSize - 1; // One shot now
-        this.currentAmmo--;
+        this.decCurrentAmmo();
 
         // Cooldown depends on whether burst continues
         if (this.shotsRemainingInBurst == 0) {

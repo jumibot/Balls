@@ -1,5 +1,7 @@
 package model.bodies;
 
+import model.bodies.core.AbstractBody;
+import model.bodies.ports.BodyState;
 import model.physics.NullPhysicsEngine;
 
 /**

@@ -12,17 +12,21 @@ import java.awt.Dimension;
 import view.renderables.DynamicRenderDTO;
 import view.View;
 import model.Model;
-import model.bodies.AbstractBody;
-import model.bodies.BodyDTO;
-import model.weapons.WeaponDto;
-import model.ActionType;
-import model.EventType;
+
+import model.bodies.core.AbstractBody;
+import model.bodies.core.BodyDTO;
+
+import model.weapons.ports.WeaponDto;
+import model.ports.ActionDTO;
+import model.ports.ActionExecutor;
+import model.ports.ActionPriority;
+import model.ports.ActionType;
+import model.ports.EventDTO;
+import model.ports.EventType;
+
 import java.util.ArrayList;
 import java.util.List;
-import model.ActionDTO;
-import model.ActionExecutor;
-import model.ActionPriority;
-import model.EventDTO;
+
 import view.renderables.RenderDTO;
 import world.WorldDefWeaponDto;
 

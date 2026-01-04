@@ -1,6 +1,4 @@
-package model.weapons;
-
-import java.util.concurrent.atomic.AtomicLong;
+package model.weapons.ports;
 
 /**
  * WeaponDto
@@ -89,7 +87,7 @@ public class WeaponDto {
     public final int maxAmmo;
     public final double reloadTime;
     public final double projectileMass;
-    public final double maxlifeTime;
+    public final double maxLifeTime;
 
     public WeaponDto(
             WeaponType type,
@@ -120,7 +118,7 @@ public class WeaponDto {
         this.maxAmmo = maxAmmo;
         this.reloadTime = reloadTime;
         this.projectileMass = projectileMass;
-        this.maxlifeTime = maxlifeTime;
+        this.maxLifeTime = maxlifeTime;
     }
 
     // Clone constructor
@@ -140,6 +138,6 @@ public class WeaponDto {
         this.maxAmmo = weaponConfig.maxAmmo;
         this.reloadTime = weaponConfig.reloadTime;
         this.projectileMass = weaponConfig.projectileMass;
-        this.maxlifeTime = weaponConfig.maxlifeTime;
+        this.maxLifeTime = weaponConfig.maxLifeTime;
     }
 }

@@ -1,6 +1,6 @@
 package controller.mappers;
 
-import model.weapons.WeaponType;
+import model.weapons.ports.WeaponType;
 import world.WorldDefWeaponType;
 
 public class WeaponTypeMapper {

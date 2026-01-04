@@ -1,8 +1,8 @@
 package model.bodies.ports;
 
 
-import model.physics.PhysicsValuesDTO;
 import model.physics.ports.PhysicsEngine;
+import model.physics.ports.PhysicsValuesDTO;
 
 
 public interface PhysicsBody {

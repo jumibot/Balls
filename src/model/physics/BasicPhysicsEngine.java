@@ -2,7 +2,9 @@ package model.physics;
 
 import static java.lang.System.nanoTime;
 
+import model.physics.core.AbstractPhysicsEngine;
 import model.physics.ports.PhysicsEngine;
+import model.physics.ports.PhysicsValuesDTO;
 
 public class BasicPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 

@@ -49,7 +49,7 @@ public class Main {
 
                 LifeConfigDTO lifeConfig = new LifeConfigDTO(
                                 1200, // maxCreationDelay
-                                12, 6, // maxSize, minSize
+                                15, 6, // maxSize, minSize
                                 1000, 10, // maxMass, minMass
                                 175, // maxSpeedModule
                                 0); // maxAccModule

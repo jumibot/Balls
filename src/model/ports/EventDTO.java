@@ -1,7 +1,7 @@
-package model;
+package model.ports;
 
 
-import model.bodies.AbstractBody;
+import model.bodies.core.AbstractBody;
 
 
 public class EventDTO {

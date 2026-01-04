@@ -1,9 +1,9 @@
 package model.bodies;
 
 import model.physics.BasicPhysicsEngine;
-import model.physics.PhysicsValuesDTO;
-import model.weapons.WeaponDto;
+import model.physics.ports.PhysicsValuesDTO;
 import model.weapons.ports.Weapon;
+import model.weapons.ports.WeaponDto;
 
 public class PlayerBody extends DynamicBody {
 
@@ -12,7 +12,7 @@ public class PlayerBody extends DynamicBody {
     private double angularSpeed = 30; // degrees*s^-1
     private final java.util.List<Weapon> weapons = new java.util.ArrayList<>(4);
     private int currentWeaponIndex = -1; // -1 = sin arma
-    private double healthPercentage = 100.0d;
+    private double healthPercentage = 1D;
     
 
     public PlayerBody(BasicPhysicsEngine physicsEngine) {

@@ -1,10 +1,11 @@
-package model.bodies;
+package model.bodies.core;
 
 import java.util.UUID;
 
 import model.Model;
-import model.physics.PhysicsValuesDTO;
+import model.bodies.ports.BodyState;
 import model.physics.ports.PhysicsEngine;
+import model.physics.ports.PhysicsValuesDTO;
 
 /**
  *
@@ -80,6 +81,14 @@ public abstract class AbstractBody {
         }
 
         return this.getLifeInSeconds() >= this.maxLifeInSeconds;
+    }
+
+    public double getLifePercentage() {
+        if (this.maxLifeInSeconds <= 0) {
+            return 1D;
+        }
+
+        return Math.min(1D, this.getLifeInSeconds() / this.maxLifeInSeconds);
     }
 
     public double getMaxLife() {

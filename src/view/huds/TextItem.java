@@ -1,20 +1,26 @@
 package view.huds;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class TextItem extends Item {
-    TextItem(int maxLenLabel, String label) {
-        super(maxLenLabel, label);
+    TextItem(String label, Color labelColor, Color dataColor) {
+        super(label, labelColor, dataColor, true);
     }
 
     @Override
-    public void draw(Graphics2D g, FontMetrics fm, int posY, int posX, Object value) {
-        if (!(value instanceof String)) {
-            throw new IllegalArgumentException("TextItem '" + label + "' expects String");
-        }
+    public void draw(Graphics2D g, FontMetrics fm, int posX, int posY, Object value) {
+        final String labelText = getPaddedLabel();
+        final String valueText = String.valueOf(value);
 
-        final String text = String.format("%s%s", this.paddedLabel, (String) value);
-        g.drawString(text, posX, posY);
+        // Label
+        g.setColor(getLabelColor());
+        g.drawString(labelText, posX, posY);
+
+        // Value (justo después del label)
+        int valueX = posX + fm.stringWidth(labelText);
+        g.setColor(getDataColor());
+        g.drawString(valueText, valueX, posY);
     }
 }

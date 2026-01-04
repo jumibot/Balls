@@ -1,4 +1,4 @@
-package model.weapons;
+package model.weapons.ports;
 
 public enum WeaponType {
     PRIMARY_WEAPON,

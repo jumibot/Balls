@@ -1,6 +1,8 @@
-package model.physics;
+package model.physics.core;
 
 import java.util.concurrent.atomic.AtomicReference;
+
+import model.physics.ports.PhysicsValuesDTO;
 
 public abstract class AbstractPhysicsEngine {
 

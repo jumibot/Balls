@@ -1,4 +1,4 @@
-package model.physics;
+package model.physics.ports;
 
 import java.io.Serializable;
 

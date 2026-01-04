@@ -1,9 +1,11 @@
 package model.bodies;
 
 import model.physics.BasicPhysicsEngine;
-import model.physics.PhysicsValuesDTO;
 import model.physics.ports.PhysicsEngine;
-import model.ModelState;
+import model.physics.ports.PhysicsValuesDTO;
+import model.ports.ModelState;
+import model.bodies.core.AbstractBody;
+import model.bodies.ports.BodyState;
 import model.bodies.ports.PhysicsBody;
 
 /**

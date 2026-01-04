@@ -1,6 +1,8 @@
 package model.physics;
 
+import model.physics.core.AbstractPhysicsEngine;
 import model.physics.ports.PhysicsEngine;
+import model.physics.ports.PhysicsValuesDTO;
 
 public class NullPhysicsEngine extends AbstractPhysicsEngine implements PhysicsEngine {
 

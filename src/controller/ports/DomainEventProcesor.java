@@ -2,9 +2,9 @@ package controller.ports;
 
 import java.util.List;
 
-import model.ActionDTO;
-import model.EventDTO;
-import model.bodies.AbstractBody;
+import model.bodies.core.AbstractBody;
+import model.ports.ActionDTO;
+import model.ports.EventDTO;
 
 public interface DomainEventProcesor {
 

@@ -1,6 +1,7 @@
 package model.bodies;
 
-import model.ModelState;
+import model.bodies.ports.BodyState;
+import model.ports.ModelState;
 
 public class TemporaryDecoBody extends DecoBody implements Runnable {
 

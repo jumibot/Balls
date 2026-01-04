@@ -1,4 +1,4 @@
-package model.bodies;
+package model.bodies.ports;
 
 
 import java.io.Serializable;

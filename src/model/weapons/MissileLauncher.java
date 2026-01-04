@@ -1,7 +1,10 @@
 package model.weapons;
 
+import model.weapons.core.AbstractWeapon;
+import model.weapons.ports.WeaponDto;
+import model.weapons.ports.WeaponState;
+
 public class MissileLauncher extends AbstractWeapon {
-    private double cooldown = 0.0; // seconds
 
     public MissileLauncher(WeaponDto weaponConfig) {
         super(weaponConfig);
@@ -9,32 +12,32 @@ public class MissileLauncher extends AbstractWeapon {
 
     @Override
     public boolean mustFireNow(double dtSeconds) {
-        if (this.cooldown > 0) {
+        if (this.getCooldown() > 0) {
             // Cool down weapon. Any pending requests are discarded.
-            this.cooldown -= dtSeconds;
+            this.setCooldown(this.getCooldown() - dtSeconds);
             this.markAllRequestsHandled();
             return false; // =================>
         }
 
-        if (this.currentAmmo <= 0) {
+        if (this.getCurrentAmmo() <= 0) {
             // No ammunition: reload, set time to reload and discard requests
+            this.setState(WeaponState.RELOADING);
             this.markAllRequestsHandled();
-            cooldown = this.getWeaponConfig().reloadTime;
-            this.currentAmmo = this.getWeaponConfig().maxAmmo;
+            this.setCooldown(this.getWeaponConfig().reloadTime);
+            this.setCurrentAmmo(this.getWeaponConfig().maxAmmo);
             return false;
         }
 
-
         if (!this.hasRequest()) {
             // Nothing to do
-            this.cooldown = 0;
+            this.setCooldown(0);
             return false; // ==================>
         }
 
         // Fire
         this.markAllRequestsHandled();
-        this.currentAmmo--;
-        cooldown = 1.0 / this.getWeaponConfig().fireRate;
+        this.decCurrentAmmo();
+        this.setCooldown(1.0 / this.getWeaponConfig().fireRate);
         return true;
     }
 }

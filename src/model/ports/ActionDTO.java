@@ -1,5 +1,4 @@
-package model;
-
+package model.ports;
 
 public class ActionDTO {
     final public ActionType type;

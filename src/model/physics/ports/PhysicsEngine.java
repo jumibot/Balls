@@ -1,7 +1,5 @@
 package model.physics.ports;
 
-import model.physics.PhysicsValuesDTO;
-
 public interface PhysicsEngine {
 
     public abstract PhysicsValuesDTO calcNewPhysicsValues();

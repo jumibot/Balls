@@ -1,7 +1,7 @@
 package view;
 
-import view.huds.ImagesHud;
-import view.huds.ProgressBarHud;
+import view.huds.SystemHud;
+import view.huds.PlayerHud;
 import view.renderables.DynamicRenderDTO;
 import view.renderables.Renderable;
 import view.renderables.DynamicRenderable;
@@ -131,8 +131,8 @@ public class Renderer extends Canvas implements Runnable {
     private Images images;
     private ImageCache imagesCache;
     private VolatileImage viBackground;
-    private final ImagesHud hud = new ImagesHud();
-    private final ProgressBarHud progressBarHud = new ProgressBarHud();
+    private final PlayerHud playerHud = new PlayerHud();
+    private final SystemHud imagesHud = new SystemHud();
 
     private final Map<String, DynamicRenderable> dynamicRenderables = new ConcurrentHashMap<>();
     private volatile Map<String, Renderable> staticRenderables = new ConcurrentHashMap<>();
@@ -277,16 +277,21 @@ public class Renderer extends Canvas implements Runnable {
 
     private void drawHUD(Graphics2D g) {
 
-        String[] data = {
-                "" + this.fps,
+        this.imagesHud.draw(g,
+                this.fps,
                 String.format("%.0f", this.renderTimeInMs) + " ms",
-                "" + this.imagesCache.size(),
+                this.imagesCache.size(),
                 String.format("%.0f", this.imagesCache.getHitsPercentage()) + "%",
-                "" + this.view.getEntityAliveQuantity(),
-                "" + this.view.getEntityDeadQuantity()
-        };
-        this.hud.draw(g, data);
-        this.progressBarHud.drawProgressBars(g, 0.2, 0.5, 1.0);
+                this.view.getEntityAliveQuantity(),
+                this.view.getEntityDeadQuantity());
+
+        this.playerHud.draw(g,
+                0.1d,
+                0.7d,
+                0.6d,
+                0.3d,
+                0.2d,
+                0.9d);
     }
 
     private void drawStaticRenderables(Graphics2D g) {
@@ -308,8 +313,9 @@ public class Renderer extends Canvas implements Runnable {
 
                 gg.setComposite(AlphaComposite.SrcOver); // With transparency
                 this.drawStaticRenderables(gg);
-                this.drawDynamicRenderable(gg);
                 this.drawHUD(gg);
+
+                this.drawDynamicRenderable(gg);
 
             } finally {
                 gg.dispose();

@@ -1,9 +1,11 @@
-package model.weapons;
+package model.weapons.core;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import model.weapons.ports.Weapon;
+import model.weapons.ports.WeaponDto;
+import model.weapons.ports.WeaponState;
 
 /**
  * AbstractWeapon
@@ -94,8 +96,10 @@ public abstract class AbstractWeapon implements Weapon {
     private final String id;
     private final WeaponDto weaponConfig;
     private final AtomicLong lastFireRequest = new AtomicLong(0L);
-    protected long lastHandledRequest = 0L;
-    protected int currentAmmo;
+    private WeaponState state;
+    private long lastHandledRequest = 0L;
+    private int currentAmmo;
+    private double cooldown = 0.0; // seconds
 
     public AbstractWeapon(WeaponDto weaponConfig) {
 
@@ -107,8 +111,18 @@ public abstract class AbstractWeapon implements Weapon {
         this.id = UUID.randomUUID().toString();
         this.weaponConfig = weaponConfig;
         this.currentAmmo = weaponConfig.maxAmmo;
+        this.state = WeaponState.READY;
     }
 
+    public void decCooldown(double dtSeconds) {
+        this.cooldown -= dtSeconds;
+    }
+
+    public void decCurrentAmmo() {
+        this.currentAmmo --;
+    }
+
+    @Override
     public String getId() {
         return this.id;
     }
@@ -116,6 +130,26 @@ public abstract class AbstractWeapon implements Weapon {
     @Override
     public WeaponDto getWeaponConfig() {
         return new WeaponDto(this.weaponConfig);
+    }
+
+    public double getCooldown() {
+        return this.cooldown;
+    }
+
+    public int getCurrentAmmo() {
+        return this.currentAmmo;
+    }
+
+    public int getMaxAmmo() {
+        return this.weaponConfig.maxAmmo;
+    }
+
+    public WeaponState getState() {
+        return this.state;
+    }
+
+    public double getReloadTime() {
+        return this.weaponConfig.reloadTime;
     }
 
     protected boolean hasRequest() {
@@ -131,4 +165,15 @@ public abstract class AbstractWeapon implements Weapon {
         this.lastFireRequest.set(System.nanoTime());
     }
 
+    public void setCooldown(double cooldown) {
+        this.cooldown = cooldown;
+    }
+
+    public void setCurrentAmmo(int currentAmmo) {
+        this.currentAmmo = currentAmmo;
+    }
+
+    public void setState(WeaponState state) {
+        this.state = state;
+    }
 }

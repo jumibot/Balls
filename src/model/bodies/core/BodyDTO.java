@@ -1,6 +1,6 @@
-package model.bodies;
+package model.bodies.core;
 
-import model.physics.PhysicsValuesDTO;
+import model.physics.ports.PhysicsValuesDTO;
 
 public class BodyDTO {
     public final String entityId;

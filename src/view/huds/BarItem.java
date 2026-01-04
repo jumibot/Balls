@@ -6,49 +6,62 @@ import java.awt.Graphics2D;
 
 public class BarItem extends Item {
     final int barWidth;
+    final boolean showPercentage;
 
-    BarItem(String label, int maxLenLabel, int barWidth) {
-        super(maxLenLabel, label);
+    BarItem(String label, Color labelColor, Color dataColor, int barWidth, boolean showPercentage) {
+        super(label, labelColor, dataColor, true);
         this.barWidth = barWidth;
+        this.showPercentage = showPercentage;
+    }
+
+    BarItem(String label, Color labelColor, Color dataColor, int barWidth) {
+        this(label, labelColor, dataColor, barWidth, true);
     }
 
     @Override
-    public void draw(Graphics2D g, FontMetrics fm, int posY, int posX, Object value) {
-
+    public void draw(Graphics2D g, FontMetrics fm, int posX, int posY, Object value) {
         if (!(value instanceof Double)) {
-            throw new IllegalArgumentException("BarItem '" + label + "' expects Double");
+            throw new IllegalArgumentException("BarItem '" + this.getLabel() + "' expects a double value!");
         }
-        double progress = (Double) value;
 
-        g.drawString(this.getPaddedLabel(), posX, posY);
+        g.setColor(this.getLabelColor());
+        String label = this.getPaddedLabel();
+        g.drawString(label, posX, posY);
 
-        // Calculate bar position (after label)
-        final int barX = posX + fm.stringWidth(this.getPaddedLabel());
-        final int barY = posY - (int) (fm.getFont().getSize() * 0.5); // Align with text baseline
-        final int barHeight = (int) (fm.getFont().getSize() * 0.5);
+        // X: after label
+        final int barX = posX + fm.stringWidth(label);
 
-        // Border
-        final int arc = barHeight / 2; // rounded if you want, or set 0 for square
+        // Y: baseline is posY. Compute text box vertical span.
+        final int textTop = posY - fm.getAscent();
+        final int textHeight = fm.getHeight();
+
+        // Bar geometry: height relative to text height (you can tweak factor)
+        final int barHeight = Math.max(6, (int) Math.round(textHeight * 0.55));
+        final int barY = textTop + (textHeight - barHeight) / 2;
+        final int arc = barHeight / 2;
+
+        // Draw Border
+        g.setColor(this.getLabelColor());
         g.drawRoundRect(barX, barY, barWidth, barHeight, arc, arc);
 
         // Progess bar
+        double progress = (Double) value;
         progress = Math.max(0.0, Math.min(1.0, progress));
         int fillWidth = (int) ((barWidth - 2) * progress);
         float hue = (float) (0.33 * progress); // Hue: 0.0 = red, ~0.33 = green
         Color baseColor = Color.getHSBColor(hue, 1.0f, 1.0f);
-        Color fillColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 90);
+        Color fillColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 85);
 
-        Color oldColor = g.getColor();
         g.setColor(fillColor);
         g.fillRoundRect(barX + 1, barY + 1, fillWidth, barHeight - 2, arc, arc);
 
         // Draw percentage text
-        g.setColor(oldColor);
-        String percentText = String.format("%d%%", (int) (progress * 100));
-        int textX = barX + barWidth + 15;
-        g.drawString(percentText, textX, posY);
-
-        g.setColor(oldColor);
+        if (this.showPercentage) {
+            g.setColor(this.getDataColor());
+            String percentText = String.format("%d%%", (int) (progress * 100));
+            int textX = barX + barWidth + 15;
+            g.drawString(percentText, textX, posY);
+        }
     }
 
 }
