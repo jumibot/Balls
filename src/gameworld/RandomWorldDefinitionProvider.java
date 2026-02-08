@@ -25,9 +25,9 @@ public final class RandomWorldDefinitionProvider extends AbstractWorldDefinition
 
 		// region Decoration
 		this.addDecoratorAnywhereRandomAsset(10, AssetType.STARS, density, 200, 400);
-		this.addDecorator("cosmic_portal_01", 300, 1100, 400);
+		this.addDecorator("cosmic_portal_01", 300, 600, 200);
 
-		this.addDecorator("stardust_01", 300, 1300, 800, -20, 1);
+		this.addDecorator("stardust_01", 150, 600, 400, -20, 1);
 		this.addDecorator("stars_07", 8000, 8000, 2000, 0, 1);
 		this.addDecoratorAnywhereRandomAsset(5, AssetType.GALAXY, density, 100, 300);
 		this.addDecoratorAnywhereRandomAsset(10, AssetType.GALAXY, density, 50, 200);
@@ -35,29 +35,29 @@ public final class RandomWorldDefinitionProvider extends AbstractWorldDefinition
 		// endregion
 
 		// region Gravity bodies => Static bodies
-		this.addGravityBody("planet_04", 4500, 4500, 1000);
-		this.addGravityBody("sun_02", 32000, 2000, 2000);
-		this.addGravityBody("moon_05", 20000, 20000, 1200);
-		this.addGravityBody("lab_01", 12000, 24000, 400);
-		this.addGravityBody("black_hole_02", 18000, 9000, 300);
-		this.addGravityBody("black_hole_01", 32000, 30000, 600);
+		this.addGravityBody("planet_04", 4500, 4500, 500);
+		this.addGravityBody("sun_02", 32000, 2000, 700);
+		this.addGravityBody("moon_05", 20000, 20000, 600);
+		this.addGravityBody("lab_01", 12000, 24000, 200);
+		this.addGravityBody("black_hole_02", 18000, 9000, 150);
+		this.addGravityBody("black_hole_01", 32000, 30000, 200);
 
-		this.addGravityBodyAnywhereRandomAsset(5, AssetType.PLANET, density, 50, 300);
-		this.addGravityBodyAnywhereRandomAsset(5, AssetType.MOON, density, 100, 500);
+		this.addGravityBodyAnywhereRandomAsset(5, AssetType.PLANET, density, 50, 200);
+		this.addGravityBodyAnywhereRandomAsset(5, AssetType.MOON, density, 100, 300);
 		this.addGravityBodyAnywhereRandomAsset(10, AssetType.MINE, density, 50, 100);
 		// endregion
 
 		// region Dynamic bodies
 		this.addAsteroidPrototypeAnywhereRandomAsset(
 				6, AssetType.ASTEROID,
-				10, 25,
+				5, 20,
 				10, 750,
 				0, 150);
 		// endregion
 
 		// region Players
-		this.addSpaceshipRandomAsset(1, AssetType.SPACESHIP, density, 50, 55, 19000, 19500);
-		this.addTrailEmitterCosmetic("stars_06", 150, BodyType.DECORATOR, 25);
+		this.addSpaceshipRandomAsset(1, AssetType.SPACESHIP, density, 50, 30, 200, 200);
+		this.addTrailEmitterCosmetic("stars_06", 100, BodyType.DECORATOR, 25);
 		// endregion
 
 		// region Weapons (addWeapon***)

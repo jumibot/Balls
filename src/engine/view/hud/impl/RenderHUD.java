@@ -17,9 +17,9 @@ public class RenderHUD extends DataHUD {
         super(
                 new Color(0, 200, 100, 255), // Title color (green)
                 Color.GRAY, // Highlight color
-                new Color(255, 255, 255, 150), // Label color
+                new Color(255, 255, 255, 125), // Label color
                 new Color(255, 255, 255, 255), // Data color
-                400, 12, 15);
+                425, 12, 15);
 
         this.addItems();
     }
