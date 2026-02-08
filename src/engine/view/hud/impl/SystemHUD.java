@@ -11,7 +11,7 @@ public class SystemHUD extends DataHUD {
                 Color.GRAY, // Highlight color
                 new Color(255, 255, 255, 150), // Label color
                 new Color(255, 255, 255, 255), // Data color
-                1200, 400, 35);
+                600, 150, 15);
 
         this.addItems();
     }

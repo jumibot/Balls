@@ -18,7 +18,7 @@ public class DataHUD {
     public final Color labelColor;
     public final Color dataColor;
 
-    public Font font = new Font("Monospaced", Font.PLAIN, 28);
+    public Font font = new Font("Monospaced", Font.PLAIN, 11);
     public int maxLenLabel = 0;
     public final List<Item> items = new ArrayList<>(20);
     public int valuesExpected = 0;

@@ -11,7 +11,7 @@ public class SpatialGridHUD extends DataHUD  {
                 Color.GRAY, // Highlight color
                 new Color(255, 255, 255, 150), // Label color
                 new Color(255, 255, 255, 255), // Data color
-                1200, 12, 35);
+                600, 12, 15);
 
         this.addItems();
     }
@@ -21,7 +21,7 @@ public class SpatialGridHUD extends DataHUD  {
         this.addTitle("SPATIAL GRID ");
         this.addTextItem("Cell Size");
         this.addTextItem("Total Cells");
-        this.addBarItem("Empties", 125, false);
+        this.addBarItem("Empties", 40, false);
         this.addTextItem("Avg Bodies");
         this.addTextItem("Max Bodies");
         this.addTextItem("Pair Checks");

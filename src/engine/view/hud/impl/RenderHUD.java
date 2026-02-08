@@ -10,29 +10,29 @@ import engine.view.hud.core.DataHUD;
  * Shows rendering, domain (physics/events), and spatial grid performance metrics
  * as ms/frame normalized values.
  */
-public class InstrumentationHUD extends DataHUD {
+public class RenderHUD extends DataHUD {
 
     // region Constructors
-    public InstrumentationHUD() {
+    public RenderHUD() {
         super(
                 new Color(0, 200, 100, 255), // Title color (green)
                 Color.GRAY, // Highlight color
                 new Color(255, 255, 255, 150), // Label color
                 new Color(255, 255, 255, 255), // Data color
-                100, 800, 35);
+                400, 12, 15);
 
         this.addItems();
     }
     // endregion
 
     private void addItems() {
-        this.addTitle("RENDER BREAKDOWN (ms/frame)");
+        this.addTitle("RENDER (ms/frame)");
         
         // Render timing breakdown
-        this.addTextItem("Background Draw");
-        this.addTextItem("Static Objects");
+        this.addTextItem("Bg Draw");
+        this.addTextItem("Statics Draw");
         this.addTextItem("Query Dynamic");
-        this.addTextItem("Paint Dynamic");
+        this.addTextItem("Dynamic Draw");
         this.addTextItem("Total Dynamic");
         this.addTextItem("HUD Draw");
         this.addTextItem("Total Draw");

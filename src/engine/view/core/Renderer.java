@@ -22,7 +22,7 @@ import engine.utils.images.ImageCache;
 import engine.utils.images.Images;
 import engine.utils.profiling.impl.RendererProfiler;
 import engine.utils.helpers.DoubleVector;
-import engine.view.hud.impl.InstrumentationHUD;
+import engine.view.hud.impl.RenderHUD;
 import engine.view.hud.impl.PlayerHUD;
 import engine.view.hud.impl.SpatialGridHUD;
 import engine.view.hud.impl.SystemHUD;
@@ -146,7 +146,7 @@ public class Renderer extends Canvas implements Runnable {
     private final PlayerHUD playerHUD = new PlayerHUD();
     private final SystemHUD systemHUD = new SystemHUD();
     private final SpatialGridHUD spatialGridHUD = new SpatialGridHUD();
-    private final InstrumentationHUD instrumentationHUD = new InstrumentationHUD();
+    private final RenderHUD renderHUD = new RenderHUD();
     private final RendererProfiler rendererProfiler = new RendererProfiler(MONITORING_PERIOD_NS);
 
     private double cameraX = 0.0d;
@@ -354,7 +354,7 @@ public class Renderer extends Canvas implements Runnable {
                 this.view.getEntityDeadQuantity(),
                 this.currentFrame);
 
-        // this.instrumentationHUD.draw(g, this.getRenderMetrics().toObjectArray());
+        this.renderHUD.draw(g, this.getRenderMetrics().toObjectArray());
 
         PlayerRenderDTO playerData = this.view.getLocalPlayerRenderData();
         if (playerData != null) {

@@ -11,25 +11,27 @@ public class PlayerHUD extends DataHUD {
                 Color.GRAY, // Highlight color
                 new Color(255, 255, 255, 150), // Label color
                 new Color(255, 255, 255, 255), // Data color
-                50, 12, 35);
+                20, 12, 15);
 
         this.addItems();
     }
 
     private void addItems() {
+        int barWidth = 40;
+
         this.addTitle("PLAYER STATUS");
         this.addSkipValue(); // Entity ID
         this.addSkipValue(); // Player name
-        this.addBarItem("Damage", 125, false);
-        this.addBarItem("Energy", 125, false);
-        this.addBarItem("Shield", 125, false);
-        this.addTextItem("Temperature");
+        this.addBarItem("Damage", barWidth, false);
+        this.addBarItem("Energy", barWidth, false);
+        this.addBarItem("Shield", barWidth, false);
+        this.addTextItem("Temp ºC");
         this.addTitle("Weapons");
         this.addSkipValue(); // Active weapon
-        this.addBarItem("Guns", 125, false);
-        this.addBarItem("Burst", 125, false);
-        this.addBarItem("Mines", 125, false);
-        this.addBarItem("Missiles", 125, false);
+        this.addBarItem("Guns", barWidth, false);
+        this.addBarItem("Burst", barWidth, false);
+        this.addBarItem("Mines", barWidth, false);
+        this.addBarItem("Missiles", barWidth, false);
         this.prepareHud();
     }
 }

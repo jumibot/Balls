@@ -13,7 +13,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		// region Graphics configuration
-		System.setProperty("sun.java2d.uiScale", "1.0");
+		// System.setProperty("sun.java2d.uiScale", "1.0");
 		System.setProperty("sun.java2d.opengl", "true");
 		System.setProperty("sun.java2d.d3d", "false"); // OpenGL
 		// endregion
@@ -27,12 +27,13 @@ public class Main {
 		// => *** Keep viewDimension smaller than actual screen size ***
 		// => *** or... no set viewDimension                         ***
 		// => **********************************************************
-		DoubleVector viewDimension = new DoubleVector(2400, 1500);
+		DoubleVector viewDimension = new DoubleVector(1280, 720);
 		DoubleVector worldDimension = new DoubleVector(40000, 40000);
 		// endregion
-
+		
 		int maxBodies = 1000;
 		int maxAsteroidCreationDelay = 3; // Used by AIBasicSpawner
+
 
 		ProjectAssets projectAssets = new ProjectAssets();
 
