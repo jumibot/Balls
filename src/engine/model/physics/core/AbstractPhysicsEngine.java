@@ -5,16 +5,16 @@ import static java.lang.System.nanoTime;
 import java.util.concurrent.atomic.AtomicReference;
 
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 
 public abstract class AbstractPhysicsEngine implements PhysicsEngine {
 
-        private final AtomicReference<PhysicsValuesDTO> phyValues; // Current values (DTO#1)
-        protected PhysicsValuesDTO nextPhyValues; // Next frame values (DTO#2)
-        protected PhysicsValuesDTO snapshotDTO; // Snapshot for rendering (DTO#3)
+        private final AtomicReference<PhysicsValuesMDTO> phyValues; // Current values (DTO#1)
+        protected PhysicsValuesMDTO nextPhyValues; // Next frame values (DTO#2)
+        protected PhysicsValuesMDTO snapshotDTO; // Snapshot for rendering (DTO#3)
 
         // region Constructors
-        public AbstractPhysicsEngine(PhysicsValuesDTO dto1, PhysicsValuesDTO dto2, PhysicsValuesDTO dto3) {
+        public AbstractPhysicsEngine(PhysicsValuesMDTO dto1, PhysicsValuesMDTO dto2, PhysicsValuesMDTO dto3) {
                 if (dto1 == null || dto2 == null || dto3 == null) {
                         throw new IllegalArgumentException("PhysicsValuesDTO cannot be null");
                 }
@@ -23,41 +23,34 @@ public abstract class AbstractPhysicsEngine implements PhysicsEngine {
                 this.nextPhyValues = dto2;
                 this.snapshotDTO = dto3;
         }
-
-        public AbstractPhysicsEngine(double size, double posX, double posY, double angle) {
-                this.phyValues = new AtomicReference<>(
-                                new PhysicsValuesDTO(nanoTime(), size, posX, posY, angle));
-                this.nextPhyValues = new PhysicsValuesDTO(nanoTime(), size, posX, posY, angle);
-                this.snapshotDTO = new PhysicsValuesDTO(nanoTime(), size, posX, posY, angle);
-        }
         // endregion
 
         // *** PUBLIC ***
 
-        public abstract PhysicsValuesDTO calcNewPhysicsValues();
+        public abstract PhysicsValuesMDTO calcNewPhysicsValues();
 
         public abstract void angularAccelerationInc(double angularAcc);
 
-        public final PhysicsValuesDTO getPhysicsValues() {
+        public final PhysicsValuesMDTO getPhysicsValues() {
                 return this.phyValues.get();
         }
 
         // region Rebound (reboundIn***)
         public abstract void reboundInEast(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public abstract void reboundInWest(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public abstract void reboundInNorth(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public abstract void reboundInSouth(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
         // endregion
 
         public void resetAcceleration() {
-                PhysicsValuesDTO old = this.getPhysicsValues();
+                PhysicsValuesMDTO old = this.getPhysicsValues();
                 
                 // Update nextPhyValues instead of creating new DTO
                 nextPhyValues.update(
@@ -75,7 +68,7 @@ public abstract class AbstractPhysicsEngine implements PhysicsEngine {
 
         // region Setters (set***)
         public final void setAngularAcceleration(double angularAcc) {
-                PhysicsValuesDTO old = this.getPhysicsValues();
+                PhysicsValuesMDTO old = this.getPhysicsValues();
                 
                 // Update nextPhyValues instead of creating new DTO
                 nextPhyValues.update(
@@ -93,7 +86,7 @@ public abstract class AbstractPhysicsEngine implements PhysicsEngine {
 
         public abstract void setAngularSpeed(double angularSpeed);
 
-        public final void setPhysicsValues(PhysicsValuesDTO phyValues) {
+        public final void setPhysicsValues(PhysicsValuesMDTO phyValues) {
                 if (phyValues == null) {
                         throw new IllegalArgumentException("PhysicsValuesDTO cannot be null");
                 }
@@ -102,16 +95,16 @@ public abstract class AbstractPhysicsEngine implements PhysicsEngine {
                 this.nextPhyValues = this.phyValues.getAndSet(phyValues);
         }
         
-        public final PhysicsValuesDTO getNextPhyValues() {
+        public final PhysicsValuesMDTO getNextPhyValues() {
                 return this.nextPhyValues;
         }
         
-        public final PhysicsValuesDTO getSnapshotDTO() {
+        public final PhysicsValuesMDTO getSnapshotDTO() {
                 return this.snapshotDTO;
         }
 
         public final void setThrust(double thrust) {
-                PhysicsValuesDTO old = this.getPhysicsValues();
+                PhysicsValuesMDTO old = this.getPhysicsValues();
                 
                 // Update nextPhyValues instead of creating new DTO
                 nextPhyValues.update(
@@ -130,7 +123,7 @@ public abstract class AbstractPhysicsEngine implements PhysicsEngine {
 
         @Override
         public void stopPushing() {
-                PhysicsValuesDTO old = this.getPhysicsValues();
+                PhysicsValuesMDTO old = this.getPhysicsValues();
                 
                 // Update nextPhyValues instead of creating new DTO
                 nextPhyValues.update(

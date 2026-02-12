@@ -1,17 +1,13 @@
 package engine.model.physics.implementations;
 
 import engine.model.physics.core.AbstractPhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 
 public class NullPhysicsEngine extends AbstractPhysicsEngine {
 
     // region Constructors
-    public NullPhysicsEngine(PhysicsValuesDTO dto1, PhysicsValuesDTO dto2, PhysicsValuesDTO dto3) {
+    public NullPhysicsEngine(PhysicsValuesMDTO dto1, PhysicsValuesMDTO dto2, PhysicsValuesMDTO dto3) {
         super(dto1, dto2, dto3);
-    }
-
-    public NullPhysicsEngine(double size, double posX, double posY, double angle) {
-        super(size, posX, posY, angle);
     }
     // endregion
 
@@ -22,7 +18,7 @@ public class NullPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public PhysicsValuesDTO calcNewPhysicsValues() {
+    public PhysicsValuesMDTO calcNewPhysicsValues() {
         return this.getPhysicsValues();
     }
 
@@ -32,19 +28,19 @@ public class NullPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public void reboundInEast(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInEast(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
     }
 
     @Override
-    public void reboundInWest(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInWest(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
     }
 
     @Override
-    public void reboundInNorth(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInNorth(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
     }
 
     @Override
-    public void reboundInSouth(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInSouth(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
     }
 
     @Override

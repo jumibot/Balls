@@ -6,8 +6,7 @@ import engine.model.bodies.ports.BodyState;
 import engine.model.bodies.ports.BodyType;
 import engine.model.emitter.impl.BasicEmitter;
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.profiling.impl.BodyProfiler;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.utils.spatial.core.SpatialGrid;
 
 /**
@@ -127,7 +126,7 @@ public class DynamicBody extends AbstractBody {
     @Override
     public void onTick() {
         // Physics calculation (already profiled in BasicPhysicsEngine)
-        PhysicsValuesDTO newPhyValues = this.getPhysicsEngine().calcNewPhysicsValues();
+        PhysicsValuesMDTO newPhyValues = this.getPhysicsEngine().calcNewPhysicsValues();
 
         // Spatial grid update
         long spatialStart = this.profiler.startInterval();

@@ -1,21 +1,25 @@
 package engine.model.physics.ports;
 
 import java.io.Serializable;
-import engine.utils.pooling.PoolableMDTO;
+
+import engine.utils.pooling.Pool;
+import engine.utils.pooling.PoolableObject;
 
 /**
- * Mutable value object that encapsulates the physical state of a VObject at a
+ * Mutable value object that encapsulates the physical state of a body at a
  * specific moment in time. It stores the timestamp of the state and the
  * kinematic vectors describing its position, speed and acceleration.
- *
- * This object belongs strictly to the physics domain and contains no logic
- * beyond data representation. It is used by the simulation model to track and
- * propagate physical values without exposing mutable state.
- *
- * Poolable: This DTO is reused from a pool to reduce allocation pressure during
- * physics calculations. It is mutable to support efficient updates via updateFrom().
+ * 
+ * Its reusable from a pool.
+ * 
+ * It is mutable to support efficient updates.
  */
-public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
+public class PhysicsValuesMDTO implements Serializable, PoolableObject {
+
+    // region Fields
+
+    // Referencia al pool que gestiona este DTO
+    private Pool<PhysicsValuesMDTO> pool;
 
     public long timeStamp;
     public double posX;
@@ -27,8 +31,9 @@ public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
     public double angularSpeed;
     public double angularAcc;
     public double thrust;
+    // endregion
 
-    public PhysicsValuesDTO(
+    public PhysicsValuesMDTO(
             long timeStamp,
             double posX, double posY, double angle,
             double size,
@@ -51,9 +56,10 @@ public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
         this.angularAcc = angularAcc;
         this.thrust = thrust;
 
+        // pool se asigna por PoolMDTO.acquire()
     }
 
-    public PhysicsValuesDTO(long timeStamp, double size, double x, double y, double angle) {
+    public PhysicsValuesMDTO(long timeStamp, double size, double x, double y, double angle) {
         this(
                 timeStamp,
                 x, y, angle,
@@ -64,9 +70,6 @@ public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
                 0.0);
     }
 
-    /**
-     * Update all fields from another DTO instance (bulk copy for snapshots)
-     */
     public void update(
             long timeStamp,
             double posX, double posY, double angle,
@@ -90,9 +93,6 @@ public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
         this.thrust = thrust;
     }
 
-    /**
-     * Reset all fields to zero (for pool cleanup)
-     */
     @Override
     public void reset() {
         this.timeStamp = 0L;
@@ -107,5 +107,17 @@ public class PhysicsValuesDTO implements Serializable, PoolableMDTO {
         this.angularSpeed = 0;
         this.angularAcc = 0;
         this.thrust = 0;
+    }
+
+    @Override
+    public void setPool(Pool pool) {
+        this.pool = pool;
+    }
+
+    @Override
+    public void release() {
+        if (this.pool != null) {
+            this.pool.release(this);
+        }
     }
 }

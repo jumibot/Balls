@@ -61,6 +61,13 @@ public class DynamicRenderDTO extends RenderDTO {
     }
 
     @Override
+    public String toString() {
+        return "posX=" + this.posX +
+                ", posY=" + this.posY +
+                ", size=" + this.size + "}";
+    }
+
+    @Override
     public void reset() {
         super.reset();
         this.timeStamp = 0L;

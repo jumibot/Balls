@@ -23,12 +23,8 @@ public class DynamicRenderable extends Renderable {
     // endregion
 
     public void update(DynamicRenderDTO renderInfo, long currentFrame) {
-        DynamicRenderDTO current = (DynamicRenderDTO) this.getRenderData();
-        if (current != null && renderInfo != null) {
-            current.updateFrom(renderInfo);
-            super.update(current, currentFrame);
-            return;
-        }
+        if (this.getRenderData() != null)
+            throw new IllegalStateException("DynamicRenderable already has render data. Release fist.");
 
         super.update(renderInfo, currentFrame);
     }
@@ -55,7 +51,7 @@ public class DynamicRenderable extends Renderable {
                 y - 90);
 
         // Acceleration
-        g.setFont(new Font("Arial", Font.PLAIN, 24));   
+        g.setFont(new Font("Arial", Font.PLAIN, 24));
         g.setColor(Color.RED);
         g.drawString(
                 String.format("A: %.1f ", Math.hypot(bodyInfo.accX, bodyInfo.accY)),

@@ -1,53 +1,35 @@
 package engine.controller.mappers;
 
+// region Imports
 import java.util.ArrayList;
 
 import engine.model.bodies.ports.BodyData;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.pooling.PoolMDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
+import engine.utils.pooling.Pool;
 import engine.view.renderables.ports.DynamicRenderDTO;
+// endregion
 
-public class DynamicRenderableMapper extends DTOPooledMapper<DynamicRenderDTO> {
+public class DynamicRenderableMapper extends AbstractPooledMapper<DynamicRenderDTO> {
 
-    public static DynamicRenderDTO fromBodyDTO(BodyData bodyData) {
-        PhysicsValuesDTO phyValues = bodyData.getPhysicsValues();
+    // region Constructors
+    public DynamicRenderableMapper() {
+        super();
+    }
+    // endregion Constructors
 
-        if (phyValues == null || bodyData.entityId == null) {
-            return null;
-        }
-
-        DynamicRenderDTO renderablesData = new DynamicRenderDTO(
-                bodyData.entityId,
-                phyValues.posX, phyValues.posY,
-                phyValues.angle,
-                phyValues.size,
-                phyValues.timeStamp,
-                phyValues.speedX, phyValues.speedY,
-                phyValues.accX, phyValues.accY,
-                phyValues.timeStamp);
-
-        return renderablesData;
+    @Override
+    protected Pool<DynamicRenderDTO> createPool() {
+        return new Pool<>(() -> new DynamicRenderDTO(null, 0, 0, 0, 0, 0L, 0, 0, 0, 0, 0L));
     }
 
-    public static ArrayList<DynamicRenderDTO> fromBodyDTO(ArrayList<BodyData> bodyData) {
-        ArrayList<DynamicRenderDTO> renderableValues = new ArrayList<>();
-
-        for (BodyData bodyDto : bodyData) {
-            DynamicRenderDTO renderable = DynamicRenderableMapper.fromBodyDTO(bodyDto);
-            renderableValues.add(renderable);
-        }
-
-        return renderableValues;
-    }
-
-    // region Pooled mapper
-
-    public DynamicRenderableMapper(PoolMDTO<DynamicRenderDTO> pool) {
-        super(pool);
-    }
+    // *** PUBLIC ***
 
     public DynamicRenderDTO fromBodyDTOPooled(BodyData bodyData) {
-        return this.map(bodyData);
+        DynamicRenderDTO dto = this.map(bodyData);
+        if (dto == null) {
+            System.out.println("[LOG] DynamicRenderableMapper: map returned null for BodyData: " + bodyData);
+        }
+        return dto;
     }
 
     public ArrayList<DynamicRenderDTO> fromBodyDTOPooled(ArrayList<BodyData> bodyDataList) {
@@ -55,6 +37,7 @@ public class DynamicRenderableMapper extends DTOPooledMapper<DynamicRenderDTO> {
 
         for (BodyData bodyData : bodyDataList) {
             DynamicRenderDTO dto = this.fromBodyDTOPooled(bodyData);
+
             if (dto != null) {
                 renderables.add(dto);
             }
@@ -63,6 +46,10 @@ public class DynamicRenderableMapper extends DTOPooledMapper<DynamicRenderDTO> {
         return renderables;
     }
 
+
+    // *** INTERFACE IMPLEMENTATIONS ***
+
+    // region DTOPooledMapper
     @Override
     protected boolean mapToDTO(Object source, DynamicRenderDTO target) {
         if (!(source instanceof BodyData)) {
@@ -70,7 +57,7 @@ public class DynamicRenderableMapper extends DTOPooledMapper<DynamicRenderDTO> {
         }
 
         BodyData bodyData = (BodyData) source;
-        PhysicsValuesDTO phyValues = bodyData.getPhysicsValues();
+        PhysicsValuesMDTO phyValues = bodyData.getPhysicsValues();
 
         if (phyValues == null || bodyData.entityId == null) {
             return false;
@@ -88,6 +75,5 @@ public class DynamicRenderableMapper extends DTOPooledMapper<DynamicRenderDTO> {
 
         return true;
     }
-
     // endregion
 }

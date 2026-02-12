@@ -1,7 +1,9 @@
 package engine.utils.profiling.core;
 
+// region Imports
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
+// endregion
 
 /**
  * Thread-safe metric accumulator with support for different metric types.
@@ -9,7 +11,7 @@ import java.util.concurrent.atomic.LongAdder;
  * Tracks samples, total time, max time, and period-based statistics.
  * Used internally by AbstractProfiler to store metric data.
  */
-final class ProfileMetric {
+final class Metric {
     
     // region Fields
     private final LongAdder totalSamples = new LongAdder();
@@ -22,7 +24,7 @@ final class ProfileMetric {
     // endregion Fields
     
     // region Constructors
-    ProfileMetric() {
+    Metric() {
         // Package-private constructor
     }
     // endregion Constructors
@@ -34,19 +36,19 @@ final class ProfileMetric {
      * 
      * @return ProfileMetricsDTO snapshot
      */
-    public ProfileMetricsDTO getMetrics() {
-        long samples = Math.max(periodSamples.sum(), instantValue > 0 ? 1 : 0);
-        long total = periodNanos.sum();
-        long max = maxNanos.get();
+    public MetricsDTO getMetrics() {
+        long samples = Math.max(this.periodSamples.sum(), instantValue > 0 ? 1 : 0);
+        long total = this.periodNanos.sum();
+        long max = this.maxNanos.get();
         
         if (samples > 0) {
             double totalMs = total / 1_000_000.0d;
             double avgMs = periodAvgNanos / 1_000_000.0d;
             double maxMs = max / 1_000_000.0d;
-            return new ProfileMetricsDTO(avgMs, maxMs, totalMs, samples);
+            return new MetricsDTO(avgMs, maxMs, totalMs, samples);
         }
         
-        return new ProfileMetricsDTO(0.0, 0.0, 0.0, 0L);
+        return new MetricsDTO(0.0, 0.0, 0.0, 0L);
     }
     
     /**
@@ -113,11 +115,11 @@ final class ProfileMetric {
      * Called at end of reporting period.
      */
     public void resetPeriod() {
-        long samples = periodSamples.sumThenReset();
-        long total = periodNanos.sumThenReset();
+        long samples = this.periodSamples.sumThenReset();
+        long total = this.periodNanos.sumThenReset();
         
         if (samples > 0) {
-            periodAvgNanos = total / samples;
+            this.periodAvgNanos = total / samples;
         }
     }
     

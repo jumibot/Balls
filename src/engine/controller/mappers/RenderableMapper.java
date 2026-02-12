@@ -3,13 +3,13 @@ package engine.controller.mappers;
 import java.util.ArrayList;
 
 import engine.model.bodies.ports.BodyData;
-import engine.model.physics.ports.PhysicsValuesDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.view.renderables.ports.RenderDTO;
 
 public class RenderableMapper {
 
     public static RenderDTO fromBodyDTO(BodyData bodyData) {
-        PhysicsValuesDTO phyValues = bodyData.getPhysicsValues();
+        PhysicsValuesMDTO phyValues = bodyData.getPhysicsValues();
 
         if (phyValues == null || bodyData.entityId == null) {
             return null;

@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MultiBodyRunner implements Runnable {
 
     // region Constants
-    private static final int SLEEP_TIME_MS = 12;
+    private static final int SLEEP_TIME_MS = 8; // Sleep time between cycles to prevent CPU overuse
     // endregion
 
     // region Fields

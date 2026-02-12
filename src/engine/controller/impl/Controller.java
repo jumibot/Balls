@@ -1,6 +1,8 @@
 package engine.controller.impl;
 
+// region Imports
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.List;
 
 import engine.actions.ActionDTO;
@@ -26,6 +28,7 @@ import engine.view.renderables.ports.PlayerRenderDTO;
 import engine.view.renderables.ports.RenderDTO;
 import engine.view.renderables.ports.SpatialGridStatisticsRenderDTO;
 import engine.world.ports.DefEmitterDTO;
+// endregion
 
 /**
  * Controller
@@ -172,12 +175,13 @@ public class Controller implements WorldManager, DomainEventProcessor {
     private View view;
     private DoubleVector viewDimension;
     private DoubleVector worldDimension;
-    private int maxBodies;
+    // Internal mapper for dynamic renderables (now owns its own pool)
+    private final DynamicRenderableMapper dynamicRenderableMapper;
     // endregion
 
     // region Constructors
     public Controller(
-            DoubleVector worldDim, DoubleVector viewDime, int maxBodies,
+            DoubleVector worldDim, DoubleVector viewDime,
             View view, Model model,
             ActionsGenerator gameRulesEngine) {
 
@@ -196,19 +200,16 @@ public class Controller implements WorldManager, DomainEventProcessor {
         if (gameRulesEngine == null) {
             throw new IllegalArgumentException("Null game rules engine");
         }
-        if (maxBodies <= 0) {
-            throw new IllegalArgumentException("Invalid max dynamic bodies: " + maxBodies);
-        }
 
         this.engineState = EngineState.STARTING;
         this.gameRulesEngine = gameRulesEngine;
-        this.maxBodies = maxBodies;
-        model.setMaxBodies(maxBodies);
 
         this.setModel(model);
         this.setView(view);
         this.setWorldDimension(worldDim);
         this.setViewDimension(viewDime);
+        // Instantiate internal mapper
+        this.dynamicRenderableMapper = new DynamicRenderableMapper();
     }
     // endregion
 
@@ -262,6 +263,14 @@ public class Controller implements WorldManager, DomainEventProcessor {
 
     public int getEntityDeadQuantity() {
         return this.model.getDeadQuantity();
+    }
+
+    public RenderDTO getRenderData(String entityId) {
+        BodyData bodyData = this.model.getBodyData(entityId);
+        if (bodyData == null) {
+            return null;
+        }
+        return RenderableMapper.fromBodyDTO(bodyData);
     }
 
     public DoubleVector getWorldDimension() {
@@ -319,14 +328,14 @@ public class Controller implements WorldManager, DomainEventProcessor {
     // endregion
 
     // region Queries
-    public ArrayList<String> queryEntitiesInRegion(
+    public Set<String> queryEntitiesInRegion(
             double minX, double maxX, double minY, double maxY,
-            int[] scratchCellIndices, ArrayList<String> scratchEntityIds) {
+            int[] scratchCellIndexes, Set<String> scratchEntityIds) {
 
-        // Query al modelo (que tiene el SpatialGrid)
+        // Passthrough query to the model (which has the SpatialGrid)
         return this.model.queryEntitiesInRegion(
                 minX, maxX, minY, maxY,
-                scratchCellIndices, scratchEntityIds);
+                scratchCellIndexes, scratchEntityIds);
     }
     // endregion
 
@@ -368,23 +377,19 @@ public class Controller implements WorldManager, DomainEventProcessor {
         this.model.setWorldDimension(d);
         this.view.setWorldDimension(d);
     }
-    // endregion setters
+    // endregion
 
     public ArrayList<DynamicRenderDTO> snapshotRenderData() {
-        ArrayList<BodyData> snapshot = this.model.snapshotRenderData();
-        ArrayList<DynamicRenderDTO> renderables = new ArrayList<>();
-
-        for (BodyData bodyData : snapshot) {
-            DynamicRenderDTO renderable = DynamicRenderableMapper.fromBodyDTO(bodyData);
-            renderables.add(renderable);
-        }
-
-        return renderables;
+        ArrayList<BodyData> bodyDataSnapshot = this.model.snapshotRenderData();
+        return dynamicRenderableMapper.fromBodyDTOPooled(bodyDataSnapshot);
     }
 
-    public ArrayList<DynamicRenderDTO> snapshotRenderData(DynamicRenderableMapper mapper) {
-        ArrayList<BodyData> snapshot = this.model.snapshotRenderData();
-        return mapper.fromBodyDTOPooled(snapshot);
+    /**
+     *    Removed overloads that accept a mapper; all mapping is now internal 
+    */
+    public ArrayList<DynamicRenderDTO> snapshotRenderData(Set<String> visibleIds) {
+        ArrayList<BodyData> bodyDataSnapshot = this.model.snapshotRenderData(visibleIds);
+        return dynamicRenderableMapper.fromBodyDTOPooled(bodyDataSnapshot);
     }
 
     // *** INTERFACE IMPLEMENTATIONS (one region per interface) ***
@@ -447,6 +452,7 @@ public class Controller implements WorldManager, DomainEventProcessor {
         if (entityId == null || entityId.isEmpty()) {
             return; // ======= Max entity quantity reached =======>
         }
+
         this.view.addDynamicRenderable(entityId, assetId);
     }
 

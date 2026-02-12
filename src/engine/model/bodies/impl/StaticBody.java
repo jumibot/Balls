@@ -5,7 +5,7 @@ import engine.model.bodies.ports.BodyEventProcessor;
 import engine.model.bodies.ports.BodyState;
 import engine.model.bodies.ports.BodyType;
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.utils.spatial.core.SpatialGrid;
 
 /**
@@ -76,7 +76,7 @@ public class StaticBody extends AbstractBody implements Runnable {
     @Override
     public void onTick() {
         if (this.isLifeOver()) {
-            PhysicsValuesDTO phyValues = this.getPhysicsValues();
+            PhysicsValuesMDTO phyValues = this.getPhysicsValues();
             this.processBodyEvents(this, phyValues, phyValues);
         }
     }

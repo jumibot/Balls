@@ -1,14 +1,14 @@
 package engine.utils.images;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * ImageCache
@@ -28,51 +28,73 @@ import java.util.Map;
  */
 public class ImageCache {
 
+    // region Constants
+    public static final int DEFAULT_CACHE_SIZE = 16384;
+    // endregion
+
+    // region Fields
     private GraphicsConfiguration gc;
     private Images baseImages;
-    private final Map<ImageCacheKeyDTO, BufferedImage> cache = new HashMap<>(2048);
-    private volatile long hits = 0;
-    private volatile long fails = 0;
+    private final ConcurrentMap<ImageCacheKeyMDTO, BufferedImage> cache;
+    private final ThreadLocal<ImageCacheKeyMDTO> lookupKey;
+    private final LongAdder hits;
+    private final LongAdder fails;
+    // endregion
 
+    // region Constructors
     public ImageCache(GraphicsConfiguration gc, Images baseImages) {
         this.gc = gc;
         this.baseImages = baseImages;
+
+        this.fails = new LongAdder();
+        this.hits = new LongAdder();
+        this.cache = new ConcurrentHashMap<>(DEFAULT_CACHE_SIZE);
+
+        this.lookupKey = ThreadLocal
+                .withInitial(() -> new ImageCacheKeyMDTO(0, "", 0));
     }
+    // endregion
 
-    /**
-     * PUBLICS
-     */
+    // *** PUBLIC ***
+
+    // region Getters (get***)
     public BufferedImage getImage(int angle, String assetId, int size) {
-        ImageCacheKeyDTO key = new ImageCacheKeyDTO(angle, assetId, size);
-        BufferedImage image = this.cache.get(key);
+        ImageCacheKeyMDTO currentLookupKey = this.lookupKey.get();
+        currentLookupKey.set(angle, assetId, size);
+        BufferedImage image = this.cache.get(currentLookupKey);
 
-        if (image == null) {
-            this.fails++;
-            image = this.putInCache(angle, assetId, size);
-            this.cache.put(key, image);
-        } else {
-            this.hits++;
+        if (image != null) {
+            this.hits.increment();
+            return image;
         }
 
-        return image;
+        this.fails.increment();
+        BufferedImage generatedImage = this.putInCache(angle, assetId, size);
+        ImageCacheKeyMDTO cacheKey = new ImageCacheKeyMDTO(angle, assetId, size);
+        BufferedImage previous = this.cache.putIfAbsent(cacheKey, generatedImage);
+
+        return previous == null ? generatedImage : previous;
     }
 
     public long getHits() {
-        return this.hits;
+        return this.hits.sum();
     }
 
     public double getHitsPercentage() {
-        if (this.hits == 0) {
+        long currentHits = this.hits.sum();
+        if (currentHits == 0) {
             return 0d;
         }
 
-        double hitsPctg = (double) this.hits / (double) (this.hits + this.fails);
+        long currentFails = this.fails.sum();
+        double hitsPctg = (double) currentHits / (double) (currentHits + currentFails);
         return hitsPctg * 100d;
     }
 
     public long getFails() {
-        return this.fails;
+        return this.fails.sum();
     }
+    // endregion
 
     public int size() {
         return this.cache.size();
@@ -97,7 +119,8 @@ public class ImageCache {
 
         try {
             if (imageDto != null) {
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 
                 if (angle != 0) {

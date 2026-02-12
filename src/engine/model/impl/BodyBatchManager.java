@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class BodyBatchManager {
 
     // region Constants
-    private static final int DEFAULT_BATCH_SIZE = 30;
+    private static final int DEFAULT_BATCH_SIZE = 20;
     private static final int PLAYER_BATCH_SIZE = 1;
     // endregion
 

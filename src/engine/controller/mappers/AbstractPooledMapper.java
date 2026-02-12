@@ -1,7 +1,7 @@
 package engine.controller.mappers;
 
-import engine.utils.pooling.PoolMDTO;
-import engine.utils.pooling.PoolableMDTO;
+import engine.utils.pooling.Pool;
+import engine.utils.pooling.PoolableObject;
 
 /**
  * Abstract base class for mappers that use object pools to reduce allocations.
@@ -11,21 +11,21 @@ import engine.utils.pooling.PoolableMDTO;
  * 
  * @param <T> the type of DTO managed by this mapper (must implement DTOPoolable)
  */
-public abstract class DTOPooledMapper<T extends PoolableMDTO> {
+public abstract class AbstractPooledMapper<T extends PoolableObject> {
 
-    protected final PoolMDTO<T> pool;
+    protected final Pool<T> pool;
 
     /**
-     * Creates a new pooled mapper with the given pool.
-     * 
-     * @param pool the DTO pool to use for acquiring/releasing instances
+     * Creates a new pooled mapper with its own pool.
      */
-    public DTOPooledMapper(PoolMDTO<T> pool) {
-        if (pool == null) {
-            throw new IllegalArgumentException("Pool cannot be null");
-        }
-        this.pool = pool;
+    public AbstractPooledMapper() {
+        this.pool = createPool();
     }
+
+    /**
+     * Subclases deben implementar este método para crear el pool adecuado.
+     */
+    protected abstract Pool<T> createPool();
 
     /**
      * Acquires a DTO from the pool and populates it with mapped data.
@@ -54,7 +54,5 @@ public abstract class DTOPooledMapper<T extends PoolableMDTO> {
      * 
      * @return the pool
      */
-    public PoolMDTO<T> getPool() {
-        return this.pool;
-    }
+    // Eliminado: el pool ya no se expone
 }

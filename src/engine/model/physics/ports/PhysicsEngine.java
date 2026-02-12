@@ -4,23 +4,23 @@ public interface PhysicsEngine {
 
         public void angularAccelerationInc(double angularAcc);
 
-        public PhysicsValuesDTO calcNewPhysicsValues();
+        public PhysicsValuesMDTO calcNewPhysicsValues();
 
-        public PhysicsValuesDTO getPhysicsValues();
+        public PhysicsValuesMDTO getPhysicsValues();
 
         public boolean isThrusting();
 
         public void reboundInEast(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public void reboundInWest(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public void reboundInNorth(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public void reboundInSouth(
-                        PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y);
+                        PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y);
 
         public void resetAcceleration();
 
@@ -28,7 +28,7 @@ public interface PhysicsEngine {
 
         public void setAngularSpeed(double angularSpeed);
 
-        public void setPhysicsValues(PhysicsValuesDTO phyValues);
+        public void setPhysicsValues(PhysicsValuesMDTO phyValues);
 
         public void setThrust(double thrust);
 

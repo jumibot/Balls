@@ -47,7 +47,7 @@ public class AIBasicSpawner extends AbstractIAGenerator {
         DefItem defItem = this.asteroidDefs.get(
                 this.rnd.nextInt(this.asteroidDefs.size()));
 
-        this.addDynamic(defItem);
+        // this.addDynamic(defItem);
     }
 
     // *** PRIVATE (alphabetic order) ***

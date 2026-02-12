@@ -1,8 +1,8 @@
-package engine.utils.profiling.impl;
+package engine.model.bodies.impl;
 
 import engine.utils.profiling.core.AbstractProfiler;
 import engine.utils.profiling.core.MetricType;
-import engine.utils.profiling.core.ProfileMetricsDTO;
+import engine.utils.profiling.core.MetricsDTO;
 import engine.utils.profiling.core.ProfileSnapshot;
 
 /**
@@ -52,7 +52,7 @@ public class BodyProfiler extends AbstractProfiler {
      * @param fps frames per second (for normalization)
      * @return Object array with [calculations, DTO, events, grid] or N/A placeholders
      */
-    public Object[] getInstrumentationHUDValues(long fps) {
+    public Object[] getHudValues(long fps) {
         ProfileSnapshot snapshot = getLastSnapshot();
         Object[] values = new Object[4];
 
@@ -63,20 +63,12 @@ public class BodyProfiler extends AbstractProfiler {
             return values;
         }
 
-        // Calculations (DT + THRUST + LINEAR + ANGULAR combined)
-        double calcTotal = sumMetrics("PHYSICS_DT", "PHYSICS_THRUST", "PHYSICS_LINEAR", "PHYSICS_ANGULAR");
-        values[0] = calcTotal > 0 ? String.format("%.0f", calcTotal / fps) : "N/A";
-
-        // DTO creation - show as ms/frame
-        ProfileMetricsDTO physicsDto = snapshot.getSectionMetrics("PHYSICS_DTO");
-        values[1] = physicsDto != null ? String.format("%.0f", physicsDto.totalMs / fps) : "N/A";
-
         // Events - consolidated total
         double eventsTotal = sumMetrics("EVENTS_DETECT", "EVENTS_DECIDE", "EVENTS_EXECUTE");
         values[2] = eventsTotal > 0 ? String.format("%.0f", eventsTotal / fps) : "N/A";
 
         // Spatial Grid
-        ProfileMetricsDTO spatialGrid = snapshot.getSectionMetrics("SPATIAL_GRID");
+        MetricsDTO spatialGrid = snapshot.getSectionMetrics("SPATIAL_GRID");
         values[3] = spatialGrid != null ? String.format("%.0f", spatialGrid.totalMs / fps) : "N/A";
 
         return values;

@@ -9,17 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * Generic base profiler using Template Method pattern.
  * 
  * Provides a single global timer per instance with flexible metrics that can be
- * configured by subclasses. Each metric has a type (INSTANT, TOTAL,
- * TOTAL_PERIOD, AVG_PERIOD)
+ * configured by subclasses.
+ * 
+ * Each metric has a type (INSTANT, TOTAL, * TOTAL_PERIOD, AVG_PERIOD)
  * that determines how it accumulates and resets.
  * 
  * Subclasses implement configureMetrics() to define their specific metrics,
  * and customReport() to display results in their preferred format.
- * 
- * Follows CODE_ORGANIZATION_STANDARD.md:
- * - Alphabetical method ordering
- * - No inner classes
- * - Regions for functional grouping
  */
 public abstract class AbstractProfiler {
 
@@ -30,9 +26,9 @@ public abstract class AbstractProfiler {
 
     // region Fields
     protected final long reportIntervalNanos;
-    protected final ConcurrentHashMap<String, ProfileMetric> metricsMap = new ConcurrentHashMap<>();
-    protected final Map<String, MetricType> metricTypes = new ConcurrentHashMap<>();
-    protected final Map<String, ProfileMetricFormatter> formatters = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<String, Metric> metricsMap = new ConcurrentHashMap<>();
+    protected final Map<String, MetricType> typesOfMetrics = new ConcurrentHashMap<>();
+    protected final Map<String, MetricFormatter> formatters = new ConcurrentHashMap<>();
     protected volatile long lastReportNanos = System.nanoTime();
     protected volatile long lastSnapshotNanos = System.nanoTime();
     protected volatile AtomicReference<ProfileSnapshot> lastSnapshot = new AtomicReference<>(null);
@@ -63,7 +59,7 @@ public abstract class AbstractProfiler {
      * @param type how this metric behaves
      */
     public final void addMetric(String key, MetricType type) {
-        addMetric(key, type, ProfileMetricFormatter.DEFAULT_MS);
+        this.addMetric(key, type, MetricFormatter.DEFAULT_MS);
     }
 
     /**
@@ -74,10 +70,10 @@ public abstract class AbstractProfiler {
      * @param type      how this metric behaves
      * @param formatter custom formatter for this metric
      */
-    public final void addMetric(String key, MetricType type, ProfileMetricFormatter formatter) {
-        metricsMap.putIfAbsent(key, new ProfileMetric());
-        metricTypes.put(key, type);
-        formatters.put(key, formatter);
+    public final void addMetric(String key, MetricType type, MetricFormatter formatter) {
+        this.metricsMap.putIfAbsent(key, new Metric());
+        this.typesOfMetrics.put(key, type);
+        this.formatters.put(key, formatter);
     }
 
     /**
@@ -102,9 +98,9 @@ public abstract class AbstractProfiler {
      * 
      * @return Map with all current metrics
      */
-    public final Map<String, ProfileMetricsDTO> getAllMetrics() {
-        Map<String, ProfileMetricsDTO> result = new HashMap<>();
-        for (Map.Entry<String, ProfileMetric> entry : metricsMap.entrySet()) {
+    public final Map<String, MetricsDTO> getAllMetrics() {
+        Map<String, MetricsDTO> result = new HashMap<>();
+        for (Map.Entry<String, Metric> entry : metricsMap.entrySet()) {
             result.put(entry.getKey(), entry.getValue().getMetrics());
         }
         return result;
@@ -122,7 +118,7 @@ public abstract class AbstractProfiler {
             return 0.0;
         }
 
-        ProfileMetricsDTO metrics = snapshot.getSectionMetrics(key);
+        MetricsDTO metrics = snapshot.getSectionMetrics(key);
         return metrics != null ? metrics.avgMs : 0.0;
     }
 
@@ -141,8 +137,8 @@ public abstract class AbstractProfiler {
      * @param key metric name
      * @return ProfileMetricsDTO or null if metric not found
      */
-    public final ProfileMetricsDTO getMetric(String key) {
-        ProfileMetric metric = metricsMap.get(key);
+    public final MetricsDTO getMetric(String key) {
+        Metric metric = metricsMap.get(key);
         if (metric != null) {
             return metric.getMetrics();
         }
@@ -156,36 +152,13 @@ public abstract class AbstractProfiler {
      * @return formatted string or "N/A" if not available
      */
     public final String getMetricString(String key) {
-        ProfileMetricsDTO dto = getMetric(key);
+        MetricsDTO dto = getMetric(key);
         if (dto == null) {
             return "N/A";
         }
 
-        ProfileMetricFormatter formatter = formatters.getOrDefault(key, ProfileMetricFormatter.DEFAULT_MS);
+        MetricFormatter formatter = formatters.getOrDefault(key, MetricFormatter.DEFAULT_MS);
         return formatter.format(dto);
-    }
-
-    /**
-     * Sum total milliseconds from multiple metrics.
-     * Useful for aggregating related metrics (e.g., all physics sub-metrics).
-     * 
-     * @param metricKeys metric names to sum
-     * @return sum of total milliseconds from all specified metrics
-     */
-    protected final double sumMetrics(String... metricKeys) {
-        ProfileSnapshot snapshot = getLastSnapshot();
-        if (snapshot == null) {
-            return 0.0;
-        }
-        
-        double sum = 0.0;
-        for (String key : metricKeys) {
-            ProfileMetricsDTO dto = snapshot.getSectionMetrics(key);
-            if (dto != null) {
-                sum += dto.totalMs;
-            }
-        }
-        return sum;
     }
     // endregion Get
 
@@ -212,7 +185,7 @@ public abstract class AbstractProfiler {
             return;
         }
 
-        ProfileMetric metric = metricsMap.computeIfAbsent(key, k -> new ProfileMetric());
+        Metric metric = metricsMap.computeIfAbsent(key, k -> new Metric());
         metric.setInstant(value);
     }
     // endregion Set
@@ -237,7 +210,7 @@ public abstract class AbstractProfiler {
     /**
      * Stop interval timer for a specific metric and record its elapsed time.
      *
-     * @param key metric name
+     * @param key        metric name
      * @param startNanos start timestamp returned by startInterval()
      */
     public final void stopInterval(String key, long startNanos) {
@@ -251,11 +224,34 @@ public abstract class AbstractProfiler {
     }
     // endregion
 
+    /**
+     * Total milliseconds from multiple metrics.
+     * Useful for aggregating related metrics.
+     * 
+     * @param metricKeys metric names to sum
+     * @return sum of total milliseconds from all specified metrics
+     */
+    protected final double sumMetrics(String... metricKeys) {
+        ProfileSnapshot snapshot = getLastSnapshot();
+        if (snapshot == null) {
+            return 0.0;
+        }
+
+        double sum = 0.0;
+        for (String key : metricKeys) {
+            MetricsDTO dto = snapshot.getSectionMetrics(key);
+            if (dto != null) {
+                sum += dto.totalMs;
+            }
+        }
+        return sum;
+    }
+
     // *** PRIVATE ***
 
     private ProfileSnapshot captureSnapshot() {
-        Map<String, ProfileMetricsDTO> sections = new HashMap<>();
-        for (Map.Entry<String, ProfileMetric> entry : metricsMap.entrySet()) {
+        Map<String, MetricsDTO> sections = new HashMap<>();
+        for (Map.Entry<String, Metric> entry : metricsMap.entrySet()) {
             sections.put(entry.getKey(), entry.getValue().getMetrics());
         }
 
@@ -337,7 +333,7 @@ public abstract class AbstractProfiler {
      * @param label display label
      */
     protected final void reportMetric(String key, String label) {
-        ProfileMetric metric = metricsMap.get(key);
+        Metric metric = metricsMap.get(key);
         if (metric != null) {
             metric.report(label);
         }
@@ -345,14 +341,14 @@ public abstract class AbstractProfiler {
     // endregion
 
     private void resetPeriodMetrics() {
-        for (ProfileMetric metric : metricsMap.values()) {
+        for (Metric metric : metricsMap.values()) {
             metric.resetPeriod();
         }
     }
 
     private void updateMetric(String key, long elapsed) {
-        ProfileMetric metric = metricsMap.computeIfAbsent(key, k -> new ProfileMetric());
-        MetricType type = metricTypes.getOrDefault(key, MetricType.TOTAL_PERIOD);
+        Metric metric = metricsMap.computeIfAbsent(key, k -> new Metric());
+        MetricType type = typesOfMetrics.getOrDefault(key, MetricType.TOTAL_PERIOD);
 
         metric.record(elapsed, type);
     }

@@ -1,9 +1,12 @@
 package engine.utils.spatial.core;
 
+// region Imports
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import engine.utils.spatial.ports.SpatialGridStatisticsDTO;
+// endregion
 
 /**
  * SpatialGrid (NEUTRAL + TOPOLOGÍA FIJA + PREALLOC)
@@ -131,6 +134,20 @@ public final class SpatialGrid {
     }
     // endregion
 
+    private boolean sameCells(Cells oldEntityCells, int newCount, int[] newCellIdxs) {
+        if (oldEntityCells.count != newCount)
+            return false;
+
+        for (int i = 0; i < oldEntityCells.count; i++) {
+            if (oldEntityCells.idxs[i] != newCellIdxs[i])
+                return false;
+        }
+
+        return true;
+    }
+
+
+    // region upsert (upsert***)
     /**
      * Update cells useds by entityId according to posX,posY and size.
      * - Caller provides a reusable scratchIdxs buffer.
@@ -168,18 +185,6 @@ public final class SpatialGrid {
         }
     }
 
-    private boolean sameCells(Cells oldEntityCells, int newCount, int[] newCellIdxs) {
-        if (oldEntityCells.count != newCount)
-            return false;
-
-        for (int i = 0; i < oldEntityCells.count; i++) {
-            if (oldEntityCells.idxs[i] != newCellIdxs[i])
-                return false;
-        }
-
-        return true;
-    }
-
     private void upsertSmall(String entityId, int newCount, Cells oldEntityCells, int[] newCellIdxs) {
         // Remove
         for (int i = 0; i < oldEntityCells.count; i++)
@@ -195,7 +200,8 @@ public final class SpatialGrid {
 
     private void upsertLarge(String entityId, int newCount, Cells oldEntityCells, int[] newCellIdxs) {
         // Linear merge diff O(k) instead of O(k²) contains checks
-        // Both oldEntityCells.idxs and newCellIdxs are ordered by computeCellIdxsClamped
+        // Both oldEntityCells.idxs and newCellIdxs are ordered by
+        // computeCellIdxsClamped
         // Traverse both in parallel:
         // - Remove cells in old but not in new
         // - Add cells in new but not in old
@@ -240,6 +246,7 @@ public final class SpatialGrid {
         // New are now old
         oldEntityCells.updateFrom(newCellIdxs, newCount);
     }
+    // endregion
 
     public void remove(String entityId) {
         if (entityId == null || entityId.isEmpty())
@@ -279,7 +286,7 @@ public final class SpatialGrid {
      * @param entityId the entity whose collision neighborhood is queried
      * @return the list of collision candidate entityIds (possibly empty) or null
      */
-    public ArrayList<String> queryCollisionCandidates(String entityId, ArrayList<String> scratchCandidateIds) {
+    public Set<String> queryCollisionCandidates(String entityId, Set<String> scratchCandidateIds) {
         if (entityId == null || entityId.isEmpty())
             return null;
 
@@ -314,9 +321,9 @@ public final class SpatialGrid {
      * @param scratchCandidates reusable list for results
      * @return list of entity IDs in region (may contain duplicates)
      */
-    public ArrayList<String> queryRegion(
+    public Set<String> queryRegion(
             double minX, double maxX, double minY, double maxY,
-            int[] scratchIdxs, ArrayList<String> scratchCandidates) {
+            int[] scratchIdxs, Set<String> scratchCandidates) {
 
         this.requireBuffer(scratchIdxs);
         scratchCandidates.clear();

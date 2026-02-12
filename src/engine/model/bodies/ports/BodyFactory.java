@@ -1,14 +1,14 @@
 package engine.model.bodies.ports;
 
 import engine.model.bodies.core.AbstractBody;
+import engine.model.bodies.impl.BodyProfiler;
 import engine.model.bodies.impl.DynamicBody;
 import engine.model.bodies.impl.PlayerBody;
 import engine.model.bodies.impl.StaticBody;
 import engine.model.physics.implementations.BasicPhysicsEngine;
 import engine.model.physics.implementations.NullPhysicsEngine;
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.profiling.impl.BodyProfiler;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.utils.spatial.core.SpatialGrid;
 
 /**
@@ -22,9 +22,9 @@ public class BodyFactory {
     public static AbstractBody create(
             BodyEventProcessor bodyEventProcessor,
             SpatialGrid spatialGrid,
-            PhysicsValuesDTO dto1,
-            PhysicsValuesDTO dto2,
-            PhysicsValuesDTO dto3,
+            PhysicsValuesMDTO dto1,
+            PhysicsValuesMDTO dto2,
+            PhysicsValuesMDTO dto3,
             BodyType bodyType,
             double maxLifeTime,
             String emitterId,

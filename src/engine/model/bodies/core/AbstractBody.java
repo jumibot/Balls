@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,8 +20,7 @@ import engine.model.emitter.impl.BasicEmitter;
 import engine.model.impl.Model;
 import engine.model.physics.core.AbstractPhysicsEngine;
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.pooling.PoolMDTO;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.utils.spatial.core.SpatialGrid;
 
 /**
@@ -235,7 +235,7 @@ public abstract class AbstractBody {
     private final BodyData bodyData;
     private final SpatialGrid spatialGrid;
     private final int[] scratchIdxs;
-    private final ArrayList<String> scratchCandidateIds;
+    private final Set<String> scratchCandidateIds;
     private final HashSet<String> scratchSeenCandidateIds = new HashSet<>(64);
 
     private final ArrayList<DomainEvent> scratchEvents = new ArrayList<>(64);
@@ -255,7 +255,7 @@ public abstract class AbstractBody {
         if (spatialGrid != null) {
             this.spatialGrid = spatialGrid;
             this.scratchIdxs = new int[spatialGrid.getMaxCellsPerBody()];
-            this.scratchCandidateIds = new ArrayList<String>(64);
+            this.scratchCandidateIds = new HashSet<String>(64);
 
         } else {
             this.spatialGrid = null;
@@ -312,20 +312,17 @@ public abstract class AbstractBody {
             AbstractBody.aliveQuantity--;
         }
         
-        // Release 3 DTOs to pool from physics engine
+        // Release 3 DTOs to pool from physics engine (ahora usando release() propio)
         if (this.bodyEventProcessor instanceof Model && this.phyEngine instanceof AbstractPhysicsEngine) {
-            Model model = (Model) this.bodyEventProcessor;
             AbstractPhysicsEngine engine = (AbstractPhysicsEngine) this.phyEngine;
-            PoolMDTO<PhysicsValuesDTO> pool = model.getPhysicsValuesPool();
-            
             // Release all 3 DTOs: current, next, and snapshot
-            pool.release(engine.getPhysicsValues());
-            pool.release(engine.getNextPhyValues());
-            pool.release(engine.getSnapshotDTO());
+            engine.getPhysicsValues().release();
+            engine.getNextPhyValues().release();
+            engine.getSnapshotDTO().release();
         }
     }
 
-    public void doMovement(PhysicsValuesDTO phyValues) {
+    public void doMovement(PhysicsValuesMDTO phyValues) {
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.setPhysicsValues(phyValues);
     }
@@ -443,7 +440,7 @@ public abstract class AbstractBody {
         return this.phyEngine;
     }
 
-    public PhysicsValuesDTO getPhysicsValues() {
+    public PhysicsValuesMDTO getPhysicsValues() {
         return this.phyEngine.getPhysicsValues();
     }
     // endregion
@@ -456,7 +453,7 @@ public abstract class AbstractBody {
         return this.actionsQueue;
     }
 
-    public ArrayList<String> getScratchClearCandidateIds() {
+    public Set<String> getScratchClearCandidateIds() {
         this.scratchCandidateIds.clear();
         return scratchCandidateIds;
     }
@@ -505,29 +502,29 @@ public abstract class AbstractBody {
     }
     // endregion
 
-    public void processBodyEvents(AbstractBody body, PhysicsValuesDTO newPhyValues, PhysicsValuesDTO oldPhyValues) {
+    public void processBodyEvents(AbstractBody body, PhysicsValuesMDTO newPhyValues, PhysicsValuesMDTO oldPhyValues) {
         this.bodyEventProcessor.processBodyEvents(body, newPhyValues, oldPhyValues);
     }
 
     // region Rebound methods
-    public void reboundInEast(PhysicsValuesDTO phyValues, double worldWidth, double worldHeight) {
+    public void reboundInEast(PhysicsValuesMDTO phyValues, double worldWidth, double worldHeight) {
 
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInEast(phyValues, worldWidth, worldHeight);
     }
 
-    public void reboundInNorth(PhysicsValuesDTO phyValues, double worldWidth, double worldHeight) {
+    public void reboundInNorth(PhysicsValuesMDTO phyValues, double worldWidth, double worldHeight) {
 
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInNorth(phyValues, worldWidth, worldHeight);
     }
 
-    public void reboundInWest(PhysicsValuesDTO phyValues, double worldWidth, double worldHeight) {
+    public void reboundInWest(PhysicsValuesMDTO phyValues, double worldWidth, double worldHeight) {
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInWest(phyValues, worldWidth, worldHeight);
     }
 
-    public void reboundInSouth(PhysicsValuesDTO phyValues, double worldWidth, double worldHeight) {
+    public void reboundInSouth(PhysicsValuesMDTO phyValues, double worldWidth, double worldHeight) {
 
         PhysicsEngine engine = this.getPhysicsEngine();
         engine.reboundInSouth(phyValues, worldWidth, worldHeight);
@@ -549,7 +546,7 @@ public abstract class AbstractBody {
             return;
         }
 
-        final PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        final PhysicsValuesMDTO phyValues = this.getPhysicsValues();
 
         final double r = phyValues.size * 0.5; // si size es radio, r = committed.size
         final double minX = phyValues.posX - r;

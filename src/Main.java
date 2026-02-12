@@ -27,13 +27,12 @@ public class Main {
 		// => *** Keep viewDimension smaller than actual screen size ***
 		// => *** or... no set viewDimension                         ***
 		// => **********************************************************
-		DoubleVector viewDimension = new DoubleVector(1280, 720);
+		DoubleVector viewDimension = new DoubleVector(720, 720);
 		DoubleVector worldDimension = new DoubleVector(40000, 40000);
 		// endregion
 		
-		int maxBodies = 5000;
+		int maxBodies = 2000;
 		int maxAsteroidCreationDelay = 3; // Used by AIBasicSpawner
-
 
 		ProjectAssets projectAssets = new ProjectAssets();
 
@@ -49,7 +48,7 @@ public class Main {
 
 		// region Controller
 		Controller controller = new Controller(
-				worldDimension, viewDimension, maxBodies,
+				worldDimension, viewDimension, 
 				new View(), new Model(worldDimension, maxBodies),
 				gameRules);
 

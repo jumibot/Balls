@@ -1,7 +1,7 @@
 package engine.model.ports;
 
 import java.util.Map;
-import engine.utils.profiling.core.ProfileMetricsDTO;
+import engine.utils.profiling.core.MetricsDTO;
 
 /**
  * ProfilingStatisticsDTO
@@ -16,12 +16,12 @@ import engine.utils.profiling.core.ProfileMetricsDTO;
 public class ProfilingStatisticsDTO {
 
     // region Fields
-    public final Map<String, ProfileMetricsDTO> metrics;
+    public final Map<String, MetricsDTO> metrics;
     public final long captureTimeNanos;
     // endregion Fields
 
     // region Constructors
-    public ProfilingStatisticsDTO(Map<String, ProfileMetricsDTO> metrics) {
+    public ProfilingStatisticsDTO(Map<String, MetricsDTO> metrics) {
         this.metrics = metrics != null ? metrics : Map.of();
         this.captureTimeNanos = System.nanoTime();
     }
@@ -30,7 +30,7 @@ public class ProfilingStatisticsDTO {
     // *** PUBLICS ***
 
     // region Get
-    public ProfileMetricsDTO getMetric(String key) {
+    public MetricsDTO getMetric(String key) {
         return this.metrics.get(key);
     }
 

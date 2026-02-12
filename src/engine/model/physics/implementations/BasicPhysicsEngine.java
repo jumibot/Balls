@@ -2,9 +2,9 @@ package engine.model.physics.implementations;
 
 import static java.lang.System.nanoTime;
 
+import engine.model.bodies.impl.BodyProfiler;
 import engine.model.physics.core.AbstractPhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.profiling.impl.BodyProfiler;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 
 public class BasicPhysicsEngine extends AbstractPhysicsEngine {
 
@@ -13,7 +13,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
     // endregion
 
     // region Constructors
-    public BasicPhysicsEngine(PhysicsValuesDTO dto1, PhysicsValuesDTO dto2, PhysicsValuesDTO dto3, BodyProfiler profiler) {
+    public BasicPhysicsEngine(PhysicsValuesMDTO dto1, PhysicsValuesMDTO dto2, PhysicsValuesMDTO dto3, BodyProfiler profiler) {
         super(dto1, dto2, dto3);
         this.profiler = profiler;
     }
@@ -23,7 +23,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
 
     @Override
     public void angularAccelerationInc(double angularAcc) {
-        PhysicsValuesDTO old = this.getPhysicsValues();
+        PhysicsValuesMDTO old = this.getPhysicsValues();
         
         // Update nextPhyValues instead of creating new DTO
         nextPhyValues.update(
@@ -40,9 +40,9 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public PhysicsValuesDTO calcNewPhysicsValues() {
+    public PhysicsValuesMDTO calcNewPhysicsValues() {
         long dtStart = this.profiler.startInterval();
-        PhysicsValuesDTO phyVals = this.getPhysicsValues();
+        PhysicsValuesMDTO phyVals = this.getPhysicsValues();
         long now = nanoTime();
         long elapsedNanos = now - phyVals.timeStamp;
         double dt = ((double) elapsedNanos) / 1_000_000_000.0d; // Nanos to seconds
@@ -60,13 +60,13 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
 
     @Override
     public boolean isThrusting() {
-        PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        PhysicsValuesMDTO phyValues = this.getPhysicsValues();
         return phyValues.thrust != 0.0d;
     }
 
     // region Rebounds
     @Override
-    public void reboundInEast(PhysicsValuesDTO phyValues,
+    public void reboundInEast(PhysicsValuesMDTO phyValues,
             double worldDim_x, double worldDim_y) {
 
         // New speed: horizontal component flipped, vertical preserved
@@ -96,7 +96,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public void reboundInWest(PhysicsValuesDTO phyValues,
+    public void reboundInWest(PhysicsValuesMDTO phyValues,
             double worldDim_x, double worldDim_y) {
 
         // New speed: horizontal component flipped, vertical preserved
@@ -126,7 +126,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public void reboundInNorth(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInNorth(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
 
         // New speed: horizontal component flipped, vertical preserved
         double speedX = phyValues.speedX;
@@ -155,7 +155,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
     }
 
     @Override
-    public void reboundInSouth(PhysicsValuesDTO phyValues, double worldDim_x, double worldDim_y) {
+    public void reboundInSouth(PhysicsValuesMDTO phyValues, double worldDim_x, double worldDim_y) {
 
         // New speed: horizontal component flipped, vertical preserved
         double speedX = phyValues.speedX;
@@ -186,7 +186,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
 
     @Override
     public void setAngularSpeed(double angularSpeed) {
-        PhysicsValuesDTO old = this.getPhysicsValues();
+        PhysicsValuesMDTO old = this.getPhysicsValues();
         
         // Update nextPhyValues instead of creating new DTO
         nextPhyValues.update(
@@ -204,7 +204,7 @@ public class BasicPhysicsEngine extends AbstractPhysicsEngine {
 
     // *** PRIVATES ***
 
-    private PhysicsValuesDTO integrateMRUA(PhysicsValuesDTO phyVals, double dt) {
+    private PhysicsValuesMDTO integrateMRUA(PhysicsValuesMDTO phyVals, double dt) {
         // Applying thrust according actual angle
         long thrustStart = this.profiler.startInterval();
         double accX = 0d;

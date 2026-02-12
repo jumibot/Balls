@@ -9,8 +9,7 @@ import engine.model.bodies.ports.PlayerDTO;
 import engine.model.emitter.impl.BasicEmitter;
 import engine.model.emitter.ports.EmitterConfigDto;
 import engine.model.physics.ports.PhysicsEngine;
-import engine.model.physics.ports.PhysicsValuesDTO;
-import engine.utils.profiling.impl.BodyProfiler;
+import engine.model.physics.ports.PhysicsValuesMDTO;
 import engine.utils.spatial.core.SpatialGrid;
 
 public class PlayerBody extends DynamicBody {
@@ -196,7 +195,7 @@ public class PlayerBody extends DynamicBody {
     }
 
     public void rotateLeftOn() {
-        PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        PhysicsValuesMDTO phyValues = this.getPhysicsValues();
 
         if (phyValues.angularSpeed == 0) {
             this.setAngularSpeed(-this.getAngularSpeed());
@@ -206,7 +205,7 @@ public class PlayerBody extends DynamicBody {
     }
 
     public void rotateRightOn() {
-        PhysicsValuesDTO phyValues = this.getPhysicsValues();
+        PhysicsValuesMDTO phyValues = this.getPhysicsValues();
         if (phyValues.angularSpeed == 0) {
             this.setAngularSpeed(this.getAngularSpeed());
         }
@@ -250,7 +249,7 @@ public class PlayerBody extends DynamicBody {
         this.temperature = temperature;
     }
 
-    public boolean mustFireNow(PhysicsValuesDTO newPhyValues) {
+    public boolean mustFireNow(PhysicsValuesMDTO newPhyValues) {
         if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.weaponIds.size()) {
             return false;
         }

@@ -12,8 +12,8 @@ import java.util.Map;
 public class ProfileSnapshot {
 
     // region Fields
-    public final ProfileMetricsDTO total;
-    public final Map<String, ProfileMetricsDTO> sections;
+    public final MetricsDTO total;
+    public final Map<String, MetricsDTO> sections;
     private final long captureTimeNanos;
     // endregion Fields
 
@@ -25,8 +25,8 @@ public class ProfileSnapshot {
      * @param sections map of metric_name -> ProfileMetricsDTO
      */
     public ProfileSnapshot(
-            ProfileMetricsDTO total,
-            Map<String, ProfileMetricsDTO> sections) {
+            MetricsDTO total,
+            Map<String, MetricsDTO> sections) {
         this.total = total;
         this.sections = sections != null ? sections : Map.of();
         this.captureTimeNanos = System.nanoTime();
@@ -43,7 +43,7 @@ public class ProfileSnapshot {
      * @param key the metric key to query
      * @return metrics or null if not available
      */
-    public ProfileMetricsDTO getSectionMetrics(String key) {
+    public MetricsDTO getSectionMetrics(String key) {
         return this.sections.get(key);
     }
     // endregion Get

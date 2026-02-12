@@ -19,7 +19,6 @@ import javax.swing.SwingUtilities;
 import engine.assets.core.AssetCatalog;
 import engine.assets.ports.AssetType;
 import engine.controller.impl.Controller;
-import engine.controller.mappers.DynamicRenderableMapper;
 import engine.controller.ports.EngineState;
 import engine.utils.helpers.DoubleVector;
 import engine.utils.images.Images;
@@ -270,12 +269,12 @@ public class View extends JFrame implements KeyListener, WindowFocusListener {
         return this.controller.snapshotRenderData();
     }
 
-    protected ArrayList<DynamicRenderDTO> snapshotRenderData(DynamicRenderableMapper mapper) {
+
+    protected ArrayList<DynamicRenderDTO> snapshotRenderData(Set<String> visibleIds) {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
-
-        return this.controller.snapshotRenderData(mapper);
+        return this.controller.snapshotRenderData(visibleIds);
     }
 
     protected EngineState getEngineState() {
@@ -314,6 +313,10 @@ public class View extends JFrame implements KeyListener, WindowFocusListener {
         return this.controller.getSpatialGridStatistics();
     }
 
+    protected RenderDTO getRenderData(String entityId) {
+        return this.controller.getRenderData(entityId);
+    }
+
     protected RenderMetricsDTO getRenderMetrics() {
         return this.renderer.getRenderMetrics();
     }
@@ -328,18 +331,18 @@ public class View extends JFrame implements KeyListener, WindowFocusListener {
      * @param maxX               right edge of query region
      * @param minY               top edge of query region
      * @param maxY               bottom edge of query region
-     * @param scratchCellIndices buffer for spatial grid cell indices
+     * @param scratchCellIndexes buffer for spatial grid cell indices
      * @param scratchEntityIds   buffer to fill with visible entity IDs
      * @return list of entity IDs in region
      */
-    public ArrayList<String> queryEntitiesInRegion(
+     public Set<String> queryEntitiesInRegion(
             double minX, double maxX, double minY, double maxY,
-            int[] scratchCellIndices, ArrayList<String> scratchEntityIds) {
+            int[] scratchCellIndexes, Set<String> scratchEntityIds) {
 
         // Relay al controller (que tiene acceso al modelo)
         return this.controller.queryEntitiesInRegion(
                 minX, maxX, minY, maxY,
-                scratchCellIndices, scratchEntityIds);
+                scratchCellIndexes, scratchEntityIds);
     }
 
     // *** PRIVATE ***
