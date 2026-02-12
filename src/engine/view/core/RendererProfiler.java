@@ -64,7 +64,6 @@ public class RendererProfiler extends AbstractProfiler {
         return getAvgMs(METRIC_UPDATE_PHASE);
     }
 
-    // Draw breakdown getters
     public double getAvgDrawBackgroundMs() {
         return getAvgMs(METRIC_DRAW_BACKGROUND);
     }
@@ -111,7 +110,6 @@ public class RendererProfiler extends AbstractProfiler {
         addMetric(METRIC_TOTAL_FRAME, MetricType.INTERVAL);
         addMetric(METRIC_UPDATE_PHASE, MetricType.INTERVAL);
 
-        // Draw breakdown
         addMetric(METRIC_DRAW_BACKGROUND, MetricType.INTERVAL);
         addMetric(METRIC_TRANSLATE, MetricType.INTERVAL);
         addMetric(METRIC_DRAW_STATIC, MetricType.INTERVAL);

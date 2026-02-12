@@ -1,27 +1,22 @@
 package engine.model.ports;
 
 import java.util.Map;
-import engine.utils.profiling.core.MetricsDTO;
+import engine.utils.profiling.core.MetricDTO;
 
 /**
- * ProfilingStatisticsDTO
- * ----------------------
- * 
  * DTO containing performance profiling metrics for the current frame.
- * Flows from Model → Controller → View following standard MVC architecture.
  * 
- * Encapsulates metrics captured by BodyProfiler without exposing the profiler instance.
- * The Controller's responsibility is to format these metrics for HUD rendering.
+ * Encapsulates metrics captured without exposing the profiler instance.
  */
 public class ProfilingStatisticsDTO {
 
     // region Fields
-    public final Map<String, MetricsDTO> metrics;
+    public final Map<String, MetricDTO> metrics;
     public final long captureTimeNanos;
     // endregion Fields
 
     // region Constructors
-    public ProfilingStatisticsDTO(Map<String, MetricsDTO> metrics) {
+    public ProfilingStatisticsDTO(Map<String, MetricDTO> metrics) {
         this.metrics = metrics != null ? metrics : Map.of();
         this.captureTimeNanos = System.nanoTime();
     }
@@ -30,7 +25,7 @@ public class ProfilingStatisticsDTO {
     // *** PUBLICS ***
 
     // region Get
-    public MetricsDTO getMetric(String key) {
+    public MetricDTO getMetric(String key) {
         return this.metrics.get(key);
     }
 

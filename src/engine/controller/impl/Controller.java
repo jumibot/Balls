@@ -379,16 +379,11 @@ public class Controller implements WorldManager, DomainEventProcessor {
     }
     // endregion
 
-    public ArrayList<DynamicRenderDTO> snapshotRenderData() {
-        ArrayList<BodyData> bodyDataSnapshot = this.model.snapshotRenderData();
-        return dynamicRenderableMapper.fromBodyDTOPooled(bodyDataSnapshot);
-    }
-
     /**
      *    Removed overloads that accept a mapper; all mapping is now internal 
     */
-    public ArrayList<DynamicRenderDTO> snapshotRenderData(Set<String> visibleIds) {
-        ArrayList<BodyData> bodyDataSnapshot = this.model.snapshotRenderData(visibleIds);
+    public ArrayList<DynamicRenderDTO> snapshotDynamicsRenderData(Set<String> visibleIds) {
+        ArrayList<BodyData> bodyDataSnapshot = this.model.snapshotDynamicsRenderData(visibleIds);
         return dynamicRenderableMapper.fromBodyDTOPooled(bodyDataSnapshot);
     }
 

@@ -326,7 +326,9 @@ public class Renderer extends Canvas implements Runnable {
 
     // region drawers (draw***)
     private void drawDynamics(Graphics2D g, Set<String> visibleIds) {
-        long paintStart = this.rendererProfiler.startInterval();
+        long drawStart = this.rendererProfiler.startInterval(); // Profiler
+
+        g.setComposite(AlphaComposite.SrcOver); // With transparency
 
         for (String entityId : visibleIds) {
             DynamicRenderable renderable = this.dynamicRenderables.get(entityId);
@@ -335,22 +337,16 @@ public class Renderer extends Canvas implements Runnable {
             }
         }
 
-        // Safety net: always paint local player if present, even if a transient
-        // SpatialGrid/query race skipped it in the visibleIds list.
-        Renderable localPlayerRenderable = this.getLocalPlayerRenderable();
-        if (!(localPlayerRenderable instanceof DynamicRenderable)) {
-            System.out.print(this.view.getLocalPlayerId());
-            System.out.println("KGD");
-        }
-
-        this.rendererProfiler.stopInterval(RendererProfiler.METRIC_PAINT_DYNAMIC, paintStart);
+        this.rendererProfiler.stopInterval(
+                RendererProfiler.METRIC_DRAW_DYNAMIC, drawStart); // Profiler
     }
 
     private void drawHUDs(Graphics2D g) {
-
+        long hudsStart = this.rendererProfiler.startInterval(); // Profiler
         long fps = this.rendererProfiler.getLastFps();
         double avgDrawMs = this.rendererProfiler.getAvgDrawMs();
 
+        g.setComposite(AlphaComposite.SrcOver); // With transparency
         this.systemHUD.draw(g,
                 fps,
                 String.format("%.0f", avgDrawMs) + " ms",
@@ -371,16 +367,26 @@ public class Renderer extends Canvas implements Runnable {
         if (spatialGridStats != null) {
             this.spatialGridHUD.draw(g, spatialGridStats.toObjectArray());
         }
+
+        this.rendererProfiler.stopInterval(
+                RendererProfiler.METRIC_DRAW_HUDS, hudsStart); // Profiler
     }
 
     private void drawStatics(Graphics2D g) {
+        long staticStart = this.rendererProfiler.startInterval(); // Profiler
+
         Map<String, Renderable> renderables = this.staticRenderables;
 
+        g.setComposite(AlphaComposite.SrcOver); // With transparency
         for (Renderable renderable : renderables.values()) {
+
             if (this.isVisible(renderable)) {
                 renderable.paint(g, this.currentFrame);
             }
         }
+
+        this.rendererProfiler.stopInterval(
+                RendererProfiler.METRIC_DRAW_STATIC, staticStart); // Profiler
     }
 
     private void drawScene(BufferStrategy bs, Set<String> visibleIds) {
@@ -390,78 +396,35 @@ public class Renderer extends Canvas implements Runnable {
             gg = (Graphics2D) bs.getDrawGraphics();
 
             try {
-                // 1) BACKGROUND
-
-                // region PROFILER L-3: Start Background
-                long bgStart = this.rendererProfiler.startInterval();
-
-                gg.setComposite(AlphaComposite.Src); // Opaque
                 this.drawTiledBackground(gg);
 
-                this.rendererProfiler.stopInterval(RendererProfiler.METRIC_DRAW_BACKGROUND, bgStart);
-                // endregion PROFILER L-3: Stop Background
-
-                // 2) WORLD TRANSLATE (due camera)
-
-                // region PROFILER L-3: Start Camera tranlate
-                long translateStart = this.rendererProfiler.startInterval();
-
-                gg.setComposite(AlphaComposite.SrcOver); // With transparency
-                AffineTransform defaultTransform = gg.getTransform();
-                gg.translate(-this.cameraX, -this.cameraY);
-
-                this.rendererProfiler.stopInterval(RendererProfiler.METRIC_TRANSLATE, translateStart);
-                // endregion PROFILER L-3: Stop Camera translate
-
-                // 3) STATICS
-
-                // region PROFILER L-3: Start Statics
-                long staticStart = this.rendererProfiler.startInterval();
+                AffineTransform defaultTransform = this.worldTranslate(gg);
 
                 this.drawStatics(gg);
-
-                this.rendererProfiler.stopInterval(RendererProfiler.METRIC_DRAW_STATIC, staticStart);
-                // endregion PROFILER L-3: Stop Statics
-
-                // 4) DYNAMICS
-
-                // region PROFILER L-3: Start Dynamics
-                long dynamicsStart = this.rendererProfiler.startInterval();
-
                 this.drawDynamics(gg, visibleIds);
 
-                this.rendererProfiler.stopInterval(RendererProfiler.METRIC_DRAW_DYNAMIC, dynamicsStart);
-                // endregion PROFILER L-3: Stop Dynamics
-
-                // 5) HUD (on top of everything)
-
-                // region PROFILER L-3: Start draw HUDs
-                long hudsStart = this.rendererProfiler.startInterval();
-
                 gg.setTransform(defaultTransform);
-                gg.setComposite(AlphaComposite.SrcOver); // With transparency
-                this.drawHUDs(gg);
 
-                this.rendererProfiler.stopInterval(RendererProfiler.METRIC_DRAW_HUDS, hudsStart);
-                // endregion PROFILER L-3: Stop draw HUDs
+                this.drawHUDs(gg);
 
             } finally {
                 gg.dispose();
             }
 
-            // region PROFILER L-3: Start show
+            // region Start show
             long showStart = this.rendererProfiler.startInterval();
-
             bs.show();
-            // Toolkit.getDefaultToolkit().sync();
-
             this.rendererProfiler.stopInterval(RendererProfiler.METRIC_SHOW, showStart);
-            // endregion PROFILER L-3: Stop show
+            // endregion
 
         } while (bs.contentsLost());
     }
 
     private void drawTiledBackground(Graphics2D g) {
+        long bgStart = this.rendererProfiler.startInterval(); // Profiler
+
+        g.setComposite(AlphaComposite.Src); // Opaque
+
         if (this.background == null || this.viewDimension == null)
             return;
 
@@ -490,6 +453,10 @@ public class Renderer extends Canvas implements Runnable {
                 g.drawImage(this.background, x, y, null);
             }
         }
+
+        this.rendererProfiler.stopInterval(
+                RendererProfiler.METRIC_DRAW_BACKGROUND, bgStart); // Profiler
+
     }
     // endregion
 
@@ -567,14 +534,6 @@ public class Renderer extends Canvas implements Runnable {
         return true;
     }
 
-    private void clearDynamicRenderables() {
-        System.out.println("Renderer: Clearing dynamic renderables (" + this.dynamicRenderables.size() + ")");
-        for (DynamicRenderable renderable : this.dynamicRenderables.values()) {
-            renderable.releaseRenderData();
-        }
-        this.dynamicRenderables.clear();
-    }
-
     // region setters (set***)
     private void setCameraClampLimits() {
         DoubleVector woldDim = this.view.getWorldDimension();
@@ -641,8 +600,6 @@ public class Renderer extends Canvas implements Runnable {
 
     private void updateDynamicRenderables(ArrayList<DynamicRenderDTO> renderDataList) {
         if (renderDataList == null || renderDataList.isEmpty()) {
-            System.out.println("Renderer: No dynamic render data, clearing dynamic renderables.");
-            this.clearDynamicRenderables();
             return; // ========= Nothing to render by the moment ... =========>>
         }
 
@@ -667,6 +624,18 @@ public class Renderer extends Canvas implements Runnable {
         }
     }
     // endregion
+
+    private AffineTransform worldTranslate(Graphics2D gg) {
+        long translateStart = this.rendererProfiler.startInterval(); // Profiler
+
+        AffineTransform defaultTransform = gg.getTransform();
+        gg.translate(-this.cameraX, -this.cameraY);
+
+        this.rendererProfiler.stopInterval(
+                RendererProfiler.METRIC_TRANSLATE, translateStart); // Profiler
+
+        return defaultTransform;
+    }
 
     private static double clamp(double value, double min, double max) {
         if (value < min) {
@@ -698,7 +667,7 @@ public class Renderer extends Canvas implements Runnable {
                 break; // ======= Engine stopped, exit render loop =======>>
             }
 
-            // region PROFILER L-1: Start Total Frame
+            // region Start Total Frame
             long totalFrameStart = this.rendererProfiler.startInterval();
 
             if (engineState == EngineState.ALIVE) { // TO-DO Pause condition
@@ -735,13 +704,12 @@ public class Renderer extends Canvas implements Runnable {
                 // region PROFILER L-2: Start Update Phase
                 long updatePhaseStart = this.rendererProfiler.startInterval();
 
-                ArrayList<DynamicRenderDTO> renderData = this.view.snapshotRenderData(visibleIds);
+                ArrayList<DynamicRenderDTO> newRenderData = this.view.snapshotDynamicsRenderData(visibleIds);
 
-                this.updateDynamicRenderables(renderData);
+                this.updateDynamicRenderables(newRenderData);
 
                 this.rendererProfiler.stopInterval(RendererProfiler.METRIC_UPDATE_PHASE, updatePhaseStart);
                 this.updateCamera();
-
                 // endregion PROFILER L-2: Stop Update Phase
 
                 // 3) Draw the scene with the current snapshot
@@ -764,7 +732,7 @@ public class Renderer extends Canvas implements Runnable {
             }
 
             this.rendererProfiler.stopInterval(RendererProfiler.METRIC_TOTAL_FRAME, totalFrameStart);
-            // endregion PROFILER L-1: Stop Total Frame
+            // endregion Stop Total Frame
         }
     }
     // endregion

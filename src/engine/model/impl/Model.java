@@ -448,23 +448,7 @@ public class Model implements BodyEventProcessor {
         return AbstractBody.getDeadQuantity();
     }
 
-    public ArrayList<BodyData> snapshotRenderData() {
-        this.scratchDynamicsBuffer.clear();
-
-        this.dynamicBodies.forEach((entityId, body) -> {
-            PhysicsValuesMDTO phyValues = body.getPhysicsValues();
-            if (phyValues == null) {
-                return;
-            }
-
-            BodyData bodyInfo = body.getBodyData();
-            this.scratchDynamicsBuffer.add(bodyInfo);
-        });
-
-        return this.scratchDynamicsBuffer;
-    }
-
-    public ArrayList<BodyData> snapshotRenderData(Set<String> inRegionIds) {
+    public ArrayList<BodyData> snapshotDynamicsRenderData(Set<String> inRegionIds) {
         this.scratchDynamicsBuffer.clear();
 
         for (String entityId : inRegionIds) {
@@ -473,7 +457,7 @@ public class Model implements BodyEventProcessor {
             if (body != null) {
                 PhysicsValuesMDTO phyValues = body.getPhysicsValues();
                 if (phyValues == null) {
-                    continue; // ===== No physics values (might be initializing) ====>
+                    throw new IllegalStateException("Physics values are null for body " + entityId);
                 }
 
                 BodyData bodyInfo = body.getBodyData();
@@ -608,13 +592,12 @@ public class Model implements BodyEventProcessor {
     // endregion Player Actions
 
     // region Query methods (query***)
-     public Set<String> queryEntitiesInRegion(
+    public Set<String> queryEntitiesInRegion(
             double minX, double maxX, double minY, double maxY,
             int[] scratchCellIdxs, Set<String> outEntityIds) {
 
         if (this.spatialGrid == null) {
-            outEntityIds.clear();
-            return outEntityIds;
+            throw new IllegalStateException("Model: SpatialGrid is not initialized");
         }
 
         this.spatialGrid.queryRegion(

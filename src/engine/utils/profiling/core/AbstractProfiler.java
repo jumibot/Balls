@@ -72,8 +72,8 @@ public abstract class AbstractProfiler {
      */
     public final void addMetric(String key, MetricType type, MetricFormatter formatter) {
         this.metricsMap.putIfAbsent(key, new Metric());
-        this.typesOfMetrics.put(key, type);
-        this.formatters.put(key, formatter);
+        this.typesOfMetrics.putIfAbsent(key, type);
+        this.formatters.putIfAbsent(key, formatter);
     }
 
     /**
@@ -98,10 +98,10 @@ public abstract class AbstractProfiler {
      * 
      * @return Map with all current metrics
      */
-    public final Map<String, MetricsDTO> getAllMetrics() {
-        Map<String, MetricsDTO> result = new HashMap<>();
+    public final Map<String, MetricDTO> getAllMetrics() {
+        Map<String, MetricDTO> result = new HashMap<>();
         for (Map.Entry<String, Metric> entry : metricsMap.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getMetrics());
+            result.put(entry.getKey(), entry.getValue().getMetric());
         }
         return result;
     }
@@ -118,7 +118,7 @@ public abstract class AbstractProfiler {
             return 0.0;
         }
 
-        MetricsDTO metrics = snapshot.getSectionMetrics(key);
+        MetricDTO metrics = snapshot.getSectionMetrics(key);
         return metrics != null ? metrics.avgMs : 0.0;
     }
 
@@ -137,10 +137,10 @@ public abstract class AbstractProfiler {
      * @param key metric name
      * @return ProfileMetricsDTO or null if metric not found
      */
-    public final MetricsDTO getMetric(String key) {
+    public final MetricDTO getMetric(String key) {
         Metric metric = metricsMap.get(key);
         if (metric != null) {
-            return metric.getMetrics();
+            return metric.getMetric();
         }
         return null;
     }
@@ -152,7 +152,7 @@ public abstract class AbstractProfiler {
      * @return formatted string or "N/A" if not available
      */
     public final String getMetricString(String key) {
-        MetricsDTO dto = getMetric(key);
+        MetricDTO dto = getMetric(key);
         if (dto == null) {
             return "N/A";
         }
@@ -239,7 +239,7 @@ public abstract class AbstractProfiler {
 
         double sum = 0.0;
         for (String key : metricKeys) {
-            MetricsDTO dto = snapshot.getSectionMetrics(key);
+            MetricDTO dto = snapshot.getSectionMetrics(key);
             if (dto != null) {
                 sum += dto.totalMs;
             }
@@ -250,9 +250,9 @@ public abstract class AbstractProfiler {
     // *** PRIVATE ***
 
     private ProfileSnapshot captureSnapshot() {
-        Map<String, MetricsDTO> sections = new HashMap<>();
+        Map<String, MetricDTO> sections = new HashMap<>();
         for (Map.Entry<String, Metric> entry : metricsMap.entrySet()) {
-            sections.put(entry.getKey(), entry.getValue().getMetrics());
+            sections.put(entry.getKey(), entry.getValue().getMetric());
         }
 
         return new ProfileSnapshot(null, sections);

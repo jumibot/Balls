@@ -36,7 +36,7 @@ final class Metric {
      * 
      * @return ProfileMetricsDTO snapshot
      */
-    public MetricsDTO getMetrics() {
+    public MetricDTO getMetric() {
         long samples = Math.max(this.periodSamples.sum(), instantValue > 0 ? 1 : 0);
         long total = this.periodNanos.sum();
         long max = this.maxNanos.get();
@@ -45,10 +45,10 @@ final class Metric {
             double totalMs = total / 1_000_000.0d;
             double avgMs = periodAvgNanos / 1_000_000.0d;
             double maxMs = max / 1_000_000.0d;
-            return new MetricsDTO(avgMs, maxMs, totalMs, samples);
+            return new MetricDTO(avgMs, maxMs, totalMs, samples);
         }
         
-        return new MetricsDTO(0.0, 0.0, 0.0, 0L);
+        return new MetricDTO(0.0, 0.0, 0.0, 0L);
     }
     
     /**

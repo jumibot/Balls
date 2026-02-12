@@ -4,13 +4,13 @@ package engine.utils.profiling.core;
  * Snapshot of profiling metrics for a specific section.
  * Used to display instrumentation data in HUD.
  */
-public class MetricsDTO {
+public class MetricDTO {
     public final double avgMs;
     public final double maxMs;
     public final double totalMs;
     public final long samples;
 
-    public MetricsDTO(double avgMs, double maxMs, double totalMs, long samples) {
+    public MetricDTO(double avgMs, double maxMs, double totalMs, long samples) {
         this.avgMs = avgMs;
         this.maxMs = maxMs;
         this.totalMs = totalMs;

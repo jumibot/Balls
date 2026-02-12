@@ -20,7 +20,7 @@ public interface MetricFormatter {
      * @param dto the metrics to format
      * @return formatted string representation
      */
-    String format(MetricsDTO dto);
+    String format(MetricDTO dto);
     
     // region Default Formatters
     

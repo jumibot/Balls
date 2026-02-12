@@ -261,20 +261,11 @@ public class View extends JFrame implements KeyListener, WindowFocusListener {
     // *** PROTECTED ***
 
     // region protected Getters (get***)
-    protected ArrayList<DynamicRenderDTO> snapshotRenderData() {
+    protected ArrayList<DynamicRenderDTO> snapshotDynamicsRenderData(Set<String> visibleIds) {
         if (this.controller == null) {
             throw new IllegalArgumentException("Controller not setted");
         }
-
-        return this.controller.snapshotRenderData();
-    }
-
-
-    protected ArrayList<DynamicRenderDTO> snapshotRenderData(Set<String> visibleIds) {
-        if (this.controller == null) {
-            throw new IllegalArgumentException("Controller not setted");
-        }
-        return this.controller.snapshotRenderData(visibleIds);
+        return this.controller.snapshotDynamicsRenderData(visibleIds);
     }
 
     protected EngineState getEngineState() {

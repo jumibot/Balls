@@ -31,7 +31,7 @@ public class Main {
 		DoubleVector worldDimension = new DoubleVector(40000, 40000);
 		// endregion
 		
-		int maxBodies = 2000;
+		int maxBodies = 1000;
 		int maxAsteroidCreationDelay = 3; // Used by AIBasicSpawner
 
 		ProjectAssets projectAssets = new ProjectAssets();

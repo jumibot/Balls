@@ -1,7 +1,7 @@
 package engine.controller.mappers;
 
 import engine.model.ports.ProfilingStatisticsDTO;
-import engine.utils.profiling.core.MetricsDTO;
+import engine.utils.profiling.core.MetricDTO;
 
 /**
  * ProfilingStatisticsMapper
@@ -43,7 +43,7 @@ public class ProfilingStatisticsMapper {
         }
 
         // DTO creation - show as ms/frame
-        MetricsDTO physicsDto = statistics.getMetric("PHYSICS_DTO");
+        MetricDTO physicsDto = statistics.getMetric("PHYSICS_DTO");
         if (physicsDto != null) {
             double msPerFrame = physicsDto.totalMs / fps;
             values[1] = String.format("%.0f", msPerFrame);
@@ -65,7 +65,7 @@ public class ProfilingStatisticsMapper {
         }
 
         // Spatial Grid
-        MetricsDTO spatialGrid = statistics.getMetric("SPATIAL_GRID");
+        MetricDTO spatialGrid = statistics.getMetric("SPATIAL_GRID");
         if (spatialGrid != null) {
             double msPerFrame = spatialGrid.totalMs / fps;
             values[3] = String.format("%.0f", msPerFrame);
@@ -81,7 +81,7 @@ public class ProfilingStatisticsMapper {
 
     // region Get
     private static double getMetricTotalMs(ProfilingStatisticsDTO statistics, String key) {
-        MetricsDTO metric = statistics.getMetric(key);
+        MetricDTO metric = statistics.getMetric(key);
         return metric != null ? metric.totalMs : 0;
     }
     // endregion Get

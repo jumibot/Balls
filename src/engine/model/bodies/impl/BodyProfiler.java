@@ -2,7 +2,7 @@ package engine.model.bodies.impl;
 
 import engine.utils.profiling.core.AbstractProfiler;
 import engine.utils.profiling.core.MetricType;
-import engine.utils.profiling.core.MetricsDTO;
+import engine.utils.profiling.core.MetricDTO;
 import engine.utils.profiling.core.ProfileSnapshot;
 
 /**
@@ -68,7 +68,7 @@ public class BodyProfiler extends AbstractProfiler {
         values[2] = eventsTotal > 0 ? String.format("%.0f", eventsTotal / fps) : "N/A";
 
         // Spatial Grid
-        MetricsDTO spatialGrid = snapshot.getSectionMetrics("SPATIAL_GRID");
+        MetricDTO spatialGrid = snapshot.getSectionMetrics("SPATIAL_GRID");
         values[3] = spatialGrid != null ? String.format("%.0f", spatialGrid.totalMs / fps) : "N/A";
 
         return values;
